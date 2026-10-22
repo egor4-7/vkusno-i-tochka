@@ -10,7 +10,7 @@
     body, html { width: 100%; height: 100%; overflow: hidden; position: fixed; }
     
     .container { display: flex; flex-direction: column; height: 100%; transition: background 0.3s ease; }
-    .screen-container { flex: 1; overflow-y: auto; padding: 20px; padding-top: max(50px, env(safe-area-inset-top)); padding-bottom: calc(100px + env(safe-area-inset-bottom)); scrollbar-width: none; }
+    .screen-container { flex: 1; overflow-y: auto; padding: 20px; padding-top: max(50px, env(safe-area-inset-top)); padding-bottom: calc(110px + env(safe-area-inset-bottom)); scrollbar-width: none; }
     .screen-container::-webkit-scrollbar { display: none; }
 
     .header-title { font-size: 30px; font-weight: bold; color: #ffffff; margin-bottom: 4px; }
@@ -47,24 +47,49 @@
 
     .action-icon-btn { background: #f97316; width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; color: #fff; }
 
-    /* Настоящий плавающий Glassmorphism таббар */
+    /* Настоящий плавающий Liquid Glass таббар с линзой */
     .floating-tab-bar { 
       position: fixed; 
       bottom: max(18px, env(safe-area-inset-bottom)); 
       left: 16px; 
       right: 16px; 
-      height: 64px; 
+      height: 68px; 
       display: flex; 
       justify-content: space-around; 
       align-items: center; 
-      border-radius: 32px; 
+      border-radius: 34px; 
       border: 1px solid rgba(255, 255, 255, 0.25); 
       backdrop-filter: blur(30px) saturate(180%); 
       -webkit-backdrop-filter: blur(30px) saturate(180%); 
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3); 
       z-index: 999; 
+      padding: 4px;
     }
+
+    /* Плавающая стеклянная линза */
+    .nav-lens-indicator {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      background: rgba(255, 255, 255, 0.28);
+      backdrop-filter: blur(25px) saturate(190%);
+      -webkit-backdrop-filter: blur(25px) saturate(190%);
+      border: 1.5px solid rgba(255, 255, 255, 0.65);
+      border-radius: 28px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), inset 0 0 12px rgba(255, 255, 255, 0.4);
+      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .nav-lens-indicator.pressing {
+      transform: scale(1.08) !important;
+      background: rgba(255, 255, 255, 0.38);
+    }
+
     .tab-item { 
+      position: relative;
+      z-index: 2;
       display: flex; 
       flex-direction: column; 
       align-items: center; 
@@ -74,9 +99,8 @@
       cursor: pointer; 
       background: transparent; 
       border: none; 
-      transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1); 
+      transition: color 0.2s ease;
     }
-    .tab-item:active { transform: scale(0.88); }
     .tab-text { font-size: 10px; margin-top: 3px; }
 
     /* Поля ввода и кнопки */
@@ -110,28 +134,29 @@
 <div class="container" id="appContainer">
   <div class="screen-container" id="screenContent"></div>
 
-  <!-- Настоящий плавающий бар -->
+  <!-- Плавающий бар с линзой -->
   <div class="floating-tab-bar" id="floatingTabBar">
-    <button class="tab-item" onclick="switchTab('home')">
+    <div class="nav-lens-indicator" id="navLens"></div>
+    <button class="tab-item" data-tab="home" onclick="switchTab('home')">
       <i class="fa-solid fa-house" id="icon-home" style="font-size: 18px;"></i>
       <span class="tab-text" id="text-home">Главная</span>
     </button>
-    <button class="tab-item" onclick="switchTab('shifts')">
+    <button class="tab-item" data-tab="shifts" onclick="switchTab('shifts')">
       <i class="fa-regular fa-calendar" id="icon-shifts" style="font-size: 18px;"></i>
       <span class="tab-text" id="text-shifts">Смены</span>
     </button>
-    <button class="tab-item" onclick="switchTab('employee')">
+    <button class="tab-item" data-tab="employee" onclick="switchTab('employee')">
       <i class="fa-regular fa-user" id="icon-employee" style="font-size: 18px;"></i>
       <span class="tab-text" id="text-employee">Сотрудник</span>
     </button>
-    <button class="tab-item" onclick="switchTab('settings')">
+    <button class="tab-item" data-tab="settings" onclick="switchTab('settings')">
       <i class="fa-solid fa-gear" id="icon-settings" style="font-size: 18px;"></i>
       <span class="tab-text" id="text-settings">Настройки</span>
     </button>
   </div>
 </div>
 
-<!-- Модалка редактирования смены -->
+<!-- Модалки -->
 <div class="modal-overlay" id="shiftModal">
   <div class="modal-content" id="modalBg">
     <h3 style="color: #fff; text-align: center; margin-bottom: 15px;">Редактировать смену</h3>
@@ -154,7 +179,6 @@
   </div>
 </div>
 
-<!-- Модалка перерыва -->
 <div class="modal-overlay" id="breakModal">
   <div class="modal-content" id="breakModalBg">
     <h3 style="color: #fff; text-align: center; margin-bottom: 15px;">Сколько времени вы были на перерыве?</h3>
@@ -166,7 +190,6 @@
   </div>
 </div>
 
-<!-- Модалка изменения часов -->
 <div class="modal-overlay" id="hoursModal">
   <div class="modal-content" id="hoursModalBg">
     <h3 style="color: #fff; text-align: center; margin-bottom: 10px;">Изменить / сбросить часы</h3>
@@ -247,6 +270,21 @@
     return { bg, cardBg, text: textCol };
   }
 
+  // Обновление положения плавающей линзы на таббаре
+  function updateNavLens(tabName) {
+    const activeBtn = document.querySelector(`.tab-item[data-tab="${tabName}"]`);
+    const tabBar = document.getElementById('floatingTabBar');
+    const lens = document.getElementById('navLens');
+    if (!activeBtn || !tabBar || !lens) return;
+
+    const btnRect = activeBtn.getBoundingClientRect();
+    const barRect = tabBar.getBoundingClientRect();
+
+    const leftOffset = btnRect.left - barRect.left - 4;
+    lens.style.transform = `translateX(${leftOffset}px)`;
+    lens.style.width = `${btnRect.width}px`;
+  }
+
   function render() {
     const colors = getThemeColors();
     document.getElementById('appContainer').style.backgroundColor = colors.bg;
@@ -254,13 +292,22 @@
     const tabBar = document.getElementById('floatingTabBar');
     tabBar.style.backgroundColor = colors.cardBg;
 
-    ['home', 'shifts', 'employee', 'settings'].forEach(tab => {
+    document.querySelectorAll('.tab-item').forEach(btn => {
+      const tab = btn.getAttribute('data-tab');
       const isActive = activeTab === tab;
       const itemColor = opacity > 0.5 ? '#111111' : (isActive ? '#ffffff' : 'rgba(255,255,255,0.6)');
-      document.getElementById(`icon-${tab}`).style.color = itemColor;
-      document.getElementById(`text-${tab}`).style.color = itemColor;
-      document.getElementById(`text-${tab}`).style.fontWeight = isActive ? '700' : '500';
+      
+      const icon = btn.querySelector('i');
+      const text = btn.querySelector('.tab-text');
+      if (icon) icon.style.color = itemColor;
+      if (text) {
+        text.style.color = itemColor;
+        text.style.fontWeight = isActive ? '700' : '500';
+      }
     });
+
+    // Двигаем линзу под активную вкладку
+    setTimeout(() => updateNavLens(activeTab), 10);
 
     const screen = document.getElementById('screenContent');
     screen.innerHTML = '';
@@ -418,6 +465,41 @@
     render();
   }
 
+  // Интерактив свайпа/перетаскивания линзы по бару
+  const tabBar = document.getElementById('floatingTabBar');
+  const lens = document.getElementById('navLens');
+  let isNavPressing = false;
+
+  function handleNavMove(clientX) {
+    if (!isNavPressing) return;
+    document.querySelectorAll('.tab-item').forEach(btn => {
+      const rect = btn.getBoundingClientRect();
+      if (clientX >= rect.left && clientX <= rect.right) {
+        const tab = btn.getAttribute('data-tab');
+        if (activeTab !== tab) {
+          activeTab = tab;
+          render();
+        }
+      }
+    });
+  }
+
+  tabBar.addEventListener('touchstart', (e) => {
+    isNavPressing = true;
+    lens.classList.add('pressing');
+    handleNavMove(e.touches[0].clientX);
+  }, { passive: true });
+
+  tabBar.addEventListener('touchmove', (e) => {
+    handleNavMove(e.touches[0].clientX);
+  }, { passive: true });
+
+  tabBar.addEventListener('touchend', () => {
+    isNavPressing = false;
+    lens.classList.remove('pressing');
+    render();
+  });
+
   function setTheme(t) {
     theme = t;
     localStorage.setItem('app_theme', t);
@@ -482,7 +564,6 @@
     render();
   }
 
-  // Модальные логики
   let selectedShiftId = null;
   let editType = 'work';
   let startH = '09', startM = '00', endH = '18', endM = '00', editSt = 'K';
@@ -611,7 +692,7 @@
     document.getElementById(id).style.display = 'none';
   }
 
-  // Запуск приложения
+  // Первичный запуск
   render();
 </script>
 
