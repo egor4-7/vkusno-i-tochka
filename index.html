@@ -6,7 +6,16 @@
   <title>Расписание — Вкусно и точка</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      -webkit-tap-highlight-color: transparent; 
+      user-select: none; 
+      -webkit-user-select: none; 
+      -webkit-touch-callout: none; 
+    }
     body, html { width: 100%; height: 100%; overflow: hidden; position: fixed; }
     
     .container { display: flex; flex-direction: column; height: 100%; transition: background 0.3s ease; }
@@ -47,7 +56,7 @@
 
     .action-icon-btn { background: #f97316; width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; color: #fff; }
 
-    /* Настоящий плавающий Liquid Glass таббар с линзой */
+    /* Плавающий бар с линзой-лупой */
     .floating-tab-bar { 
       position: fixed; 
       bottom: max(18px, env(safe-area-inset-bottom)); 
@@ -64,27 +73,33 @@
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3); 
       z-index: 999; 
       padding: 4px;
+      touch-action: none;
     }
 
-    /* Плавающая стеклянная линза */
+    /* Линза-лупа */
     .nav-lens-indicator {
       position: absolute;
       top: 4px;
-      left: 4px;
+      left: 0;
       height: calc(100% - 8px);
-      background: rgba(255, 255, 255, 0.28);
-      backdrop-filter: blur(25px) saturate(190%);
-      -webkit-backdrop-filter: blur(25px) saturate(190%);
-      border: 1.5px solid rgba(255, 255, 255, 0.65);
+      background: rgba(255, 255, 255, 0.32);
+      backdrop-filter: blur(20px) saturate(200%);
+      -webkit-backdrop-filter: blur(20px) saturate(200%);
+      border: 1.5px solid rgba(255, 255, 255, 0.75);
       border-radius: 28px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), inset 0 0 12px rgba(255, 255, 255, 0.4);
-      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4), inset 0 0 14px rgba(255, 255, 255, 0.5);
+      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s, box-shadow 0.2s;
       pointer-events: none;
       z-index: 1;
+      will-change: transform, width;
     }
+
+    /* Эффект линзы-лупы при зажатии и перетаскивании */
     .nav-lens-indicator.pressing {
-      transform: scale(1.08) !important;
-      background: rgba(255, 255, 255, 0.38);
+      transform: translateY(-2px) scale(1.12) !important;
+      background: rgba(255, 255, 255, 0.42);
+      border-color: #ffffff;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), inset 0 0 18px rgba(255, 255, 255, 0.8);
     }
 
     .tab-item { 
@@ -99,9 +114,11 @@
       cursor: pointer; 
       background: transparent; 
       border: none; 
-      transition: color 0.2s ease;
+      transition: color 0.2s ease, transform 0.2s ease;
+      touch-action: none;
     }
-    .tab-text { font-size: 10px; margin-top: 3px; }
+    .tab-text { font-size: 10px; margin-top: 3px; pointer-events: none; }
+    .tab-item i { pointer-events: none; }
 
     /* Поля ввода и кнопки */
     .input-field { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; }
@@ -134,7 +151,7 @@
 <div class="container" id="appContainer">
   <div class="screen-container" id="screenContent"></div>
 
-  <!-- Плавающий бар с линзой -->
+  <!-- Плавающий бар с лупой -->
   <div class="floating-tab-bar" id="floatingTabBar">
     <div class="nav-lens-indicator" id="navLens"></div>
     <button class="tab-item" data-tab="home" onclick="switchTab('home')">
@@ -156,7 +173,7 @@
   </div>
 </div>
 
-<!-- Модалки -->
+<!-- Модальные окна -->
 <div class="modal-overlay" id="shiftModal">
   <div class="modal-content" id="modalBg">
     <h3 style="color: #fff; text-align: center; margin-bottom: 15px;">Редактировать смену</h3>
@@ -270,7 +287,7 @@
     return { bg, cardBg, text: textCol };
   }
 
-  // Обновление положения плавающей линзы на таббаре
+  // Настройка позиции лупы-линзы
   function updateNavLens(tabName) {
     const activeBtn = document.querySelector(`.tab-item[data-tab="${tabName}"]`);
     const tabBar = document.getElementById('floatingTabBar');
@@ -280,7 +297,7 @@
     const btnRect = activeBtn.getBoundingClientRect();
     const barRect = tabBar.getBoundingClientRect();
 
-    const leftOffset = btnRect.left - barRect.left - 4;
+    const leftOffset = btnRect.left - barRect.left;
     lens.style.transform = `translateX(${leftOffset}px)`;
     lens.style.width = `${btnRect.width}px`;
   }
@@ -306,7 +323,6 @@
       }
     });
 
-    // Двигаем линзу под активную вкладку
     setTimeout(() => updateNavLens(activeTab), 10);
 
     const screen = document.getElementById('screenContent');
@@ -465,7 +481,7 @@
     render();
   }
 
-  // Интерактив свайпа/перетаскивания линзы по бару
+  // Взаимодействие с таббаром: магнит + лупа + защита от контекстного меню
   const tabBar = document.getElementById('floatingTabBar');
   const lens = document.getElementById('navLens');
   let isNavPressing = false;
@@ -498,6 +514,11 @@
     isNavPressing = false;
     lens.classList.remove('pressing');
     render();
+  });
+
+  tabBar.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    return false;
   });
 
   function setTheme(t) {
@@ -692,7 +713,6 @@
     document.getElementById(id).style.display = 'none';
   }
 
-  // Первичный запуск
   render();
 </script>
 
