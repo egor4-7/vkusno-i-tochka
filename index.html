@@ -249,7 +249,38 @@
       50% { transform: scale(1.15); box-shadow: 0 5px 12px rgba(239, 68, 68, 0.9); }
     }
 
-    .input-field { width: 100%; max-width: 100%; box-sizing: border-box; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; font-size: calc(14px * var(--f-mult)); }
+    .input-field { 
+      width: 100%; 
+      max-width: 100%; 
+      box-sizing: border-box; 
+      padding: 12px; 
+      border-radius: 10px; 
+      margin-bottom: 10px; 
+      font-weight: 600; 
+      border: none; 
+      outline: none; 
+      font-size: calc(14px * var(--f-mult)); 
+      text-align: center !important; 
+    }
+
+    /* ИСПРАВЛЕНИЕ ВЫРАВНИВАНИЯ ДАТ В iOS SAFARI */
+    input[type="date"] {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      display: block;
+      width: 100%;
+      text-align: center !important;
+      text-align-last: center !important;
+      padding: 12px 14px;
+      box-sizing: border-box;
+    }
+
+    input[type="date"]::-webkit-date-and-time-value {
+      text-align: center !important;
+      width: 100%;
+    }
+
     .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: calc(15px * var(--f-mult)); text-align: center; box-shadow: 0 4px 15px rgba(249,115,22,0.4); }
     
     .logout-button { background: #2563eb; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); box-shadow: 0 4px 15px rgba(37,99,235,0.4); }
@@ -477,14 +508,14 @@
 </div>
 
 <script>
-  const APP_VERSION = '7.6';
-  const APP_CHANGELOG = 'Окончательно устранена обрезка фона на всех экранах и в баре Дней Рождения.';
+  const APP_VERSION = '7.7';
+  const APP_CHANGELOG = 'Идеальное центрирование и выравнивание отступов для всех полей выбора дат в iOS Safari.';
 
   // Регистрация Service Worker для офлайн-режима
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       const swCode = `
-        const CACHE_NAME = 'vkusno-schedule-v76';
+        const CACHE_NAME = 'vkusno-schedule-v77';
         self.addEventListener('install', e => {
           self.skipWaiting();
         });
@@ -781,9 +812,9 @@
         </div>
         ${s.type === 'work' ? `
           <div class="row-between" style="gap: 6px;">
-            <input type="time" value="${s.start || '09:00'}" style="flex:1; padding:6px; border-radius:6px; border:none; background:rgba(255,255,255,0.25); color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].start = this.value">
+            <input type="time" value="${s.start || '09:00'}" style="flex:1; padding:6px; border-radius:6px; border:none; background:rgba(255,255,255,0.25); color:#fff; font-weight:bold; text-align:center;" onchange="tempScannedShifts[${idx}].start = this.value">
             <span style="color:#fff;">—</span>
-            <input type="time" value="${s.end || '18:00'}" style="flex:1; padding:6px; border-radius:6px; border:none; background:rgba(255,255,255,0.25); color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].end = this.value">
+            <input type="time" value="${s.end || '18:00'}" style="flex:1; padding:6px; border-radius:6px; border:none; background:rgba(255,255,255,0.25); color:#fff; font-weight:bold; text-align:center;" onchange="tempScannedShifts[${idx}].end = this.value">
             <select style="padding:6px; border-radius:6px; border:none; background:#f97316; color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].station = this.value">
               ${stationsList.map(st => `<option value="${st.code}" ${s.station===st.code?'selected':''}>${st.code}</option>`).join('')}
             </select>
@@ -986,7 +1017,7 @@
     render();
   }
 
-  // Отправка запроса на обмен по выбранному ФИ с проверкой накладывания и наличия смен у коллегии
+  // Отправка запроса на обмен по выбранному ФИ с проверкой накладывания и наличия смен у коллеги
   function sendSwapRequest() {
     const targetSelect = document.getElementById('inpSwapTargetSelect');
     if (!targetSelect || !targetSelect.value) {
@@ -1010,7 +1041,7 @@
       return;
     }
 
-    // ПРОВЕРКА: Проверяем график коллегии — нет ли у него смены на эту же дату
+    // ПРОВЕРКА: Проверяем график коллеги — нет ли у него смены на эту же дату
     const targetShifts = JSON.parse(localStorage.getItem(`app_shifts_${targetCode}`)) || [];
     const targetDayShift = targetShifts.find(s => s.dateString === chosenShift.dateString);
 
@@ -1407,7 +1438,7 @@
           </div>
         `;
 
-        // Блок настройки дня рождения с симметричным полем
+        // Блок настройки дня рождения с ровным симметричным полем ввода
         html += `
           <div class="card" style="margin-top: 14px;">
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 6px;">Дата рождения</div>
@@ -1615,7 +1646,6 @@
           ${theme==='bw'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
         </div>
 
-        <!-- ВОЗВРАЩЕННЫЙ БЛОК ПРОЗРАЧНОСТИ -->
         <div class="card" style="margin-top: 10px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Прозрачность карточек (%)</div>
           <div class="row-between">
@@ -1638,8 +1668,8 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Устранена обрезка фона на всех экранах и в виджетах.</li>
-            <li>Полный контроль темы оформления и процента прозрачности.</li>
+            <li>Выровнены по центру все поля выбора дат на устройствах iOS/Safari.</li>
+            <li>Полностью устранена обрезка тем фона.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
