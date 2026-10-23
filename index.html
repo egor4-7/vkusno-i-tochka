@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Расписание — Вкусно и точка</title>
+  <!-- PWA Manifest через data URI для работы в офлайне без лишних файлов -->
+  <link rel="manifest" href='data:application/json;charset=utf-8,{"name":"Расписание — Вкусно и точка","short_name":"Вкусно и точка","start_url":".","display":"standalone","background_color":"#2d4a35","theme_color":"#2d4a35","icons":[{"src":"https://vkusnoitochka.ru/favicon.ico","sizes":"192x192","type":"image/x-icon"}]}'>
+  <meta name="theme-color" content="#2d4a35">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Tesseract.js для OCR сканирования фото графиков -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
@@ -448,12 +451,39 @@
 </div>
 
 <script>
-  const APP_VERSION = '6.9';
-  const APP_CHANGELOG = 'Удалены все тестовые дни рождения по умолчанию из справочника сотрудников.';
+  const APP_VERSION = '7.0';
+  const APP_CHANGELOG = 'Добавлен полноценный офлайн-режим (Service Worker и кэширование PWA).';
 
-  if (!localStorage.getItem('app_v69_cleaned')) {
+  // Регистрация Service Worker для офлайн-режима прямо из Blob (без создания отдельных файлов)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      const swCode = `
+        const CACHE_NAME = 'vkusno-schedule-v7';
+        self.addEventListener('install', e => {
+          self.skipWaiting();
+        });
+        self.addEventListener('activate', e => {
+          e.waitUntil(self.clients.claim());
+        });
+        self.addEventListener('fetch', e => {
+          e.respondWith(
+            fetch(e.request).then(res => {
+              const resClone = res.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(e.request, resClone));
+              return res;
+            }).catch(() => caches.match(e.request))
+          );
+        });
+      `;
+      const blob = new Blob([swCode], { type: 'text/javascript' });
+      const swUrl = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration error:', err));
+    });
+  }
+
+  if (!localStorage.getItem('app_v70_cleaned')) {
     localStorage.removeItem('app_swap_request');
-    localStorage.setItem('app_v69_cleaned', 'true');
+    localStorage.setItem('app_v70_cleaned', 'true');
   }
 
   let activeTab = 'home';
@@ -484,7 +514,6 @@
     let birthdays = JSON.parse(localStorage.getItem('app_employee_birthdays')) || {};
     let all = { ...knownEmployees, ...custom };
     
-    // Переопределяем дни рождения из пользовательских настроек, если они заданы
     Object.keys(birthdays).forEach(code => {
       if (all[code]) {
         all[code].birth = birthdays[code];
@@ -1491,7 +1520,7 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Очищены тестовые дни рождения по умолчанию.</li>
+            <li>Добавлен Service Worker для полноценного офлайн-режима.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
