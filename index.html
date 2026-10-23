@@ -399,8 +399,8 @@
 </div>
 
 <script>
-  const APP_VERSION = '4.5';
-  const APP_CHANGELOG = 'Исправлена работа кнопки начала смены и добавлено модальное окно подтверждения раннего старта.';
+  const APP_VERSION = '4.6';
+  const APP_CHANGELOG = 'Добавлена поддержка системных уведомлений (бейджей) на иконке приложения при наличии обновлений.';
 
   let activeTab = 'home';
   let theme = localStorage.getItem('app_theme') || 'green';
@@ -475,6 +475,11 @@
             updateAvailable = true;
             const badge = document.getElementById('updateBadge');
             if (badge) badge.style.display = 'flex';
+            
+            // Включаем системный бейдж на иконке рабочего стола (если поддерживается браузером)
+            if ('setAppBadge' in navigator) {
+              navigator.setAppBadge(1).catch(() => {});
+            }
           }
         }
       })
@@ -534,6 +539,10 @@
   }
 
   function startAppUpdateSimulation() {
+    if ('clearAppBadge' in navigator) {
+      navigator.clearAppBadge().catch(() => {});
+    }
+
     const modal = document.getElementById('customModal');
     document.getElementById('customModalIcon').innerHTML = '<i class="fa-solid fa-gear spinner" style="color: #3b82f6; font-size: 38px;"></i>';
     document.getElementById('customModalTitle').innerText = 'Установка обновления...';
@@ -581,11 +590,13 @@
             updateAvailable = true;
             const badge = document.getElementById('updateBadge');
             if (badge) badge.style.display = 'flex';
+            if ('setAppBadge' in navigator) navigator.setAppBadge(1).catch(() => {});
             showUpdateModal(remoteVersion, remoteChangelog);
           } else {
             updateAvailable = false;
             const badge = document.getElementById('updateBadge');
             if (badge) badge.style.display = 'none';
+            if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {});
             showCustomAlert('Актуально', `У вас установлена самая последняя версия (v${APP_VERSION}).`, `
               <div class="custom-success-badge">
                 <svg class="custom-checkmark" viewBox="0 0 52 52">
@@ -995,8 +1006,7 @@
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Что нового (v${APP_VERSION})</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); line-height: 1.6; opacity: 0.9;">
-            <li>Исправлена ошибка кнопки начала смены и предупреждений.</li>
-            <li>Корректное определение сегодняшней даты без сдвигов по времени.</li>
+            <li>Добавлена поддержка системных уведомлений (бейджей) на иконке рабочего стола.</li>
           </ul>
         </div>
 
