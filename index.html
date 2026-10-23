@@ -10,6 +10,8 @@
   <style>
     :root {
       --f-mult: 1;
+      --app-bg: #2d4a35;
+      --card-bg: rgba(20, 35, 25, 0.82);
     }
 
     * { 
@@ -32,7 +34,7 @@
 
     body, html { width: 100%; height: 100%; overflow: hidden; position: fixed; }
     
-    .container { display: flex; flex-direction: column; height: 100%; transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    .container { display: flex; flex-direction: column; height: 100%; background: var(--app-bg); transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
     .screen-container { flex: 1; overflow-y: auto; padding: 20px; padding-top: max(50px, env(safe-area-inset-top)); padding-bottom: calc(110px + env(safe-area-inset-bottom)); scrollbar-width: none; }
     .screen-container::-webkit-scrollbar { display: none; }
 
@@ -59,8 +61,8 @@
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
-    /* Улучшена контрастность карточек для максимальной четкости */
-    .card { border-radius: 18px; padding: 18px; margin-bottom: 14px; background: rgba(20, 35, 25, 0.82); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); color: #ffffff; }
+    /* Карточки используют динамическую тему через CSS-переменную */
+    .card { border-radius: 18px; padding: 18px; margin-bottom: 14px; background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); color: #ffffff; }
     .card-subtitle { font-size: calc(11px * var(--f-mult)); font-weight: 700; letter-spacing: 0.5px; opacity: 0.9; color: #cbd5e1; }
     .card-main-text { font-size: calc(17px * var(--f-mult)); font-weight: 700; margin-top: 4px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
     .card-time-text { font-size: calc(15px * var(--f-mult)); font-weight: 600; margin-top: 2px; color: #e2e8f0; }
@@ -78,7 +80,7 @@
       margin-bottom: 12px;
       display: flex;
       flex-direction: column;
-      background: rgba(20, 35, 25, 0.85);
+      background: var(--card-bg);
       border: 1px solid rgba(255, 255, 255, 0.4);
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35), inset 0 1px 3px rgba(255, 255, 255, 0.5);
       backdrop-filter: blur(35px) saturate(200%);
@@ -117,7 +119,7 @@
       100% { opacity: 0; transform: scale(0.1); }
     }
 
-    .shift-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(20, 35, 25, 0.82); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
+    .shift-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
     .day-text { font-size: calc(16px * var(--f-mult)); font-weight: 700; color: #fff; }
     .date-text { font-size: calc(12px * var(--f-mult)); margin-top: 2px; color: #cbd5e1; font-weight: 500; }
     
@@ -145,7 +147,7 @@
       align-items: center; 
       border-radius: 34px; 
       border: 1px solid rgba(255, 255, 255, 0.35); 
-      background: rgba(20, 35, 25, 0.88);
+      background: var(--card-bg);
       backdrop-filter: blur(35px) saturate(180%); 
       -webkit-backdrop-filter: blur(35px) saturate(180%); 
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5); 
@@ -290,13 +292,13 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .spinner { animation: spin 1s linear infinite; display: inline-block; }
 
-    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(20, 35, 25, 0.82); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
+    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
     .color-circle { width: 24px; height: 24px; border-radius: 12px; margin-right: 12px; }
     .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; font-weight: 600; font-size: calc(12px * var(--f-mult)); color: #fff; }
 
     /* Модалки в стиле VisionOS */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    .modal-content { border-radius: 24px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.5); transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(20, 35, 25, 0.95); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); color: #fff; }
+    .modal-content { border-radius: 24px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.5); transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: var(--card-bg); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); color: #fff; }
     
     .type-toggle-btn { flex: 1; padding: 9px 4px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.3); margin: 0 2px; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; font-size: calc(11px * var(--f-mult)); cursor: pointer; }
     
@@ -446,12 +448,12 @@
 </div>
 
 <script>
-  const APP_VERSION = '6.2';
-  const APP_CHANGELOG = 'Связь удаления профиля с экраном входа и проверка статуса «Сотрудник не найден, возможно удален».';
+  const APP_VERSION = '6.3';
+  const APP_CHANGELOG = 'Исправлена динамическая смена тем оформления карточек и блоков.';
 
-  if (!localStorage.getItem('app_v62_cleaned')) {
+  if (!localStorage.getItem('app_v63_cleaned')) {
     localStorage.removeItem('app_swap_request');
-    localStorage.setItem('app_v62_cleaned', 'true');
+    localStorage.setItem('app_v63_cleaned', 'true');
   }
 
   let activeTab = 'home';
@@ -629,7 +631,7 @@
       <button class="modal-save-btn" style="margin: 0; background: #22c55e; width: 100%;" onclick="closeModal('customModal')">Понятно</button>
     `;
     const colors = getThemeColors();
-    document.getElementById('customModalBg').style.backgroundColor = colors.bg;
+    document.getElementById('customModalBg').style.backgroundColor = colors.cardBg;
     modal.style.display = 'flex';
     setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
   }
@@ -646,7 +648,7 @@
     `;
     pendingConfirmCallback = onConfirm;
     const colors = getThemeColors();
-    document.getElementById('customModalBg').style.backgroundColor = colors.bg;
+    document.getElementById('customModalBg').style.backgroundColor = colors.cardBg;
     modal.style.display = 'flex';
     setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
   }
@@ -722,7 +724,7 @@
 
     const modal = document.getElementById('scanEditModal');
     const colors = getThemeColors();
-    document.getElementById('scanEditModalBg').style.backgroundColor = colors.bg;
+    document.getElementById('scanEditModalBg').style.backgroundColor = colors.cardBg;
     modal.style.display = 'flex';
     setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
   }
@@ -812,7 +814,6 @@
       return;
     }
 
-    // Удаляем из списка удаленных при повторной регистрации
     let deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
     deletedCodes = deletedCodes.filter(c => c !== code);
     localStorage.setItem('app_deleted_codes', JSON.stringify(deletedCodes));
@@ -986,12 +987,17 @@
   }
 
   function getThemeColors() {
-    const textCol = opacity > 0.5 ? '#111111' : '#ffffff';
     let bg = '#2d4a35';
-    if (theme === 'orange') bg = '#4a352d';
-    if (theme === 'bw') bg = opacity === 1.0 ? '#000000' : '#121212';
-    const cardBg = opacity === 1.0 && theme === 'bw' ? '#ffffff' : `rgba(20, 35, 25, ${Math.max(0.8, opacity)})`;
-    return { bg, cardBg, text: textCol };
+    let cardBg = `rgba(20, 35, 25, ${Math.max(0.85, opacity)})`;
+
+    if (theme === 'orange') {
+      bg = '#4a352d';
+      cardBg = `rgba(45, 30, 25, ${Math.max(0.85, opacity)})`;
+    } else if (theme === 'bw') {
+      bg = opacity === 1.0 ? '#000000' : '#121212';
+      cardBg = opacity === 1.0 ? '#1e1e1e' : `rgba(30, 30, 30, ${Math.max(0.85, opacity)})`;
+    }
+    return { bg, cardBg };
   }
 
   function updateNavLens(tabName, scaleUp = false) {
@@ -1022,15 +1028,13 @@
 
   function render() {
     const colors = getThemeColors();
-    document.getElementById('appContainer').style.backgroundColor = colors.bg;
-    
-    const tabBar = document.getElementById('floatingTabBar');
-    tabBar.style.backgroundColor = colors.cardBg;
+    document.documentElement.style.setProperty('--app-bg', colors.bg);
+    document.documentElement.style.setProperty('--card-bg', colors.cardBg);
 
     document.querySelectorAll('.tab-item').forEach(btn => {
       const tab = btn.getAttribute('data-tab');
       const isActive = activeTab === tab;
-      const itemColor = opacity > 0.5 ? '#111111' : (isActive ? '#ffffff' : 'rgba(255,255,255,0.7)');
+      const itemColor = opacity > 0.5 && theme === 'bw' ? '#ffffff' : (isActive ? '#ffffff' : 'rgba(255,255,255,0.7)');
       const icon = btn.querySelector('i');
       const text = btn.querySelector('.tab-text');
       if (icon) icon.style.color = itemColor;
@@ -1336,8 +1340,8 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Связь удаления профиля с сообщением при входе.</li>
-            <li>Корректная обработка обмена сменами.</li>
+            <li>Динамическое обновление тем карточек.</li>
+            <li>Исправление несоответствия цветов фона и блоков.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
@@ -1456,7 +1460,7 @@
     modal.style.display = 'flex';
     setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
     const colors = getThemeColors();
-    document.getElementById('modalBg').style.backgroundColor = colors.bg;
+    document.getElementById('modalBg').style.backgroundColor = colors.cardBg;
     updateShiftModalUI();
 
     setTimeout(() => {
@@ -1536,7 +1540,7 @@
     modal.style.display = 'flex';
     setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
     const colors = getThemeColors();
-    document.getElementById('breakModalBg').style.backgroundColor = colors.bg;
+    document.getElementById('breakModalBg').style.backgroundColor = colors.cardBg;
   }
 
   function finishShiftWithBreak(breakMins) {
@@ -1564,7 +1568,7 @@
     modal.style.display = 'flex';
     setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
     const colors = getThemeColors();
-    document.getElementById('hoursModalBg').style.backgroundColor = colors.bg;
+    document.getElementById('hoursModalBg').style.backgroundColor = colors.cardBg;
     document.getElementById('currentHoursText').innerText = `Текущее значение: ${workedHours} ч.`;
   }
 
