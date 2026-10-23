@@ -39,6 +39,40 @@
     .site-button { background: #f97316; border-radius: 12px; padding: 12px; display: flex; justify-content: center; align-items: center; margin-top: 14px; cursor: pointer; text-decoration: none; color: #fff; font-weight: 600; font-size: 14px; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .site-button:active { transform: scale(0.97); }
 
+    /* Эмблема с жидким стеклом и реакцией на палец */
+    .logo-emblem-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      padding: 18px 22px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(35px) saturate(200%);
+      -webkit-backdrop-filter: blur(35px) saturate(200%);
+      cursor: pointer;
+      touch-action: none;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .logo-emblem-card:active { transform: scale(0.98); }
+
+    .logo-touch-glow {
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(249,115,22,0.45) 45%, transparent 75%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      mix-blend-mode: overlay;
+      z-index: 2;
+    }
+
     .shift-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .shift-card:active { transform: scale(0.98); }
     .day-text { font-size: 16px; font-weight: 700; }
@@ -137,6 +171,9 @@
 
     .restore-button { background: #059669; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .restore-button:active { transform: scale(0.97); }
+
+    .calendar-button { background: #0891b2; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .calendar-button:active { transform: scale(0.97); }
 
     .update-button { background: #7c3aed; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .update-button:active { transform: scale(0.97); }
@@ -372,8 +409,8 @@
 </div>
 
 <script>
-  const APP_VERSION = '3.3';
-  const APP_CHANGELOG = 'Добавлена авторская анимированная векторная галочка в стиле Liquid Glass, плавный прогресс-бар загрузки обновления и сочные визуальные эффекты.';
+  const APP_VERSION = '3.5';
+  const APP_CHANGELOG = 'Добавлена интерактивная эмблема «Вкусно — и точка» на главный экран с эффектом жидкого стекла и световым бликом, реагирующим на касание пальца.';
 
   let activeTab = 'home';
   let theme = localStorage.getItem('app_theme') || 'green';
@@ -478,7 +515,6 @@
     }, 100);
 
     setTimeout(() => {
-      // Использование нашей авторской кастомной векторной галочки
       document.getElementById('customModalIcon').innerHTML = `
         <div class="custom-success-badge">
           <svg class="custom-checkmark" viewBox="0 0 52 52">
@@ -517,6 +553,72 @@
       .catch(() => {
         showCustomAlert('Ошибка сети', 'Не удалось проверить обновление. Проверьте интернет.', '⚠️');
       });
+  }
+
+  function exportShiftsToCalendar() {
+    if (!isLoggedIn) {
+      showCustomAlert('Требуется вход', 'Сначала авторизуйтесь во вкладке «Сотрудник».', '🔒');
+      return;
+    }
+    const workShifts = shifts.filter(s => s.type === 'work' && s.start && s.end);
+    if (workShifts.length === 0) {
+      showCustomAlert('Нет смен', 'У вас нет назначенных рабочих смен на эту неделю.', '📅');
+      return;
+    }
+
+    let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Vkusno i Tochka//Schedule//RU\n";
+    workShifts.forEach(s => {
+      const dateParts = s.dateString.split('-');
+      const [sh, sm] = s.start.split(':');
+      const [eh, em] = s.end.split(':');
+      const dtStart = `${dateParts[0]}${dateParts[1]}${dateParts[2]}T${sh}${sm}00`;
+      const dtEnd = `${dateParts[0]}${dateParts[1]}${dateParts[2]}T${eh}${em}00`;
+
+      icsContent += "BEGIN:VEVENT\n";
+      icsContent += `SUMMARY:Смена Вкусно — и точка (${s.station})\n`;
+      icsContent += `DTSTART:${dtStart}\n`;
+      icsContent += `DTEND:${dtEnd}\n`;
+      icsContent += `DESCRIPTION:Рабочая смена на станции ${s.station}\n`;
+      icsContent += "END:VEVENT\n";
+    });
+    icsContent += "END:VCALENDAR";
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'vkusno-shifts.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showCustomAlert('Успешно', 'Файл календаря скачан. Откройте его, чтобы добавить смены в ваш телефон!', '✅');
+  }
+
+  function initLogoTouchEffect() {
+    const card = document.getElementById('logoEmblemCard');
+    const glow = document.getElementById('logoTouchGlow');
+    if (!card || !glow) return;
+
+    const handleMove = (clientX, clientY) => {
+      const rect = card.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      glow.style.left = `${x}px`;
+      glow.style.top = `${y}px`;
+      glow.style.opacity = '1';
+    };
+
+    card.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+    card.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+    card.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      handleMove(touch.clientX, touch.clientY);
+    }, { passive: true });
+    card.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      handleMove(touch.clientX, touch.clientY);
+    }, { passive: true });
+    card.addEventListener('touchend', () => { glow.style.opacity = '0'; });
   }
 
   function handleStartShiftClick() {
@@ -685,8 +787,19 @@
       const nextShift = shifts.find(s => s.type === 'work' && s.dateString >= todayStr) || shifts.find(s => s.type === 'work') || shifts[0];
 
       screen.innerHTML = `
-        <h1 class="header-title">Главная</h1>
-        <p class="header-subtitle">${getFormattedCurrentDate()}</p>
+        <div class="logo-emblem-card" id="logoEmblemCard" style="background-color: ${colors.cardBg}; color: ${colors.text};">
+          <div class="logo-touch-glow" id="logoTouchGlow"></div>
+          <div>
+            <h1 class="header-title" style="font-size: 26px; margin-bottom: 2px;">Главная</h1>
+            <p class="header-subtitle" style="margin-bottom: 0;">${getFormattedCurrentDate()}</p>
+          </div>
+          <!-- Фирменный логотип Вкусно — и точка -->
+          <svg width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25)); flex-shrink: 0;">
+            <circle cx="28" cy="62" r="18" fill="#FF4B13"/>
+            <rect x="42" y="18" width="14" height="64" rx="7" transform="rotate(25 42 18)" fill="#FF4B13"/>
+            <rect x="66" y="18" width="14" height="64" rx="7" transform="rotate(25 66 18)" fill="#FF4B13"/>
+          </svg>
+        </div>
         
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; cursor: pointer;" onclick="switchTab('shifts')">
           <div class="row-between">
@@ -723,6 +836,7 @@
           </a>
         </div>
       `;
+      setTimeout(initLogoTouchEffect, 50);
     } else if (activeTab === 'shifts') {
       let html = `<h1 class="header-title">Смена</h1>`;
       if (!isLoggedIn) {
@@ -761,6 +875,8 @@
             </div>
             <div class="card-main-text" style="font-size: 18px; margin-top: 6px;">Всего отработано: ${workedHours} ч.</div>
           </div>
+
+          <button class="calendar-button" onclick="exportShiftsToCalendar()"><i class="fa-solid fa-calendar-plus" style="margin-right: 8px;"></i> Экспорт смен в календарь телефона</button>
         `;
 
         if (!shiftStarted) {
@@ -844,9 +960,9 @@
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Что нового (v${APP_VERSION})</div>
           <ul style="padding-left: 18px; font-size: 13px; line-height: 1.6; opacity: 0.9;">
-            <li>Добавлена авторская анимированная векторная галочка в стиле Liquid Glass.</li>
-            <li>Эффектный процесс установки обновления с прогресс-баром и размытием.</li>
-            <li>Выбор времени с часами от 00 до 23 и поминутно от 00 до 59.</li>
+            <li>Интерактивная эмблема «Вкусно — и точка» с эффектом жидкого стекла и световым бликом от касания пальца.</li>
+            <li>Экспорт расписания в календарь телефона (.ics).</li>
+            <li>Процесс установки обновлений с прогресс-баром и анимацией.</li>
             <li>Абсолютная конфиденциальность данных на устройстве.</li>
           </ul>
         </div>
@@ -1126,4 +1242,3 @@
 
 </body>
 </html>
-
