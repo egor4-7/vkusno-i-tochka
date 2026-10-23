@@ -257,9 +257,11 @@
       margin-bottom: 10px; 
       box-sizing: border-box;
       box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 10px 25px rgba(0, 0, 0, 0.3);
+      width: 100%;
     }
     .time-column { 
       height: 110px; 
+      flex: 1;
       overflow-y: auto; 
       scrollbar-width: none; 
       -ms-overflow-style: none; 
@@ -272,11 +274,13 @@
       border-radius: 12px; 
       backdrop-filter: blur(15px);
       -webkit-backdrop-filter: blur(15px);
+      align-items: center;
     }
     .time-column::-webkit-scrollbar { display: none; }
     .time-chip-v { 
       height: 32px; 
-      width: 44px; 
+      width: 100%; 
+      max-width: 48px;
       display: flex; 
       justify-content: center; 
       align-items: center; 
@@ -302,7 +306,7 @@
 
     /* Модалки в стиле VisionOS */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    .modal-content { border-radius: 24px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.5); transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: var(--card-bg); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); color: #fff; }
+    .modal-content { border-radius: 24px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.5); transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: var(--card-bg); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); color: #fff; box-sizing: border-box; }
     
     .type-toggle-btn { flex: 1; padding: 9px 4px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.3); margin: 0 2px; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; font-size: calc(11px * var(--f-mult)); cursor: pointer; }
     
@@ -373,11 +377,11 @@
   </div>
 </div>
 
-<!-- Модалки расписания, отпуска и больничного -->
+<!-- Модалки расписания, отпуска и больничного (с выровненными симметричными отступами) -->
 <div class="modal-overlay" id="shiftModal">
-  <div class="modal-content" id="modalBg">
+  <div class="modal-content" id="modalBg" style="box-sizing: border-box; padding: 20px;">
     <h3 style="color: #fff; text-align: center; margin-bottom: 14px;">Редактировать статус</h3>
-    <div class="row-between" style="margin-bottom: 12px;">
+    <div class="row-between" style="margin-bottom: 14px; gap: 4px;">
       <button class="type-toggle-btn" id="btnWorkType" onclick="setEditType('work')">Рабочий</button>
       <button class="type-toggle-btn" id="btnOffType" onclick="setEditType('off')">Выходной</button>
       <button class="type-toggle-btn" id="btnSickType" onclick="setEditType('sick')">Больничный</button>
@@ -385,32 +389,32 @@
     </div>
 
     <!-- Рабочая смена -->
-    <div id="workShiftSettings" style="display: block;">
-      <p style="color: #fff; font-size: 13px; margin-bottom: 3px;">Время начала:</p>
+    <div id="workShiftSettings" style="display: block; width: 100%;">
+      <p style="color: #fff; font-size: 13px; margin-bottom: 6px; font-weight: 600;">Время начала:</p>
       <div class="time-picker-row">
         <div class="time-column" id="startHoursList"></div>
         <span style="color: #fff; font-weight: bold; font-size: 18px;">:</span>
         <div class="time-column" id="startMinutesList"></div>
       </div>
 
-      <p style="color: #fff; font-size: 13px; margin-bottom: 3px;">Время окончания:</p>
+      <p style="color: #fff; font-size: 13px; margin-top: 10px; margin-bottom: 6px; font-weight: 600;">Время окончания:</p>
       <div class="time-picker-row">
         <div class="time-column" id="endHoursList"></div>
         <span style="color: #fff; font-weight: bold; font-size: 18px;">:</span>
         <div class="time-column" id="endMinutesList"></div>
       </div>
 
-      <p style="color: #fff; font-size: 13px; margin-bottom: 3px;">Станция:</p>
-      <div class="row-center" style="gap: 6px; flex-wrap: wrap; margin-bottom: 4px;" id="stationsModalList"></div>
+      <p style="color: #fff; font-size: 13px; margin-top: 10px; margin-bottom: 6px; font-weight: 600;">Станция:</p>
+      <div class="row-center" style="gap: 6px; flex-wrap: wrap; margin-bottom: 4px; width: 100%;" id="stationsModalList"></div>
     </div>
 
     <!-- Периоды для Больничного и Отпуска -->
-    <div id="periodSettings" style="display: none; text-align: left; margin-top: 10px;">
+    <div id="periodSettings" style="display: none; text-align: left; margin-top: 10px; width: 100%;">
       <label style="color: #fff; font-size: 12px; font-weight: 600;">С какого числа:</label>
-      <input type="date" id="periodStartDate" class="input-field" style="background: rgba(255,255,255,0.25); color:#fff; margin-top: 4px; margin-bottom: 10px;">
+      <input type="date" id="periodStartDate" class="input-field" style="background: rgba(255,255,255,0.25); color:#fff; margin-top: 4px; margin-bottom: 10px; width: 100%;">
       
       <label style="color: #fff; font-size: 12px; font-weight: 600;">По какое число:</label>
-      <input type="date" id="periodEndDate" class="input-field" style="background: rgba(255,255,255,0.25); color:#fff; margin-top: 4px;">
+      <input type="date" id="periodEndDate" class="input-field" style="background: rgba(255,255,255,0.25); color:#fff; margin-top: 4px; width: 100%;">
 
       <div id="sickNoticeBox" style="display: none; background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.7); border-radius: 12px; padding: 10px; margin-top: 10px;">
         <p style="color: #fca5a5; font-size: 11px; line-height: 1.35;">
@@ -452,14 +456,14 @@
 </div>
 
 <script>
-  const APP_VERSION = '7.3';
-  const APP_CHANGELOG = 'Обмен сменами теперь по списку ФИ без табельных номеров с поддержкой жидкостекольных анимаций статусов.';
+  const APP_VERSION = '7.4';
+  const APP_CHANGELOG = 'Исключены дни отпуска и больничного при обмене, добавлена проверка накладывания смен у коллег.';
 
-  // Регистрация Service Worker для офлайн-режима прямо из Blob
+  // Регистрация Service Worker для офлайн-режима
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       const swCode = `
-        const CACHE_NAME = 'vkusno-schedule-v73';
+        const CACHE_NAME = 'vkusno-schedule-v74';
         self.addEventListener('install', e => {
           self.skipWaiting();
         });
@@ -591,7 +595,6 @@
     ? (parseFloat(localStorage.getItem(`app_worked_hours_${employee.code}`)) || 0)
     : 0;
 
-  // Централизованное хранилище обмена сменами
   let currentSwapState = JSON.parse(localStorage.getItem('app_shared_swap_state')) || null;
   let shiftStarted = false;
 
@@ -962,10 +965,13 @@
     render();
   }
 
-  // Отправка запроса на обмен по выбранному ФИ из списка
+  // Отправка запроса на обмен по выбранному ФИ с проверкой накладывания и наличия смен у коллеги
   function sendSwapRequest() {
     const targetSelect = document.getElementById('inpSwapTargetSelect');
-    if (!targetSelect || !targetSelect.value) return;
+    if (!targetSelect || !targetSelect.value) {
+      showCustomAlert('Ошибка', 'Выберите сотрудника, которому предлагаете смену.', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
+      return;
+    }
     const targetCode = targetSelect.value;
 
     if (targetCode === employee.code) {
@@ -975,7 +981,29 @@
 
     const shiftSelect = document.getElementById('inpSwapShiftId');
     const selectedShiftId = shiftSelect ? parseInt(shiftSelect.value) : null;
-    const chosenShift = shifts.find(s => s.id === selectedShiftId) || shifts.find(s => s.type === 'work') || shifts[0];
+    const workShiftsList = shifts.filter(s => s.type === 'work' && s.start && s.end);
+    const chosenShift = workShiftsList.find(s => s.id === selectedShiftId) || workShiftsList[0];
+
+    if (!chosenShift) {
+      showCustomAlert('Ошибка', 'Нет подходящей рабочей смены для обмена.', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
+      return;
+    }
+
+    // ПРОВЕРКА: Проверяем график коллеги — нет ли у него смены на эту же дату (проверка накладывания)
+    const targetShifts = JSON.parse(localStorage.getItem(`app_shifts_${targetCode}`)) || [];
+    const targetDayShift = targetShifts.find(s => s.dateString === chosenShift.dateString);
+
+    if (targetDayShift && targetDayShift.type === 'work') {
+      const allEmp = getAllKnownEmployees();
+      const targetData = allEmp[targetCode];
+      const targetName = targetData ? targetData.name : 'Коллега';
+      showCustomAlert(
+        'Смены накладываются',
+        `У сотрудника <strong>${targetName}</strong> на ${chosenShift.day} (${chosenShift.date}) уже стоит рабочая смена (${targetDayShift.start}-${targetDayShift.end}). Замена невозможна.`,
+        '<i class="fa-solid fa-calendar-xmark" style="color: #ef4444; font-size: 38px;"></i>'
+      );
+      return;
+    }
 
     const allEmp = getAllKnownEmployees();
     const targetData = allEmp[targetCode];
@@ -1331,6 +1359,7 @@
           </div>
         `;
       } else {
+        // Исключаем дни, когда у текущего юзера стоят больничные или отпуска
         const workShiftsList = shifts.filter(s => s.type === 'work' && s.start && s.end);
         const allEmp = getAllKnownEmployees();
         const currentEmpData = allEmp[employee.code] || {};
@@ -1413,7 +1442,7 @@
           `;
         }
 
-        // Блок отправки и статусов обмена смен (выбор по ФИ без табельных номеров)
+        // Блок обмена смен (только рабочие смены текущего юзера без дней отпуска/больничных)
         html += `
           <div class="card" style="margin-top: 14px;">
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 10px;">Обмен сменами</div>
@@ -1463,7 +1492,7 @@
             `;
           }
         } else {
-          // Форма отправки с выбором сотрудника по ФИ из выпадающего списка
+          // Форма выбора: выводятся только назначенные рабочие смены (отпуск и больничные исключены)
           let employeeOptionsHtml = '';
           Object.entries(allEmp).forEach(([code, data]) => {
             if (code !== employee.code) {
@@ -1476,7 +1505,7 @@
             <select id="inpSwapShiftId" class="input-field" style="background: rgba(255,255,255,0.25); color:#fff; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.3);">
               ${workShiftsList.length > 0 
                 ? workShiftsList.map(s => `<option value="${s.id}" style="color:#000;">${s.day}, ${s.date} (${s.start}-${s.end}, ст. ${s.station})</option>`).join('')
-                : '<option value="" style="color:#000;">Нет рабочих смен на этой неделе</option>'
+                : '<option value="" style="color:#000;" disabled>Нет рабочих смен (отпуск/больничный/выходные)</option>'
               }
             </select>
 
@@ -1570,7 +1599,8 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Обмен сменами переведен на выбор сотрудников по ФИ без табельных номеров.</li>
+            <li>Исключены отпуска/больничные из списка предложений обмена.</li>
+            <li>Добавлена автоматическая проверка совпадения графиков у сотрудников.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
