@@ -23,8 +23,8 @@
       -webkit-user-select: none; 
     }
 
-    /* Разрешаем выделение и ввод текста в инпутах */
-    input, textarea {
+    /* Разрешаем выделение и ввод текста в инпутах и селектах */
+    input, textarea, select {
       user-select: text !important;
       -webkit-user-select: text !important;
       -webkit-touch-callout: default !important;
@@ -42,7 +42,7 @@
     .row-between { display: flex; justify-content: space-between; align-items: center; }
     .row-center { display: flex; align-items: center; }
 
-    /* Плавные пружинные анимации и эффект лупы/приближения при нажатии и удержании */
+    /* Плавные пружинные анимации и эффект лупы/приближения при нажатии */
     button, .site-button, .card, .shift-card, .theme-card, .primary-button, .logout-button, .delete-button, .calendar-button, .feedback-button, .modal-cancel-btn, .modal-save-btn, .break-option-btn, .time-chip-v, .opacity-btn, .action-icon-btn, .action-btn, .swap-approve-btn, .swap-reject-btn {
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background 0.3s ease;
       will-change: transform;
@@ -442,8 +442,8 @@
 </div>
 
 <script>
-  const APP_VERSION = '5.6';
-  const APP_CHANGELOG = 'Пружинные плавные анимации, эффект лупы/приближения при нажатии и полное отключение системных выделений.';
+  const APP_VERSION = '5.7';
+  const APP_CHANGELOG = 'Добавлен выбор конкретной смены для обмена, защита от обмена с самим собой и удален тестовый образец запроса.';
 
   let activeTab = 'home';
   let authMode = 'login'; // 'login' или 'register'
@@ -819,6 +819,11 @@
     const btnEl = document.getElementById('btnSendSwap');
     const allEmp = getAllKnownEmployees();
     if (val.length === 7) {
+      if (val === employee.code) {
+        if (previewEl) previewEl.innerHTML = `<span style="color: #ef4444; font-weight: bold;"><i class="fa-solid fa-triangle-exclamation"></i> Нельзя обмениваться с собой</span>`;
+        if (btnEl) btnEl.disabled = true;
+        return;
+      }
       const foundData = allEmp[val];
       const foundName = foundData ? foundData.name : 'Сотрудник ' + val;
       if (previewEl) previewEl.innerHTML = `<span style="color: #22c55e; font-weight: bold;"><i class="fa-solid fa-circle-check"></i> Найден: ${foundName}</span>`;
@@ -830,26 +835,34 @@
   }
 
   function sendSwapRequest() {
-    const targetCode = document.getElementById('inpSwapCode').value;
+    const targetCode = document.getElementById('inpSwapCode').value.trim();
     if (targetCode.length !== 7) return;
+
+    if (targetCode === employee.code) {
+      showCustomAlert('Ошибка', 'Нельзя отправить запрос на обмен самому себе!', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
+      return;
+    }
+
+    const shiftSelect = document.getElementById('inpSwapShiftId');
+    const selectedShiftId = shiftSelect ? parseInt(shiftSelect.value) : null;
+    const chosenShift = shifts.find(s => s.id === selectedShiftId) || shifts.find(s => s.type === 'work') || shifts[0];
 
     const allEmp = getAllKnownEmployees();
     const targetData = allEmp[targetCode];
     const targetName = targetData ? targetData.name : 'Сотрудник ' + targetCode;
-    const workShift = shifts.find(s => s.type === 'work' && s.start && s.end) || shifts[0];
     
     activeSwapRequest = {
-      senderCode: employee.code || '1022807',
-      senderName: employee.firstName || 'Ш Егор',
+      senderCode: employee.code,
+      senderName: employee.firstName,
       targetCode: targetCode,
       targetName: targetName,
-      dateText: workShift.dateString || '25.10.2026',
-      shiftTime: `${workShift.start || '09:00'}-${workShift.end || '02:00'}`
+      dateText: `${chosenShift.day}, ${chosenShift.date}`,
+      shiftTime: `${chosenShift.start}-${chosenShift.end} (${chosenShift.station})`
     };
 
     localStorage.setItem('app_swap_request', JSON.stringify(activeSwapRequest));
     sendSystemPush('Запрос на обмен сменой', 'Сотрудник ' + employee.firstName + ' хочет обменяться с вами сменой!');
-    showCustomAlert('Запрос отправлен', 'Запрос на обмен сменой отправлен сотруднику ' + targetName + ' (' + targetCode + ').', '<i class="fa-solid fa-paper-plane" style="color: #3b82f6; font-size: 38px;"></i>');
+    showCustomAlert('Запрос отправлен', `Запрос отправлен сотруднику ${targetName} (${targetCode}) на смену: ${chosenShift.day}, ${chosenShift.date} (${chosenShift.start}-${chosenShift.end}, ст. ${chosenShift.station}).`, '<i class="fa-solid fa-paper-plane" style="color: #3b82f6; font-size: 38px;"></i>');
     render();
   }
 
@@ -1163,6 +1176,8 @@
           </div>
         `;
       } else {
+        const workShiftsList = shifts.filter(s => s.type === 'work' && s.start && s.end);
+
         html += `
           <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
             <span class="info-text">Сотрудник (ФИ / Инициал)</span>
@@ -1173,7 +1188,16 @@
 
           <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 14px;">
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 8px;">Обмен сменами</div>
-            <p class="info-text" style="opacity:0.85; margin-bottom: 10px;">Введите 7-значный табельный номер сотрудника для отправки запроса:</p>
+            
+            <p class="info-text" style="opacity:0.85; margin-bottom: 6px;">Какую смену хотите предложить:</p>
+            <select id="inpSwapShiftId" class="input-field" style="background: rgba(255,255,255,0.2); color:#fff; margin-bottom: 12px;">
+              ${workShiftsList.length > 0 
+                ? workShiftsList.map(s => `<option value="${s.id}" style="color:#000;">${s.day}, ${s.date} (${s.start}-${s.end}, ст. ${s.station})</option>`).join('')
+                : '<option value="" style="color:#000;">Нет рабочих смен на этой неделе</option>'
+              }
+            </select>
+
+            <p class="info-text" style="opacity:0.85; margin-bottom: 6px;">Табельный номер коллеги (7 цифр):</p>
             <input type="text" id="inpSwapCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.2); color:#fff;" oninput="onSwapCodeInput(this.value)">
             <div id="swapEmployeePreview" style="font-size: 13px; margin-bottom: 10px; min-height: 18px;"></div>
             <button class="primary-button" id="btnSendSwap" style="background: #2563eb;" disabled onclick="sendSwapRequest()"><i class="fa-solid fa-right-left" style="margin-right: 6px;"></i> Отправить запрос на обмен</button>
@@ -1185,7 +1209,7 @@
             <div class="card" id="swapRequestCard" style="background-color: ${colors.cardBg}; color: ${colors.text}; border: 1.5px solid #22c55e; margin-top: 14px;">
               <span class="card-subtitle" style="color: #22c55e;">ПОСТУПИЛ ЗАПРОС НА ОБМЕН</span>
               <div style="font-weight: 800; font-size: calc(15px * var(--f-mult)); text-transform: uppercase; margin-top: 8px; line-height: 1.35;">
-                СОТРУДНИК ${activeSwapRequest.senderName.toUpperCase()} (${activeSwapRequest.senderCode}): ХОЧЕТ ОБМЕНЯТЬСЯ СМЕНОЙ (${activeSwapRequest.dateText} время смены ${activeSwapRequest.shiftTime})
+                СОТРУДНИК ${activeSwapRequest.senderName.toUpperCase()} (${activeSwapRequest.senderCode}): ХОЧЕТ ОБМЕНЯТЬСЯ СМЕНОЙ (${activeSwapRequest.dateText}, ВРЕМЯ: ${activeSwapRequest.shiftTime})
               </div>
               <div class="row-between" style="margin-top: 14px; gap: 10px;">
                 <button class="swap-reject-btn" onclick="handleSwapDecision(false)">Отказаться</button>
@@ -1250,10 +1274,10 @@
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px;">
+            <li>Выбор конкретной смены для обмена.</li>
+            <li>Защита от отправки запроса самому себе.</li>
             <li>Пружинные плавные анимации и эффект лупы.</li>
             <li>Отключение системных выделений.</li>
-            <li>Кнопка ручной проверки обновлений.</li>
-            <li>Регистрация новых сотрудников.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
