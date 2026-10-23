@@ -399,8 +399,8 @@
 </div>
 
 <script>
-  const APP_VERSION = '4.4';
-  const APP_CHANGELOG = 'Добавлено подтверждение при удалении профиля, изменена кнопка входа, улучшен физический отклик кнопок и позиция бэйджа на шестеренке.';
+  const APP_VERSION = '4.5';
+  const APP_CHANGELOG = 'Исправлена работа кнопки начала смены и добавлено модальное окно подтверждения раннего старта.';
 
   let activeTab = 'home';
   let theme = localStorage.getItem('app_theme') || 'green';
@@ -422,6 +422,13 @@
     { code: 'CF', name: 'кафе', color: '#10b981' },
   ];
 
+  function getLocalDateString(d) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   function generateCurrentWeekShifts() {
     const now = new Date();
     const dayOfWeek = now.getDay();
@@ -439,7 +446,7 @@
         id: index + 1,
         day: day,
         date: `${d.getDate()} ${months[d.getMonth()]}`,
-        dateString: d.toISOString().split('T')[0],
+        dateString: getLocalDateString(d),
         type: 'off',
         start: '',
         end: '',
@@ -483,6 +490,23 @@
     document.getElementById('customModalButtons').innerHTML = `
       <button class="modal-save-btn" style="margin: 0; background: #22c55e; width: 100%;" onclick="closeModal('customModal')">Понятно</button>
     `;
+    const colors = getThemeColors();
+    document.getElementById('customModalBg').style.backgroundColor = colors.bg;
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
+  }
+
+  let pendingConfirmCallback = null;
+  function showCustomConfirm(title, text, onConfirm) {
+    const modal = document.getElementById('customModal');
+    document.getElementById('customModalIcon').innerHTML = '<div style="font-size: 38px;">⚠️</div>';
+    document.getElementById('customModalTitle').innerText = title;
+    document.getElementById('customModalText').innerText = text;
+    document.getElementById('customModalButtons').innerHTML = `
+      <button class="modal-cancel-btn" onclick="closeModal('customModal')">Отменить</button>
+      <button class="modal-save-btn" style="background: #22c55e;" onclick="closeModal('customModal'); if(pendingConfirmCallback) pendingConfirmCallback();">Подтвердить</button>
+    `;
+    pendingConfirmCallback = onConfirm;
     const colors = getThemeColors();
     document.getElementById('customModalBg').style.backgroundColor = colors.bg;
     modal.style.display = 'flex';
@@ -624,6 +648,35 @@
     showCustomAlert('Успешно', 'Файл календаря скачан. Откройте его, чтобы добавить смены в ваш телефон!', '✅');
   }
 
+  function handleStartShiftClick() {
+    const todayStr = getLocalDateString(new Date());
+    const todayShift = shifts.find(s => s.dateString === todayStr);
+
+    if (!todayShift || todayShift.type === 'off' || !todayShift.start) {
+      showCustomAlert('У вас выходной день', 'Сегодня у вас выходной или смена не назначена.', '☕');
+      return;
+    }
+
+    const now = new Date();
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+    const [sh, sm] = todayShift.start.split(':').map(Number);
+    const shiftStartMins = sh * 60 + sm;
+
+    if (currentMins < shiftStartMins) {
+      showCustomConfirm(
+        'Ранний старт',
+        `Ваша смена начинается в ${todayShift.start}. Вас попросили выйти сейчас?`,
+        () => {
+          shiftStarted = true;
+          render();
+        }
+      );
+    } else {
+      shiftStarted = true;
+      render();
+    }
+  }
+
   function getFormattedCurrentDate() {
     const now = new Date();
     const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
@@ -761,7 +814,7 @@
     screen.innerHTML = '';
 
     if (activeTab === 'home') {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getLocalDateString(new Date());
       const nextShift = shifts.find(s => s.type === 'work' && s.dateString >= todayStr) || shifts.find(s => s.type === 'work') || shifts[0];
       
       const greetingName = isLoggedIn ? employee.firstName : 'Сотрудник';
@@ -942,9 +995,8 @@
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Что нового (v${APP_VERSION})</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); line-height: 1.6; opacity: 0.9;">
-            <li>Добавлено модальное окно с предупреждением при удалении профиля.</li>
-            <li>Тактильное физическое нажатие всех кнопок в приложении.</li>
-            <li>Бейдж обновления перемещен точно на край шестеренки.</li>
+            <li>Исправлена ошибка кнопки начала смены и предупреждений.</li>
+            <li>Корректное определение сегодняшней даты без сдвигов по времени.</li>
           </ul>
         </div>
 
@@ -1176,7 +1228,7 @@
   }
 
   function finishShiftWithBreak(breakMins) {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateString(new Date());
     let currentShift = shifts.find(s => s.dateString === todayStr && s.type === 'work' && s.start && s.end);
     if (!currentShift) {
       currentShift = shifts.find(s => s.type === 'work' && s.start && s.end);
