@@ -228,7 +228,7 @@
       50% { transform: scale(1.15); box-shadow: 0 5px 12px rgba(239, 68, 68, 0.9); }
     }
 
-    .input-field { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; font-size: calc(14px * var(--f-mult)); box-sizing: border-box; max-width: 100%; }
+    .input-field { width: 100%; max-width: 100%; box-sizing: border-box; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; font-size: calc(14px * var(--f-mult)); }
     .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: calc(15px * var(--f-mult)); text-align: center; box-shadow: 0 4px 15px rgba(249,115,22,0.4); }
     
     .logout-button { background: #2563eb; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); box-shadow: 0 4px 15px rgba(37,99,235,0.4); }
@@ -452,14 +452,14 @@
 </div>
 
 <script>
-  const APP_VERSION = '7.1';
-  const APP_CHANGELOG = 'Исправлены темы, верстка даты рождения, добавлены кнопки редактирования/удаления даты и кнопка Принять для обмена сменами.';
+  const APP_VERSION = '7.3';
+  const APP_CHANGELOG = 'Обмен сменами теперь по списку ФИ без табельных номеров с поддержкой жидкостекольных анимаций статусов.';
 
   // Регистрация Service Worker для офлайн-режима прямо из Blob
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       const swCode = `
-        const CACHE_NAME = 'vkusno-schedule-v71';
+        const CACHE_NAME = 'vkusno-schedule-v73';
         self.addEventListener('install', e => {
           self.skipWaiting();
         });
@@ -480,11 +480,6 @@
       const swUrl = URL.createObjectURL(blob);
       navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration error:', err));
     });
-  }
-
-  if (!localStorage.getItem('app_v71_cleaned')) {
-    localStorage.removeItem('app_swap_request');
-    localStorage.setItem('app_v71_cleaned', 'true');
   }
 
   let activeTab = 'home';
@@ -596,8 +591,8 @@
     ? (parseFloat(localStorage.getItem(`app_worked_hours_${employee.code}`)) || 0)
     : 0;
 
-  let outgoingSwapRequest = JSON.parse(localStorage.getItem('app_outgoing_swap')) || null;
-  let incomingSwapRequest = JSON.parse(localStorage.getItem('app_incoming_swap')) || null;
+  // Централизованное хранилище обмена сменами
+  let currentSwapState = JSON.parse(localStorage.getItem('app_shared_swap_state')) || null;
   let shiftStarted = false;
 
   function checkBirthdayTriggers() {
@@ -967,29 +962,11 @@
     render();
   }
 
-  function onSwapCodeInput(val) {
-    const previewEl = document.getElementById('swapEmployeePreview');
-    const btnEl = document.getElementById('btnSendSwap');
-    const allEmp = getAllKnownEmployees();
-    if (val.length === 7) {
-      if (val === employee.code) {
-        if (previewEl) previewEl.innerHTML = `<span style="color: #ef4444; font-weight: bold;"><i class="fa-solid fa-triangle-exclamation"></i> Нельзя отправлять запрос самому себе</span>`;
-        if (btnEl) btnEl.disabled = true;
-        return;
-      }
-      const foundData = allEmp[val];
-      const foundName = foundData ? foundData.name : 'Сотрудник ' + val;
-      if (previewEl) previewEl.innerHTML = `<span style="color: #22c55e; font-weight: bold;"><i class="fa-solid fa-circle-check"></i> Коллега: ${foundName}</span>`;
-      if (btnEl) btnEl.disabled = false;
-    } else {
-      if (previewEl) previewEl.innerHTML = `<span style="color: #cbd5e1;">Введите 7 цифр табельного номера коллеги</span>`;
-      if (btnEl) btnEl.disabled = true;
-    }
-  }
-
+  // Отправка запроса на обмен по выбранному ФИ из списка
   function sendSwapRequest() {
-    const targetCode = document.getElementById('inpSwapCode').value.trim();
-    if (targetCode.length !== 7) return;
+    const targetSelect = document.getElementById('inpSwapTargetSelect');
+    if (!targetSelect || !targetSelect.value) return;
+    const targetCode = targetSelect.value;
 
     if (targetCode === employee.code) {
       showCustomAlert('Ошибка', 'Нельзя отправить запрос на обмен самому себе!', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
@@ -1002,52 +979,56 @@
 
     const allEmp = getAllKnownEmployees();
     const targetData = allEmp[targetCode];
-    const targetName = targetData ? targetData.name : 'Сотрудник ' + targetCode;
+    const targetName = targetData ? targetData.name : 'Коллега';
     
-    outgoingSwapRequest = {
+    currentSwapState = {
+      senderCode: employee.code,
+      senderName: employee.firstName,
       targetCode: targetCode,
       targetName: targetName,
       dateText: `${chosenShift.day}, ${chosenShift.date}`,
-      shiftTime: `${chosenShift.start}-${chosenShift.end} (${chosenShift.station})`
+      shiftTime: `${chosenShift.start}-${chosenShift.end} (${chosenShift.station})`,
+      shiftData: chosenShift,
+      status: 'pending' // 'pending' | 'approved' | 'rejected'
     };
 
-    localStorage.setItem('app_outgoing_swap', JSON.stringify(outgoingSwapRequest));
+    localStorage.setItem('app_shared_swap_state', JSON.stringify(currentSwapState));
     sendSystemPush('Запрос на обмен сменой', 'Вы отправили запрос сотруднику ' + targetName);
-    showCustomAlert('Запрос отправлен', `Запрос отправлен сотруднику ${targetName} (${targetCode}) на смену: ${chosenShift.day}, ${chosenShift.date} (${chosenShift.start}-${chosenShift.end}).`, '<i class="fa-solid fa-paper-plane" style="color: #3b82f6; font-size: 38px;"></i>');
+    showCustomAlert('Запрос отправлен', `Запрос отправлен сотруднику ${targetName} на смену: ${chosenShift.day}, ${chosenShift.date} (${chosenShift.start}-${chosenShift.end}).`, '<i class="fa-solid fa-paper-plane" style="color: #3b82f6; font-size: 38px;"></i>');
     render();
   }
 
-  function cancelOutgoingSwap() {
-    outgoingSwapRequest = null;
-    localStorage.removeItem('app_outgoing_swap');
+  function cancelSwapRequest() {
+    currentSwapState = null;
+    localStorage.removeItem('app_shared_swap_state');
     render();
   }
 
   function simulateIncomingSwap() {
-    incomingSwapRequest = {
+    currentSwapState = {
       senderCode: '1111111',
       senderName: 'Николаев Николай',
+      targetCode: employee.code,
+      targetName: employee.firstName,
       dateText: 'Среда, 21 октября',
-      shiftTime: '09:00-18:00 (K)'
+      shiftTime: '09:00-18:00 (K)',
+      status: 'pending'
     };
-    localStorage.setItem('app_incoming_swap', JSON.stringify(incomingSwapRequest));
+    localStorage.setItem('app_shared_swap_state', JSON.stringify(currentSwapState));
     render();
   }
 
   function handleSwapDecision(approved) {
-    const card = document.getElementById('incomingSwapCard');
-    if (card) card.classList.add('card-fade-out');
-    
-    setTimeout(() => {
-      if (approved) {
-        showCustomAlert('Одобрено', 'Вы успешно приняли смену по обмену!', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
-      } else {
-        showCustomAlert('Отклонено', 'Запрос на обмен сменой отклонен.', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
-      }
-      incomingSwapRequest = null;
-      localStorage.removeItem('app_incoming_swap');
-      render();
-    }, 350);
+    if (!currentSwapState) return;
+    currentSwapState.status = approved ? 'approved' : 'rejected';
+    localStorage.setItem('app_shared_swap_state', JSON.stringify(currentSwapState));
+
+    if (approved) {
+      showCustomAlert('Одобрено', 'Вы успешно приняли смену по обмену!', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
+    } else {
+      showCustomAlert('Отклонено', 'Запрос на обмен сменой отклонен.', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
+    }
+    render();
   }
 
   function exportShiftsToCalendar() {
@@ -1123,7 +1104,7 @@
     let cardBg = `rgba(20, 35, 25, ${Math.max(0.85, opacity)})`;
 
     if (theme === 'orange') {
-      bg = '#7c3f1e'; // Более яркий и сочный оранжево-терракотовый тон
+      bg = '#7c3f1e';
       cardBg = `rgba(64, 30, 16, ${Math.max(0.85, opacity)})`;
     } else if (theme === 'bw') {
       bg = opacity === 1.0 ? '#000000' : '#121212';
@@ -1163,6 +1144,9 @@
     document.documentElement.style.setProperty('--app-bg', colors.bg);
     document.documentElement.style.setProperty('--card-bg', colors.cardBg);
 
+    // Синхронизация обмена
+    currentSwapState = JSON.parse(localStorage.getItem('app_shared_swap_state')) || null;
+
     document.querySelectorAll('.tab-item').forEach(btn => {
       const tab = btn.getAttribute('data-tab');
       const isActive = activeTab === tab;
@@ -1179,8 +1163,9 @@
     const badge = document.getElementById('updateBadge');
     if (badge) badge.style.display = updateAvailable ? 'flex' : 'none';
 
+    const hasIncomingPending = currentSwapState && currentSwapState.targetCode === employee.code && currentSwapState.status === 'pending';
     const swapBadge = document.getElementById('swapBadge');
-    if (swapBadge) swapBadge.style.display = incomingSwapRequest ? 'flex' : 'none';
+    if (swapBadge) swapBadge.style.display = hasIncomingPending ? 'flex' : 'none';
 
     setTimeout(() => updateNavLens(activeTab, false), 15);
 
@@ -1364,7 +1349,7 @@
           </div>
         `;
 
-        // Блок настройки дня рождения с кнопками Сохранить и Удалить
+        // Блок настройки дня рождения с симметричным полем
         html += `
           <div class="card" style="margin-top: 14px;">
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 6px;">Дата рождения</div>
@@ -1428,25 +1413,64 @@
           `;
         }
 
-        // Блок отправки запроса на обмен
+        // Блок отправки и статусов обмена смен (выбор по ФИ без табельных номеров)
         html += `
           <div class="card" style="margin-top: 14px;">
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 10px;">Обмен сменами</div>
         `;
 
-        if (outgoingSwapRequest) {
-          html += `
-            <div style="background: rgba(30, 58, 138, 0.85); border: 1px solid rgba(147, 197, 253, 0.6); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-              <div style="font-size: calc(14px * var(--f-mult)); font-weight: bold; color: #93c5fd; margin-bottom: 6px;">
-                <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i> Запрос отправлен коллеге (${outgoingSwapRequest.targetName})
+        const isUserSender = currentSwapState && currentSwapState.senderCode === employee.code;
+        const isUserReceiver = currentSwapState && currentSwapState.targetCode === employee.code;
+
+        if (isUserSender) {
+          if (currentSwapState.status === 'pending') {
+            html += `
+              <div style="background: rgba(30, 58, 138, 0.85); border: 1px solid rgba(147, 197, 253, 0.6); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                <div style="font-size: calc(14px * var(--f-mult)); font-weight: bold; color: #93c5fd; margin-bottom: 6px;">
+                  <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i> Запрос отправлен коллеге (${currentSwapState.targetName})
+                </div>
+                <div style="font-size: calc(13px * var(--f-mult)); color: #f1f5f9; font-weight: 500; margin-bottom: 8px;">
+                  Смена: ${currentSwapState.dateText}, ${currentSwapState.shiftTime}
+                </div>
+                <div style="font-size: calc(13px * var(--f-mult)); font-weight: bold; color: #fcd34d; margin-bottom: 10px;">
+                  ⏳ Ожидайте одобрение
+                </div>
+                <button class="modal-cancel-btn" style="width: 100%; background: rgba(239, 68, 68, 0.4); border: 1px solid rgba(239, 68, 68, 0.7); color: #fca5a5; font-size: calc(13px * var(--f-mult)); padding: 10px; font-weight: bold;" onclick="cancelSwapRequest()">Отменить запрос</button>
               </div>
-              <div style="font-size: calc(13px * var(--f-mult)); color: #f1f5f9; font-weight: 500;">
-                Смена: ${outgoingSwapRequest.dateText}, ${outgoingSwapRequest.shiftTime}
+            `;
+          } else if (currentSwapState.status === 'approved') {
+            html += `
+              <div style="background: rgba(15, 45, 25, 0.95); border: 2px solid #22c55e; border-radius: 14px; padding: 16px; margin-bottom: 10px; box-shadow: 0 10px 30px rgba(34,197,94,0.3);">
+                <div class="row-center" style="gap: 10px; margin-bottom: 8px;">
+                  <i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 26px;"></i>
+                  <span style="font-size: calc(15px * var(--f-mult)); font-weight: bold; color: #4ade80;">Смена успешно принята</span>
+                </div>
+                <div style="font-size: calc(13px * var(--f-mult)); color: #e2e8f0; margin-bottom: 12px;">
+                  Коллега (${currentSwapState.targetName}) одобрил ваш запрос на обмен (${currentSwapState.dateText}).
+                </div>
+                <button class="modal-save-btn" style="width: 100%; background: #22c55e; padding: 10px; font-size: calc(13px * var(--f-mult));" onclick="cancelSwapRequest()">Закрыть уведомление</button>
               </div>
-              <button class="modal-cancel-btn" style="width: 100%; margin-top: 12px; background: rgba(239, 68, 68, 0.4); border: 1px solid rgba(239, 68, 68, 0.7); color: #fca5a5; font-size: calc(13px * var(--f-mult)); padding: 10px; font-weight: bold;" onclick="cancelOutgoingSwap()">Отменить запрос</button>
-            </div>
-          `;
+            `;
+          } else if (currentSwapState.status === 'rejected') {
+            html += `
+              <div style="background: rgba(45, 15, 15, 0.95); border: 2px solid #ef4444; border-radius: 14px; padding: 16px; margin-bottom: 10px; box-shadow: 0 10px 30px rgba(239,68,68,0.3);">
+                <div class="row-center" style="gap: 10px; margin-bottom: 8px;">
+                  <i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 26px;"></i>
+                  <span style="font-size: calc(15px * var(--f-mult)); font-weight: bold; color: #fca5a5;">Смена отклонена, сотрудник ${currentSwapState.targetName}, не сможет вас заменить</span>
+                </div>
+                <button class="modal-cancel-btn" style="width: 100%; background: rgba(239, 68, 68, 0.4); border: 1px solid rgba(239, 68, 68, 0.7); color: #fca5a5; padding: 10px; font-size: calc(13px * var(--f-mult));" onclick="cancelSwapRequest()">Закрыть уведомление</button>
+              </div>
+            `;
+          }
         } else {
+          // Форма отправки с выбором сотрудника по ФИ из выпадающего списка
+          let employeeOptionsHtml = '';
+          Object.entries(allEmp).forEach(([code, data]) => {
+            if (code !== employee.code) {
+              employeeOptionsHtml += `<option value="${code}" style="color: #000;">${data.name}</option>`;
+            }
+          });
+
           html += `
             <p class="info-text" style="margin-bottom: 6px;">Какую смену хотите предложить:</p>
             <select id="inpSwapShiftId" class="input-field" style="background: rgba(255,255,255,0.25); color:#fff; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.3);">
@@ -1456,21 +1480,24 @@
               }
             </select>
 
-            <p class="info-text" style="margin-bottom: 6px;">Табельный номер коллеги (7 цифр):</p>
-            <input type="text" id="inpSwapCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.25); color:#fff; border: 1px solid rgba(255,255,255,0.3);" oninput="onSwapCodeInput(this.value)">
-            <div id="swapEmployeePreview" style="font-size: 13px; margin-bottom: 10px; min-height: 18px;"></div>
-            <button class="primary-button" id="btnSendSwap" style="background: #2563eb;" disabled onclick="sendSwapRequest()"><i class="fa-solid fa-right-left" style="margin-right: 6px;"></i> Отправить запрос на обмен</button>
+            <p class="info-text" style="margin-bottom: 6px;">Выберите коллегу:</p>
+            <select id="inpSwapTargetSelect" class="input-field" style="background: rgba(255,255,255,0.25); color:#fff; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.3);">
+              <option value="" style="color:#000;" disabled selected>Выберите сотрудника...</option>
+              ${employeeOptionsHtml}
+            </select>
+
+            <button class="primary-button" style="background: #2563eb;" onclick="sendSwapRequest()"><i class="fa-solid fa-right-left" style="margin-right: 6px;"></i> Отправить запрос на обмен</button>
           `;
         }
         html += `</div>`;
 
-        // Входящий запрос с кнопкой "Принять"
-        if (incomingSwapRequest) {
+        // Входящий запрос для текущего пользователя
+        if (isUserReceiver && currentSwapState.status === 'pending') {
           html += `
             <div class="card" id="incomingSwapCard" style="border: 2px solid #22c55e; margin-top: 14px; background: rgba(15, 45, 25, 0.95); box-shadow: 0 10px 30px rgba(34,197,94,0.25);">
               <span class="card-subtitle" style="color: #4ade80; font-size: calc(12px * var(--f-mult)); font-weight: bold;">📥 ПОСТУПИЛ ЗАПРОС НА ОБМЕН</span>
               <div style="font-weight: 800; font-size: calc(15px * var(--f-mult)); text-transform: uppercase; margin-top: 10px; line-height: 1.4; color: #ffffff;">
-                СОТРУДНИК ${incomingSwapRequest.senderName.toUpperCase()} (${incomingSwapRequest.senderCode}): ХОЧЕТ ОБМЕНЯТЬСЯ СМЕНОЙ (${incomingSwapRequest.dateText}, ВРЕМЯ: ${incomingSwapRequest.shiftTime})
+                СОТРУДНИК ${currentSwapState.senderName.toUpperCase()}: ХОЧЕТ ОБМЕНЯТЬСЯ СМЕНОЙ (${currentSwapState.dateText}, ВРЕМЯ: ${currentSwapState.shiftTime})
               </div>
               <div class="row-between" style="margin-top: 16px; gap: 12px;">
                 <button class="swap-reject-btn" onclick="handleSwapDecision(false)">Отклонить</button>
@@ -1478,7 +1505,7 @@
               </div>
             </div>
           `;
-        } else {
+        } else if (!currentSwapState || currentSwapState.status !== 'pending') {
           html += `
             <div style="text-align: center; margin-bottom: 14px;">
               <button style="background: transparent; border: none; color: #cbd5e1; font-size: 13px; text-decoration: underline; cursor: pointer; font-weight: 500;" onclick="simulateIncomingSwap()">
@@ -1543,7 +1570,7 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Обновлена оранжевая тема и исправлены отступы элементов.</li>
+            <li>Обмен сменами переведен на выбор сотрудников по ФИ без табельных номеров.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
@@ -1649,12 +1676,10 @@
     isLoggedIn = false;
     shifts = generateCurrentWeekShifts();
     workedHours = 0;
-    outgoingSwapRequest = null;
-    incomingSwapRequest = null;
+    currentSwapState = null;
     localStorage.removeItem('app_employee');
     localStorage.setItem('app_is_logged_in', 'false');
-    localStorage.removeItem('app_outgoing_swap');
-    localStorage.removeItem('app_incoming_swap');
+    localStorage.removeItem('app_shared_swap_state');
     render();
   }
 
