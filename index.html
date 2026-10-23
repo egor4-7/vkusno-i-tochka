@@ -448,12 +448,12 @@
 </div>
 
 <script>
-  const APP_VERSION = '6.6';
-  const APP_CHANGELOG = 'Добавлено физическое удаление с бэкапом данных и возможность восстановления аккаунтов из панели разработчика.';
+  const APP_VERSION = '6.7';
+  const APP_CHANGELOG = 'Исправлен баг отображения удаленных сотрудников в списке активных.';
 
-  if (!localStorage.getItem('app_v66_cleaned')) {
+  if (!localStorage.getItem('app_v67_cleaned')) {
     localStorage.removeItem('app_swap_request');
-    localStorage.setItem('app_v66_cleaned', 'true');
+    localStorage.setItem('app_v67_cleaned', 'true');
   }
 
   let activeTab = 'home';
@@ -481,7 +481,17 @@
 
   function getAllKnownEmployees() {
     let custom = JSON.parse(localStorage.getItem('app_custom_employees')) || {};
-    return { ...knownEmployees, ...custom };
+    let all = { ...knownEmployees, ...custom };
+    let deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
+    
+    // Исключаем удаленные аккаунты из списка активных
+    let activeOnly = {};
+    Object.keys(all).forEach(code => {
+      if (!deletedCodes.includes(code)) {
+        activeOnly[code] = all[code];
+      }
+    });
+    return activeOnly;
   }
 
   const stationsList = [
@@ -785,8 +795,11 @@
       return;
     }
 
-    const allEmp = getAllKnownEmployees();
+    // Проверяем по полному справочнику (включая жестко прописанные)
+    let custom = JSON.parse(localStorage.getItem('app_custom_employees')) || {};
+    let allEmp = { ...knownEmployees, ...custom };
     const empData = allEmp[code];
+
     if (code.length === 7 && empData) {
       employee = { firstName: empData.name, code: code };
       isLoggedIn = true;
@@ -865,9 +878,11 @@
     let backups = JSON.parse(localStorage.getItem('app_employee_backups')) || {};
     const backup = backups[code];
     if (backup) {
-      let custom = JSON.parse(localStorage.getItem('app_custom_employees')) || {};
-      custom[code] = { name: backup.name, birth: '' };
-      localStorage.setItem('app_custom_employees', JSON.stringify(custom));
+      if (!backup.isHardcoded) {
+        let custom = JSON.parse(localStorage.getItem('app_custom_employees')) || {};
+        custom[code] = { name: backup.name, birth: backup.birth || '' };
+        localStorage.setItem('app_custom_employees', JSON.stringify(custom));
+      }
 
       if (backup.shifts) {
         localStorage.setItem(`app_shifts_${code}`, JSON.stringify(backup.shifts));
@@ -1277,7 +1292,6 @@
         if (employee.code === '0000000') {
           const allEmp = getAllKnownEmployees();
           const empEntries = Object.entries(allEmp);
-          const deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
           const backups = JSON.parse(localStorage.getItem('app_employee_backups')) || {};
 
           html += `
@@ -1442,8 +1456,8 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Архив и восстановление удаленных аккаунтов.</li>
-            <li>Панель управления для разработчика.</li>
+            <li>Исправлена фильтрация удаленных сотрудников.</li>
+            <li>Корректное отображение активных аккаунтов.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
@@ -1516,16 +1530,18 @@
     if (employee.code && employee.code !== '0000000') {
       const code = employee.code;
       const allEmp = getAllKnownEmployees();
-      const empName = allEmp[code] ? allEmp[code].name : 'Сотрудник';
+      const empData = knownEmployees[code] || (JSON.parse(localStorage.getItem('app_custom_employees')) || {})[code] || { name: employee.firstName };
       const shiftsData = localStorage.getItem(`app_shifts_${code}`);
       const hoursData = localStorage.getItem(`app_worked_hours_${code}`);
 
       // Сохраняем в архив (бэкап)
       let backups = JSON.parse(localStorage.getItem('app_employee_backups')) || {};
       backups[code] = {
-        name: empName,
+        name: empData.name,
+        birth: empData.birth || '',
         shifts: shiftsData ? JSON.parse(shiftsData) : null,
-        workedHours: hoursData ? parseFloat(hoursData) : 0
+        workedHours: hoursData ? parseFloat(hoursData) : 0,
+        isHardcoded: knownEmployees[code] !== undefined
       };
       localStorage.setItem('app_employee_backups', JSON.stringify(backups));
 
