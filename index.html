@@ -59,7 +59,7 @@
     .action-icon-btn { background: #f97316; width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; color: #fff; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .action-icon-btn:active { transform: scale(0.92); }
 
-    /* Нежный плавающий бар с мягкой линзой */
+    /* Плавающий бар с нежной лупой */
     .floating-tab-bar { 
       position: fixed; 
       bottom: max(18px, env(safe-area-inset-bottom)); 
@@ -80,7 +80,6 @@
       transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Нежная лупа с плавной и упругой анимацией */
     .nav-lens-indicator {
       position: absolute;
       top: 4px;
@@ -134,6 +133,12 @@
     .delete-button { background: rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fca5a5; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .delete-button:active { transform: scale(0.97); }
 
+    .backup-button { background: #2563eb; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .backup-button:active { transform: scale(0.97); }
+
+    .restore-button { background: #059669; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .restore-button:active { transform: scale(0.97); }
+
     /* Темы */
     .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .theme-card:active { transform: scale(0.98); }
@@ -141,7 +146,7 @@
     .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none; cursor: pointer; font-weight: 600; font-size: 12px; transition: transform 0.15s ease, background 0.2s; }
     .opacity-btn:active { transform: scale(0.95); }
 
-    /* Модалки с мягким появлением */
+    /* Модалки */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .modal-content { border-radius: 24px; padding: 20px; width: 100%; max-width: 400px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 25px 50px rgba(0,0,0,0.4); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     
@@ -149,14 +154,10 @@
     .time-chip { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border-radius: 8px; background: rgba(255,255,255,0.1); color: #fff; font-weight: bold; margin-right: 4px; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
     .time-chip.active { background: #f97316; }
     
-    .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 10px; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-right: 6px; transition: transform 0.15s; }
-    .modal-cancel-btn:active { transform: scale(0.97); }
+    .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 10px; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-right: 6px; }
+    .modal-save-btn { flex: 1; padding: 12px; text-align: center; background: #22c55e; border-radius: 10px; color: #000; border: none; cursor: pointer; font-weight: bold; margin-left: 6px; }
 
-    .modal-save-btn { flex: 1; padding: 12px; text-align: center; background: #22c55e; border-radius: 10px; color: #000; border: none; cursor: pointer; font-weight: bold; margin-left: 6px; transition: transform 0.15s; }
-    .modal-save-btn:active { transform: scale(0.97); }
-
-    .break-option-btn { background: rgba(255,255,255,0.15); padding: 14px; border-radius: 10px; text-align: center; margin-bottom: 8px; color: #fff; font-weight: 600; cursor: pointer; border: none; width: 100%; transition: transform 0.15s, background 0.2s; }
-    .break-option-btn:active { transform: scale(0.97); background: rgba(255,255,255,0.25); }
+    .break-option-btn { background: rgba(255,255,255,0.15); padding: 14px; border-radius: 10px; text-align: center; margin-bottom: 8px; color: #fff; font-weight: 600; cursor: pointer; border: none; width: 100%; }
 
     .badge-code { font-size: 14px; font-weight: bold; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 10px; }
   </style>
@@ -166,7 +167,7 @@
 <div class="container" id="appContainer">
   <div class="screen-container" id="screenContent"></div>
 
-  <!-- Плавающий бар с нежной линзой -->
+  <!-- Плавающий бар с нежной лупой -->
   <div class="floating-tab-bar" id="floatingTabBar">
     <div class="nav-lens-indicator" id="navLens"></div>
     <button class="tab-item" data-tab="home" onclick="switchTab('home')">
@@ -188,7 +189,7 @@
   </div>
 </div>
 
-<!-- Модальные окна -->
+<!-- Модалки -->
 <div class="modal-overlay" id="shiftModal">
   <div class="modal-content" id="modalBg">
     <h3 style="color: #fff; text-align: center; margin-bottom: 15px;">Редактировать смену</h3>
@@ -330,6 +331,40 @@
       }
     });
     return closestTab;
+  }
+
+  // Функции резервного копирования
+  function exportBackup() {
+    const backupData = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('app_')) {
+        backupData[key] = localStorage.getItem(key);
+      }
+    }
+    const jsonStr = JSON.stringify(backupData);
+    navigator.clipboard.writeText(jsonStr).then(() => {
+      alert('✅ Резервная копия скопирована в буфер обмена!\n\nСохраните этот код в заметки или отправьте в Telegram.');
+    }).catch(() => {
+      prompt('Скопируйте ваш код резервной копии:', jsonStr);
+    });
+  }
+
+  function importBackup() {
+    const jsonStr = prompt('📥 Вставьте код резервной копии (бэкапа):');
+    if (!jsonStr) return;
+    try {
+      const backupData = JSON.parse(jsonStr);
+      for (const key in backupData) {
+        if (key.startsWith('app_')) {
+          localStorage.setItem(key, backupData[key]);
+        }
+      }
+      alert('🎉 Данные успешно восстановлены!');
+      location.reload();
+    } catch (e) {
+      alert('❌ Ошибка! Неверный формат кода бэкапа.');
+    }
   }
 
   function render() {
@@ -502,6 +537,14 @@
             ${[0.3, 0.5, 0.7, 0.85, 1.0].map(val => `<button class="opacity-btn" style="${opacity===val?'background:#f97316;color:#fff;':'color:'+colors.text}" onclick="setOpacity(${val})">${Math.round(val*100)}%</button>`).join('')}
           </div>
         </div>
+
+        <!-- Блок резервного копирования -->
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
+          <div class="card-main-text" style="margin-bottom: 4px;">💾 Резервная копия данных</div>
+          <p class="info-text" style="opacity: 0.8; margin-bottom: 10px;">Сохраните свои смены и часы на случай очистки истории браузера.</p>
+          <button class="backup-button" onclick="exportBackup()"><i class="fa-solid fa-copy" style="margin-right: 8px;"></i> Создать бэкап (Копировать)</button>
+          <button class="restore-button" onclick="importBackup()"><i class="fa-solid fa-file-arrow-down" style="margin-right: 8px;"></i> Восстановить из бэкапа</button>
+        </div>
       `;
     }
   }
@@ -511,7 +554,6 @@
     render();
   }
 
-  // Плавное следование лупы без прилипания к главной
   const tabBar = document.getElementById('floatingTabBar');
   const lens = document.getElementById('navLens');
   let isNavPressing = false;
