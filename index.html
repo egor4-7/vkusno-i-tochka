@@ -36,8 +36,8 @@
     .screen-container { flex: 1; overflow-y: auto; padding: 20px; padding-top: max(50px, env(safe-area-inset-top)); padding-bottom: calc(110px + env(safe-area-inset-bottom)); scrollbar-width: none; }
     .screen-container::-webkit-scrollbar { display: none; }
 
-    .header-title { font-size: calc(26px * var(--f-mult)); font-weight: bold; color: #ffffff; margin-bottom: 2px; }
-    .header-subtitle { font-size: calc(13px * var(--f-mult)); font-weight: 600; color: #ffffff; opacity: 0.85; }
+    .header-title { font-size: calc(26px * var(--f-mult)); font-weight: bold; color: #ffffff; margin-bottom: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .header-subtitle { font-size: calc(13px * var(--f-mult)); font-weight: 600; color: #ffffff; opacity: 0.95; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 
     .row-between { display: flex; justify-content: space-between; align-items: center; }
     .row-center { display: flex; align-items: center; }
@@ -50,7 +50,7 @@
 
     button:active, .site-button:active, .card:active, .shift-card:active, .theme-card:active, .primary-button:active, .logout-button:active, .delete-button:active, .calendar-button:active, .feedback-button:active, .modal-cancel-btn:active, .modal-save-btn:active, .break-option-btn:active, .time-chip-v:active, .opacity-btn:active, .action-icon-btn:active, .action-btn:active, .swap-approve-btn:active, .swap-reject-btn:active {
       transform: scale(1.04) translateY(-1px) !important;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.3) !important;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4) !important;
     }
 
     .card-fade-out {
@@ -59,15 +59,16 @@
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
-    .card { border-radius: 16px; padding: 16px; margin-bottom: 12px; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-    .card-subtitle { font-size: calc(11px * var(--f-mult)); font-weight: 700; letter-spacing: 0.5px; opacity: 0.8; }
-    .card-main-text { font-size: calc(17px * var(--f-mult)); font-weight: 700; margin-top: 4px; }
-    .card-time-text { font-size: calc(15px * var(--f-mult)); font-weight: 600; margin-top: 2px; }
-    .info-text { font-size: calc(13px * var(--f-mult)); }
+    /* Улучшена контрастность карточек для максимальной четкости */
+    .card { border-radius: 18px; padding: 18px; margin-bottom: 14px; background: rgba(20, 35, 25, 0.82); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); color: #ffffff; }
+    .card-subtitle { font-size: calc(11px * var(--f-mult)); font-weight: 700; letter-spacing: 0.5px; opacity: 0.9; color: #cbd5e1; }
+    .card-main-text { font-size: calc(17px * var(--f-mult)); font-weight: 700; margin-top: 4px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+    .card-time-text { font-size: calc(15px * var(--f-mult)); font-weight: 600; margin-top: 2px; color: #e2e8f0; }
+    .info-text { font-size: calc(13px * var(--f-mult)); color: #f1f5f9; font-weight: 500; }
 
     .dot-open { width: 8px; height: 8px; border-radius: 4px; background: #22c55e; margin-right: 6px; }
     
-    .site-button { background: #f97316; border-radius: 12px; padding: 12px; display: flex; justify-content: center; align-items: center; margin-top: 14px; cursor: pointer; text-decoration: none; color: #fff; font-weight: 600; font-size: calc(14px * var(--f-mult)); border: none; width: 100%; }
+    .site-button { background: #f97316; border-radius: 12px; padding: 12px; display: flex; justify-content: center; align-items: center; margin-top: 14px; cursor: pointer; text-decoration: none; color: #fff; font-weight: 600; font-size: calc(14px * var(--f-mult)); border: none; width: 100%; box-shadow: 0 4px 12px rgba(249,115,22,0.4); }
 
     .logo-emblem-card {
       position: relative;
@@ -77,10 +78,12 @@
       margin-bottom: 12px;
       display: flex;
       flex-direction: column;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.5);
+      background: rgba(20, 35, 25, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35), inset 0 1px 3px rgba(255, 255, 255, 0.5);
       backdrop-filter: blur(35px) saturate(200%);
       -webkit-backdrop-filter: blur(35px) saturate(200%);
+      color: #fff;
     }
 
     /* Оранжевый плавающий блюр-бар для Дней Рождения */
@@ -88,11 +91,11 @@
       border-radius: 22px;
       padding: 12px 18px;
       margin-bottom: 12px;
-      background: rgba(249, 115, 22, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(217, 93, 10, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.5);
       backdrop-filter: blur(30px) saturate(190%);
       -webkit-backdrop-filter: blur(30px) saturate(190%);
-      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.6);
       color: #ffffff;
       display: flex;
       align-items: center;
@@ -114,21 +117,21 @@
       100% { opacity: 0; transform: scale(0.1); }
     }
 
-    .shift-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
-    .day-text { font-size: calc(16px * var(--f-mult)); font-weight: 700; }
-    .date-text { font-size: calc(12px * var(--f-mult)); margin-top: 2px; opacity: 0.8; }
+    .shift-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(20, 35, 25, 0.82); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
+    .day-text { font-size: calc(16px * var(--f-mult)); font-weight: 700; color: #fff; }
+    .date-text { font-size: calc(12px * var(--f-mult)); margin-top: 2px; color: #cbd5e1; font-weight: 500; }
     
     .badge-status { display: flex; align-items: center; padding: 4px 10px; border-radius: 10px; }
     .badge-status-text { font-size: calc(12px * var(--f-mult)); font-weight: 600; color: #fff; }
     
-    .time-text { font-size: calc(15px * var(--f-mult)); font-weight: 700; text-align: right; }
-    .station-badge { padding: 2px 6px; border-radius: 6px; margin-top: 4px; display: inline-block; text-align: center; }
+    .time-text { font-size: calc(15px * var(--f-mult)); font-weight: 700; text-align: right; color: #fff; }
+    .station-badge { padding: 2px 6px; border-radius: 6px; margin-top: 4px; display: inline-block; text-align: center; color: #fff; font-weight: bold; }
 
-    .action-btn { background: #22c55e; border-radius: 16px; padding: 16px; display: flex; justify-content: center; align-items: center; margin-top: 10px; cursor: pointer; border: none; width: 100%; }
+    .action-btn { background: #22c55e; border-radius: 16px; padding: 16px; display: flex; justify-content: center; align-items: center; margin-top: 10px; cursor: pointer; border: none; width: 100%; box-shadow: 0 6px 20px rgba(34,197,94,0.4); }
     .action-btn-text { color: #ffffff; font-size: calc(16px * var(--f-mult)); font-weight: bold; }
-    .end-shift-btn { background: #ef4444; }
+    .end-shift-btn { background: #ef4444; box-shadow: 0 6px 20px rgba(239,68,68,0.4); }
 
-    .action-icon-btn { background: #f97316; width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; color: #fff; }
+    .action-icon-btn { background: #f97316; width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; color: #fff; box-shadow: 0 4px 12px rgba(249,115,22,0.4); }
 
     /* Плавающий бар с бегунком */
     .floating-tab-bar { 
@@ -141,10 +144,11 @@
       justify-content: space-around; 
       align-items: center; 
       border-radius: 34px; 
-      border: 1px solid rgba(255, 255, 255, 0.25); 
+      border: 1px solid rgba(255, 255, 255, 0.35); 
+      background: rgba(20, 35, 25, 0.88);
       backdrop-filter: blur(35px) saturate(180%); 
       -webkit-backdrop-filter: blur(35px) saturate(180%); 
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4); 
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5); 
       z-index: 999; 
       padding: 4px;
       touch-action: none;
@@ -156,12 +160,12 @@
       top: 4px;
       left: 0;
       height: calc(100% - 8px);
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.45);
       backdrop-filter: blur(30px) saturate(200%);
       -webkit-backdrop-filter: blur(30px) saturate(200%);
-      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
       border-radius: 28px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 14px rgba(255, 255, 255, 0.7);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35), inset 0 0 14px rgba(255, 255, 255, 0.8);
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s ease;
       pointer-events: none;
       z-index: 1;
@@ -170,8 +174,8 @@
 
     .nav-lens-indicator.pressing {
       transform: translateY(-2px) scale(1.08);
-      background: rgba(255, 255, 255, 0.55);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), inset 0 0 18px rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), inset 0 0 18px rgba(255, 255, 255, 0.95);
     }
 
     .tab-item { 
@@ -220,18 +224,18 @@
     }
 
     .input-field { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; font-size: calc(14px * var(--f-mult)); }
-    .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: calc(15px * var(--f-mult)); text-align: center; }
+    .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: calc(15px * var(--f-mult)); text-align: center; box-shadow: 0 4px 15px rgba(249,115,22,0.4); }
     
-    .logout-button { background: #3b82f6; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
-    .delete-button { background: rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fca5a5; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
+    .logout-button { background: #2563eb; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); box-shadow: 0 4px 15px rgba(37,99,235,0.4); }
+    .delete-button { background: rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fca5a5; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); border: 1px solid rgba(239,68,68,0.4); }
 
-    .calendar-button { background: #0891b2; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; font-size: calc(13px * var(--f-mult)); }
-    .scan-button { background: #8b5cf6; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; font-size: calc(13px * var(--f-mult)); }
-    .feedback-button { background: #0088cc; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); text-decoration: none; }
+    .calendar-button { background: #0891b2; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; font-size: calc(13px * var(--f-mult)); box-shadow: 0 4px 15px rgba(8,145,178,0.4); }
+    .scan-button { background: #8b5cf6; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; font-size: calc(13px * var(--f-mult)); box-shadow: 0 4px 15px rgba(139,92,246,0.4); }
+    .feedback-button { background: #0088cc; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); text-decoration: none; box-shadow: 0 4px 15px rgba(0,136,204,0.4); }
 
     /* Кнопки одобрения/отказа обмена сменами */
-    .swap-approve-btn { background: #22c55e; border-radius: 12px; padding: 12px; flex: 1; border: none; color: #fff; font-weight: bold; font-size: calc(14px * var(--f-mult)); cursor: pointer; text-align: center; }
-    .swap-reject-btn { background: #ef4444; border-radius: 12px; padding: 12px; flex: 1; border: none; color: #fff; font-weight: bold; font-size: calc(14px * var(--f-mult)); cursor: pointer; text-align: center; }
+    .swap-approve-btn { background: #22c55e; border-radius: 12px; padding: 12px; flex: 1; border: none; color: #fff; font-weight: bold; font-size: calc(14px * var(--f-mult)); cursor: pointer; text-align: center; box-shadow: 0 4px 15px rgba(34,197,94,0.4); }
+    .swap-reject-btn { background: #ef4444; border-radius: 12px; padding: 12px; flex: 1; border: none; color: #fff; font-weight: bold; font-size: calc(14px * var(--f-mult)); cursor: pointer; text-align: center; box-shadow: 0 4px 15px rgba(239,68,68,0.4); }
 
     /* ЖИДКОЕ СТЕКЛО для времени */
     .time-picker-row { 
@@ -239,14 +243,14 @@
       align-items: center; 
       justify-content: center; 
       gap: 12px; 
-      background: rgba(255, 255, 255, 0.1); 
-      border: 1px solid rgba(255, 255, 255, 0.25); 
+      background: rgba(0, 0, 0, 0.25); 
+      border: 1px solid rgba(255, 255, 255, 0.3); 
       backdrop-filter: blur(25px) saturate(180%); 
       -webkit-backdrop-filter: blur(25px) saturate(180%); 
       border-radius: 16px; 
       padding: 10px; 
       margin-bottom: 10px; 
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 10px 25px rgba(0, 0, 0, 0.2);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 10px 25px rgba(0, 0, 0, 0.3);
     }
     .time-column { 
       height: 110px; 
@@ -257,8 +261,8 @@
       flex-direction: column; 
       gap: 4px; 
       padding: 3px; 
-      background: rgba(0, 0, 0, 0.18); 
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.35); 
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 12px; 
       backdrop-filter: blur(15px);
       -webkit-backdrop-filter: blur(15px);
@@ -271,7 +275,7 @@
       justify-content: center; 
       align-items: center; 
       border-radius: 8px; 
-      background: rgba(255, 255, 255, 0.08); 
+      background: rgba(255, 255, 255, 0.12); 
       color: #fff; 
       font-weight: bold; 
       font-size: calc(14px * var(--f-mult)); 
@@ -280,28 +284,28 @@
     }
     .time-chip-v.active { 
       background: #f97316; 
-      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.5); 
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.6); 
     }
 
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .spinner { animation: spin 1s linear infinite; display: inline-block; }
 
-    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(20, 35, 25, 0.82); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
     .color-circle { width: 24px; height: 24px; border-radius: 12px; margin-right: 12px; }
-    .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none; cursor: pointer; font-weight: 600; font-size: calc(12px * var(--f-mult)); }
+    .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; font-weight: 600; font-size: calc(12px * var(--f-mult)); color: #fff; }
 
     /* Модалки в стиле VisionOS */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    .modal-content { border-radius: 24px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.4); transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(30, 35, 32, 0.75); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .modal-content { border-radius: 24px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.5); transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(20, 35, 25, 0.95); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); color: #fff; }
     
-    .type-toggle-btn { flex: 1; padding: 8px 4px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.2); margin: 0 2px; border: none; color: #fff; font-weight: 600; font-size: calc(11px * var(--f-mult)); cursor: pointer; }
+    .type-toggle-btn { flex: 1; padding: 9px 4px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.3); margin: 0 2px; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; font-size: calc(11px * var(--f-mult)); cursor: pointer; }
     
-    .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.15); border-radius: 22px; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: calc(14px * var(--f-mult)); }
-    .modal-save-btn { flex: 1; padding: 12px; text-align: center; background: #22c55e; border-radius: 22px; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: calc(14px * var(--f-mult)); }
+    .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.2); border-radius: 22px; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: calc(14px * var(--f-mult)); }
+    .modal-save-btn { flex: 1; padding: 12px; text-align: center; background: #22c55e; border-radius: 22px; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: calc(14px * var(--f-mult)); box-shadow: 0 4px 15px rgba(34,197,94,0.4); }
 
-    .break-option-btn { background: rgba(255,255,255,0.15); padding: 14px; border-radius: 10px; text-align: center; margin-bottom: 8px; color: #fff; font-weight: 600; cursor: pointer; border: none; width: 100%; font-size: calc(14px * var(--f-mult)); }
+    .break-option-btn { background: rgba(255,255,255,0.15); padding: 14px; border-radius: 10px; text-align: center; margin-bottom: 8px; color: #fff; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); width: 100%; font-size: calc(14px * var(--f-mult)); }
 
-    .badge-code { font-size: calc(14px * var(--f-mult)); font-weight: bold; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 10px; }
+    .badge-code { font-size: calc(14px * var(--f-mult)); font-weight: bold; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 10px; color: #fff; }
   </style>
 </head>
 <body>
@@ -345,7 +349,7 @@
   <div class="modal-content" id="customModalBg" style="text-align: center;">
     <div id="customModalIcon" style="margin-bottom: 12px;"></div>
     <h3 id="customModalTitle" style="color: #fff; margin-bottom: 8px; font-size: 18px;">Уведомление</h3>
-    <div id="customModalText" style="color: #ddd; font-size: 14px; margin-bottom: 22px; line-height: 1.4;"></div>
+    <div id="customModalText" style="color: #e2e8f0; font-size: 14px; margin-bottom: 22px; line-height: 1.4;"></div>
     <div id="customModalButtons" class="row-between" style="gap: 12px;"></div>
   </div>
 </div>
@@ -354,7 +358,7 @@
 <div class="modal-overlay" id="scanEditModal">
   <div class="modal-content" id="scanEditModalBg" style="max-width: 400px; max-height: 85vh; overflow-y: auto;">
     <h3 style="color: #fff; text-align: center; margin-bottom: 6px;">Сканирование графика</h3>
-    <p style="color: #ccc; text-align: center; font-size: 12px; margin-bottom: 14px;">Проверьте и подправьте отсканированные смены при необходимости:</p>
+    <p style="color: #cbd5e1; text-align: center; font-size: 12px; margin-bottom: 14px;">Проверьте и подправьте отсканированные смены при необходимости:</p>
     <div id="scanResultsContainer"></div>
     <div class="row-between" style="margin-top: 16px; gap: 12px;">
       <button class="modal-cancel-btn" onclick="closeModal('scanEditModal')">Отмена</button>
@@ -397,12 +401,12 @@
     <!-- Периоды для Больничного и Отпуска -->
     <div id="periodSettings" style="display: none; text-align: left; margin-top: 10px;">
       <label style="color: #fff; font-size: 12px; font-weight: 600;">С какого числа:</label>
-      <input type="date" id="periodStartDate" class="input-field" style="background: rgba(255,255,255,0.2); color:#fff; margin-top: 4px; margin-bottom: 10px;">
+      <input type="date" id="periodStartDate" class="input-field" style="background: rgba(255,255,255,0.25); color:#fff; margin-top: 4px; margin-bottom: 10px;">
       
       <label style="color: #fff; font-size: 12px; font-weight: 600;">По какое число:</label>
-      <input type="date" id="periodEndDate" class="input-field" style="background: rgba(255,255,255,0.2); color:#fff; margin-top: 4px;">
+      <input type="date" id="periodEndDate" class="input-field" style="background: rgba(255,255,255,0.25); color:#fff; margin-top: 4px;">
 
-      <div id="sickNoticeBox" style="display: none; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.6); border-radius: 12px; padding: 10px; margin-top: 10px;">
+      <div id="sickNoticeBox" style="display: none; background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.7); border-radius: 12px; padding: 10px; margin-top: 10px;">
         <p style="color: #fca5a5; font-size: 11px; line-height: 1.35;">
           <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i>
           <strong>Не забудьте уведомить менеджера и отдел кадров по телефону после утверждения больничного врачом!</strong>
@@ -431,8 +435,8 @@
 <div class="modal-overlay" id="hoursModal">
   <div class="modal-content" id="hoursModalBg">
     <h3 style="color: #fff; text-align: center; margin-bottom: 10px;">Изменить / сбросить часы</h3>
-    <p style="color: #bbb; text-align: center; font-size: 13px; margin-bottom: 15px;" id="currentHoursText">Текущее значение: 0 ч.</p>
-    <input type="number" id="customHoursInput" class="input-field" placeholder="Введите часы (например: 33.5)" style="background: rgba(255,255,255,0.15); color: #fff;">
+    <p style="color: #cbd5e1; text-align: center; font-size: 13px; margin-bottom: 15px;" id="currentHoursText">Текущее значение: 0 ч.</p>
+    <input type="number" id="customHoursInput" class="input-field" placeholder="Введите часы (например: 33.5)" style="background: rgba(255,255,255,0.2); color: #fff;">
     <button class="primary-button" style="background: #ef4444; margin-bottom: 8px;" onclick="saveCustomHours(0)">Сбросить до 0</button>
     <div class="row-between" style="margin-top: 10px; gap: 12px;">
       <button class="modal-cancel-btn" onclick="closeModal('hoursModal')">Отмена</button>
@@ -442,11 +446,16 @@
 </div>
 
 <script>
-  const APP_VERSION = '5.8';
-  const APP_CHANGELOG = 'Разделение исходящих и входящих запросов на обмен, устранение отправки себе.';
+  const APP_VERSION = '6.2';
+  const APP_CHANGELOG = 'Связь удаления профиля с экраном входа и проверка статуса «Сотрудник не найден, возможно удален».';
+
+  if (!localStorage.getItem('app_v62_cleaned')) {
+    localStorage.removeItem('app_swap_request');
+    localStorage.setItem('app_v62_cleaned', 'true');
+  }
 
   let activeTab = 'home';
-  let authMode = 'login'; // 'login' или 'register'
+  let authMode = 'login';
   let theme = localStorage.getItem('app_theme') || 'green';
   let opacity = parseFloat(localStorage.getItem('app_opacity')) || 0.3;
   let fontSizeScale = parseFloat(localStorage.getItem('app_font_scale')) || 1.0;
@@ -457,8 +466,8 @@
   let isLoggedIn = JSON.parse(localStorage.getItem('app_is_logged_in')) || false;
   let employee = JSON.parse(localStorage.getItem('app_employee')) || { firstName: '', code: '' };
 
-  /* База данных сотрудников + поддержка зарегистрированных локально */
   const knownEmployees = {
+    '1111111': { name: 'Николаев Николай', birth: '10-23' },
     '1022807': { name: 'Ш Егор', birth: '10-28' },
     '1022808': { name: 'Иванов Алексей', birth: '10-25' },
     '1022809': { name: 'Петрова Анна', birth: '11-02' },
@@ -480,7 +489,6 @@
     { code: 'CF', name: 'кафе', color: '#10b981' },
   ];
 
-  /* Запрос разрешений на Push-уведомления */
   function requestPushPermission() {
     if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
       Notification.requestPermission();
@@ -535,12 +543,10 @@
     ? (parseFloat(localStorage.getItem(`app_worked_hours_${employee.code}`)) || 0)
     : 0;
 
-  // Разделяем на исходящий (вы отправили) и входящий (вам прислал другой)
   let outgoingSwapRequest = JSON.parse(localStorage.getItem('app_outgoing_swap')) || null;
   let incomingSwapRequest = JSON.parse(localStorage.getItem('app_incoming_swap')) || null;
   let shiftStarted = false;
 
-  /* Проверка Дней Рождений и отправка Push-уведомлений */
   function checkBirthdayTriggers() {
     const now = new Date();
     const allEmp = getAllKnownEmployees();
@@ -691,10 +697,10 @@
   function renderScanEditModal() {
     const container = document.getElementById('scanResultsContainer');
     container.innerHTML = tempScannedShifts.map((s, idx) => `
-      <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; margin-bottom: 8px;">
+      <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">
         <div class="row-between" style="margin-bottom: 6px;">
           <strong style="color: #fff; font-size: 14px;">${s.day} (${s.date})</strong>
-          <select style="background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 2px 6px;" onchange="tempScannedShifts[${idx}].type = this.value; renderScanEditModal();">
+          <select style="background: rgba(0,0,0,0.6); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 2px 6px;" onchange="tempScannedShifts[${idx}].type = this.value; renderScanEditModal();">
             <option value="work" ${s.type==='work'?'selected':''}>Рабочий</option>
             <option value="off" ${s.type==='off'?'selected':''}>Выходной</option>
             <option value="sick" ${s.type==='sick'?'selected':''}>Больничный</option>
@@ -703,9 +709,9 @@
         </div>
         ${s.type === 'work' ? `
           <div class="row-between" style="gap: 6px;">
-            <input type="time" value="${s.start || '09:00'}" style="flex:1; padding:6px; border-radius:6px; border:none; background:rgba(255,255,255,0.2); color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].start = this.value">
+            <input type="time" value="${s.start || '09:00'}" style="flex:1; padding:6px; border-radius:6px; border:none; background:rgba(255,255,255,0.25); color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].start = this.value">
             <span style="color:#fff;">—</span>
-            <input type="time" value="${s.end || '18:00'}" style="flex:1; padding:6px; border-radius:6px; border:none; background:rgba(255,255,255,0.2); color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].end = this.value">
+            <input type="time" value="${s.end || '18:00'}" style="flex:1; padding:6px; border-radius:6px; border:none; background:rgba(255,255,255,0.25); color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].end = this.value">
             <select style="padding:6px; border-radius:6px; border:none; background:#f97316; color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].station = this.value">
               ${stationsList.map(st => `<option value="${st.code}" ${s.station===st.code?'selected':''}>${st.code}</option>`).join('')}
             </select>
@@ -740,7 +746,14 @@
     const previewEl = document.getElementById('loginEmployeePreview');
     const btnEl = document.getElementById('btnLoginSubmit');
     const allEmp = getAllKnownEmployees();
+    let deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
+
     if (val.length === 7) {
+      if (deletedCodes.includes(val)) {
+        if (previewEl) previewEl.innerHTML = `<span style="color: #ef4444; font-weight: bold;"><i class="fa-solid fa-triangle-exclamation"></i> Сотрудник не найден, возможно удален</span>`;
+        if (btnEl) btnEl.disabled = true;
+        return;
+      }
       const foundData = allEmp[val];
       if (foundData) {
         if (previewEl) previewEl.innerHTML = `<span style="color: #22c55e; font-weight: bold;"><i class="fa-solid fa-circle-check"></i> Сотрудник: ${foundData.name}</span>`;
@@ -750,13 +763,19 @@
         if (btnEl) btnEl.disabled = true;
       }
     } else {
-      if (previewEl) previewEl.innerHTML = `<span style="color: #bbb;">Введите ваш 7-значный табельный номер</span>`;
+      if (previewEl) previewEl.innerHTML = `<span style="color: #cbd5e1;">Введите ваш 7-значный табельный номер</span>`;
       if (btnEl) btnEl.disabled = true;
     }
   }
 
   function handleLogin() {
     const code = document.getElementById('inpCode').value;
+    let deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
+    if (deletedCodes.includes(code)) {
+      showCustomAlert('Ошибка входа', 'Сотрудник не найден, возможно удален.', '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444; font-size: 38px;"></i>');
+      return;
+    }
+
     const allEmp = getAllKnownEmployees();
     const empData = allEmp[code];
     if (code.length === 7 && empData) {
@@ -793,11 +812,10 @@
       return;
     }
 
-    const allEmp = getAllKnownEmployees();
-    if (allEmp[code]) {
-      showCustomAlert('Ошибка', 'Такой табельный номер уже зарегистрирован. Воспользуйтесь вкладкой «Вход».', '<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b; font-size: 38px;"></i>');
-      return;
-    }
+    // Удаляем из списка удаленных при повторной регистрации
+    let deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
+    deletedCodes = deletedCodes.filter(c => c !== code);
+    localStorage.setItem('app_deleted_codes', JSON.stringify(deletedCodes));
 
     let custom = JSON.parse(localStorage.getItem('app_custom_employees')) || {};
     custom[code] = { name: name, birth: '' };
@@ -831,7 +849,7 @@
       if (previewEl) previewEl.innerHTML = `<span style="color: #22c55e; font-weight: bold;"><i class="fa-solid fa-circle-check"></i> Коллега: ${foundName}</span>`;
       if (btnEl) btnEl.disabled = false;
     } else {
-      if (previewEl) previewEl.innerHTML = `<span style="color: #bbb;">Введите 7 цифр табельного номера коллеги</span>`;
+      if (previewEl) previewEl.innerHTML = `<span style="color: #cbd5e1;">Введите 7 цифр табельного номера коллеги</span>`;
       if (btnEl) btnEl.disabled = true;
     }
   }
@@ -872,11 +890,10 @@
     render();
   }
 
-  // Функция для симуляции входящего запроса (для проверки интерфейса)
   function simulateIncomingSwap() {
     incomingSwapRequest = {
-      senderCode: '1022808',
-      senderName: 'Иванов Алексей',
+      senderCode: '1111111',
+      senderName: 'Николаев Николай',
       dateText: 'Среда, 21 октября',
       shiftTime: '09:00-18:00 (K)'
     };
@@ -973,7 +990,7 @@
     let bg = '#2d4a35';
     if (theme === 'orange') bg = '#4a352d';
     if (theme === 'bw') bg = opacity === 1.0 ? '#000000' : '#121212';
-    const cardBg = opacity === 1.0 && theme === 'bw' ? '#ffffff' : `rgba(255, 255, 255, ${opacity})`;
+    const cardBg = opacity === 1.0 && theme === 'bw' ? '#ffffff' : `rgba(20, 35, 25, ${Math.max(0.8, opacity)})`;
     return { bg, cardBg, text: textCol };
   }
 
@@ -1013,7 +1030,7 @@
     document.querySelectorAll('.tab-item').forEach(btn => {
       const tab = btn.getAttribute('data-tab');
       const isActive = activeTab === tab;
-      const itemColor = opacity > 0.5 ? '#111111' : (isActive ? '#ffffff' : 'rgba(255,255,255,0.6)');
+      const itemColor = opacity > 0.5 ? '#111111' : (isActive ? '#ffffff' : 'rgba(255,255,255,0.7)');
       const icon = btn.querySelector('i');
       const text = btn.querySelector('.tab-text');
       if (icon) icon.style.color = itemColor;
@@ -1053,13 +1070,13 @@
               <i class="fa-solid fa-cake-candles" style="font-size: 20px; margin-right: 10px; color: #fff;"></i>
               <span style="font-size: calc(13px * var(--f-mult)); font-weight: 600;">${bdayText}</span>
             </div>
-            <i class="fa-solid fa-xmark" style="cursor: pointer; opacity: 0.8; font-size: 16px; margin-left: 10px;" onclick="closeBirthdayBar()"></i>
+            <i class="fa-solid fa-xmark" style="cursor: pointer; opacity: 0.9; font-size: 16px; margin-left: 10px;" onclick="closeBirthdayBar()"></i>
           </div>
         `;
       }
 
       screen.innerHTML = `
-        <div class="logo-emblem-card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
+        <div class="logo-emblem-card">
           <div>
             <h1 class="header-title" style="line-height: 1.25; margin-bottom: 3px;">Здравствуй, ${greetingName}!</h1>
             <p class="header-subtitle">${getFormattedCurrentDate()}${codeInfo}</p>
@@ -1068,7 +1085,7 @@
 
         ${bdayBarHtml}
         
-        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; cursor: pointer;" onclick="switchTab('shifts')">
+        <div class="card" onclick="switchTab('shifts')" style="cursor: pointer;">
           <div class="row-between">
             <div class="row-center">
               <i class="fa-regular fa-calendar" style="margin-right: 8px;"></i>
@@ -1080,7 +1097,7 @@
           <div class="card-time-text">${isLoggedIn ? (nextShift.type === 'off' ? 'Выходной' : nextShift.type === 'sick' ? 'Больничный' : nextShift.type === 'vacation' ? 'Отпуск' : nextShift.start + ' — ' + nextShift.end + ' (' + nextShift.station + ')') : 'Авторизуйтесь в профиле'}</div>
         </div>
 
-        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
+        <div class="card">
           <div class="row-center">
             <i class="fa-solid fa-utensils" style="color: #f97316; margin-right: 8px;"></i>
             <span class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin: 0;">Ресторан «Вкусно — и точка»</span>
@@ -1091,12 +1108,12 @@
           </div>
           <div class="row-center" style="margin-top: 6px;">
             <div class="dot-open"></div>
-            <span class="info-text" style="color: #22c55e; font-weight: 600;">Открыто</span>
+            <span class="info-text" style="color: #22c55e; font-weight: 700;">Открыто</span>
             <span class="info-text" style="margin-left: 6px;">09:30 — 23:00</span>
           </div>
           <div class="row-center" style="margin-top: 8px; cursor: pointer;" onclick="window.location.href='tel:+74952296869'">
             <i class="fa-solid fa-phone" style="color: #f97316; margin-right: 6px;"></i>
-            <span style="color: #f97316; text-decoration: underline; font-weight: 600;">+7 (495) 229-68-69</span>
+            <span style="color: #f97316; text-decoration: underline; font-weight: 700;">+7 (495) 229-68-69</span>
           </div>
           <button class="site-button" onclick="showUnavailableSiteModal()">
             <i class="fa-solid fa-globe" style="margin-right: 6px;"></i> Сайт Вкусно — и точка
@@ -1107,7 +1124,7 @@
       let html = `<h1 class="header-title" style="margin-bottom: 16px;">Смена</h1>`;
       if (!isLoggedIn) {
         html += `
-          <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; text-align: center; padding: 30px;">
+          <div class="card" style="text-align: center; padding: 30px;">
             <i class="fa-solid fa-lock" style="font-size: 48px; color: #f97316; margin-bottom: 10px;"></i>
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult));">Требуется авторизация</div>
             <p class="info-text" style="margin-top: 6px;">Войдите в свой аккаунт во вкладке «Сотрудник», чтобы увидеть расписание.</p>
@@ -1117,31 +1134,31 @@
         shifts.forEach(item => {
           let badgeHtml = '';
           if (item.type === 'off') {
-            badgeHtml = `<div class="badge-status" style="background: rgba(0,0,0,0.2);"><i class="fa-solid fa-mug-hot" style="margin-right: 6px; font-size: calc(12px * var(--f-mult));"></i><span class="badge-status-text">Выходной</span></div>`;
+            badgeHtml = `<div class="badge-status" style="background: rgba(0,0,0,0.3);"><i class="fa-solid fa-mug-hot" style="margin-right: 6px; font-size: calc(12px * var(--f-mult));"></i><span class="badge-status-text">Выходной</span></div>`;
           } else if (item.type === 'sick') {
-            badgeHtml = `<div class="badge-status" style="background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.6);"><i class="fa-solid fa-notes-medical" style="margin-right: 6px; color: #fca5a5;"></i><span class="badge-status-text" style="color: #fca5a5;">Больничный (Б)</span></div>`;
+            badgeHtml = `<div class="badge-status" style="background: rgba(239, 68, 68, 0.4); border: 1px solid rgba(239, 68, 68, 0.7);"><i class="fa-solid fa-notes-medical" style="margin-right: 6px; color: #fca5a5;"></i><span class="badge-status-text" style="color: #fca5a5;">Больничный (Б)</span></div>`;
           } else if (item.type === 'vacation') {
-            badgeHtml = `<div class="badge-status" style="background: rgba(59, 130, 246, 0.3); border: 1px solid rgba(59, 130, 246, 0.6);"><i class="fa-solid fa-umbrella-beach" style="margin-right: 6px; color: #93c5fd;"></i><span class="badge-status-text" style="color: #93c5fd;">Отпуск (О)</span></div>`;
+            badgeHtml = `<div class="badge-status" style="background: rgba(59, 130, 246, 0.4); border: 1px solid rgba(59, 130, 246, 0.7);"><i class="fa-solid fa-umbrella-beach" style="margin-right: 6px; color: #93c5fd;"></i><span class="badge-status-text" style="color: #93c5fd;">Отпуск (О)</span></div>`;
           } else {
             badgeHtml = `<div style="text-align: right;"><div class="time-text">${item.start} — ${item.end}</div>${item.station ? '<div class="station-badge" style="background:' + getStationColor(item.station) + '">' + item.station + '</div>' : ''}</div>`;
           }
 
           html += `
-            <div class="shift-card" style="background-color: ${colors.cardBg}; color: ${colors.text};" onclick="openShiftModal(${item.id})">
+            <div class="shift-card" onclick="openShiftModal(${item.id})">
               <div>
                 <div class="day-text">${item.day}</div>
                 <div class="date-text">${item.date}</div>
               </div>
               <div class="row-center">
                 ${badgeHtml}
-                <i class="fa-solid fa-chevron-right" style="margin-left: 10px; font-size: calc(14px * var(--f-mult));"></i>
+                <i class="fa-solid fa-chevron-right" style="margin-left: 10px; font-size: calc(14px * var(--f-mult)); opacity: 0.8;"></i>
               </div>
             </div>
           `;
         });
 
         html += `
-          <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 10px;">
+          <div class="card" style="margin-top: 10px;">
             <div class="row-between">
               <span class="card-subtitle">ОТРАБОТАННОЕ ВРЕМЯ</span>
               <button class="action-icon-btn" onclick="openHoursModal()"><i class="fa-solid fa-pen"></i></button>
@@ -1164,31 +1181,30 @@
       screen.innerHTML = html;
     } else if (activeTab === 'employee') {
       let html = `<div class="row-between" style="margin-bottom: 16px;"><h1 class="header-title" style="margin-bottom:0;">Сотрудник</h1>`;
-      if (isLoggedIn) html += `<span class="badge-code" style="color:${colors.text};">${employee.code}</span>`;
+      if (isLoggedIn) html += `<span class="badge-code">${employee.code}</span>`;
       html += `</div>`;
 
       if (!isLoggedIn) {
         html += `
-          <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; text-align: center;">
+          <div class="card" style="text-align: center;">
             <i class="fa-regular fa-circle-user" style="font-size: 60px; color: #f97316; margin-bottom: 8px;"></i>
             
-            <!-- Переключатель Вход / Регистрация -->
-            <div class="row-between" style="margin-bottom: 14px; background: rgba(0,0,0,0.25); border-radius: 12px; padding: 4px;">
+            <div class="row-between" style="margin-bottom: 14px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; border: 1px solid rgba(255,255,255,0.2);">
               <button class="type-toggle-btn" style="background: ${authMode==='login'?'#f97316':'transparent'}; padding: 10px;" onclick="setAuthMode('login')">Вход</button>
               <button class="type-toggle-btn" style="background: ${authMode==='register'?'#f97316':'transparent'}; padding: 10px;" onclick="setAuthMode('register')">Регистрация</button>
             </div>
 
             ${authMode === 'login' ? `
               <div class="card-main-text" style="font-size: calc(20px * var(--f-mult)); margin-bottom: 6px;">Вход в систему</div>
-              <p class="info-text" style="margin-bottom: 16px; opacity: 0.8;">Введите табельный номер для входа</p>
-              <input type="text" id="inpCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.85); color:#000;" oninput="onLoginCodeInput(this.value)">
+              <p class="info-text" style="margin-bottom: 16px; opacity: 0.9;">Введите табельный номер для входа</p>
+              <input type="text" id="inpCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.9); color:#000;" oninput="onLoginCodeInput(this.value)">
               <div id="loginEmployeePreview" style="font-size: 13px; margin-bottom: 10px; min-height: 20px;"></div>
               <button class="primary-button" id="btnLoginSubmit" disabled onclick="handleLogin()">Войти в систему</button>
             ` : `
               <div class="card-main-text" style="font-size: calc(20px * var(--f-mult)); margin-bottom: 6px;">Регистрация сотрудника</div>
-              <p class="info-text" style="margin-bottom: 16px; opacity: 0.8;">Введите ваш табельный номер и ФИ</p>
-              <input type="text" id="inpRegCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.85); color:#000; margin-bottom: 8px;">
-              <input type="text" id="inpRegName" class="input-field" placeholder="Фамилия и Имя (например: Иванов Иван)" style="background: rgba(255,255,255,0.85); color:#000;">
+              <p class="info-text" style="margin-bottom: 16px; opacity: 0.9;">Введите ваш табельный номер и ФИ</p>
+              <input type="text" id="inpRegCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.9); color:#000; margin-bottom: 8px;">
+              <input type="text" id="inpRegName" class="input-field" placeholder="Фамилия и Имя (например: Иванов Иван)" style="background: rgba(255,255,255,0.9); color:#000;">
               <button class="primary-button" style="background: #22c55e; margin-top: 14px;" onclick="handleRegister()">Зарегистрироваться</button>
             `}
           </div>
@@ -1197,44 +1213,44 @@
         const workShiftsList = shifts.filter(s => s.type === 'work' && s.start && s.end);
 
         html += `
-          <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
-            <span class="info-text">Сотрудник (ФИ / Инициал)</span>
+          <div class="card">
+            <span class="info-text" style="color: #cbd5e1;">Сотрудник (ФИ / Инициал)</span>
             <div class="card-main-text" style="font-size: calc(20px * var(--f-mult)); margin-bottom: 12px;">${employee.firstName}</div>
-            <span class="info-text">Табельный номер</span>
+            <span class="info-text" style="color: #cbd5e1;">Табельный номер</span>
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult));">${employee.code}</div>
           </div>
         `;
 
         // Блок отправки запроса на обмен
         html += `
-          <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 14px;">
-            <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 8px;">Обмен сменами</div>
+          <div class="card" style="margin-top: 14px;">
+            <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 10px;">Обмен сменами</div>
         `;
 
         if (outgoingSwapRequest) {
           html += `
-            <div style="background: rgba(59, 130, 246, 0.25); border: 1px solid rgba(59, 130, 246, 0.6); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
-              <div style="font-size: calc(13px * var(--f-mult)); font-weight: bold; color: #93c5fd; margin-bottom: 4px;">
-                <i class="fa-solid fa-paper-plane" style="margin-right: 4px;"></i> Запрос отправлен коллеге (${outgoingSwapRequest.targetName})
+            <div style="background: rgba(30, 58, 138, 0.85); border: 1px solid rgba(147, 197, 253, 0.6); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+              <div style="font-size: calc(14px * var(--f-mult)); font-weight: bold; color: #93c5fd; margin-bottom: 6px;">
+                <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i> Запрос отправлен коллеге (${outgoingSwapRequest.targetName})
               </div>
-              <div style="font-size: calc(12px * var(--f-mult)); opacity: 0.9;">
+              <div style="font-size: calc(13px * var(--f-mult)); color: #f1f5f9; font-weight: 500;">
                 Смена: ${outgoingSwapRequest.dateText}, ${outgoingSwapRequest.shiftTime}
               </div>
-              <button class="modal-cancel-btn" style="width: 100%; margin-top: 10px; background: rgba(239, 68, 68, 0.3); color: #fca5a5; font-size: calc(12px * var(--f-mult)); padding: 8px;" onclick="cancelOutgoingSwap()">Отменить запрос</button>
+              <button class="modal-cancel-btn" style="width: 100%; margin-top: 12px; background: rgba(239, 68, 68, 0.4); border: 1px solid rgba(239, 68, 68, 0.7); color: #fca5a5; font-size: calc(13px * var(--f-mult)); padding: 10px; font-weight: bold;" onclick="cancelOutgoingSwap()">Отменить запрос</button>
             </div>
           `;
         } else {
           html += `
-            <p class="info-text" style="opacity:0.85; margin-bottom: 6px;">Какую смену хотите предложить:</p>
-            <select id="inpSwapShiftId" class="input-field" style="background: rgba(255,255,255,0.2); color:#fff; margin-bottom: 12px;">
+            <p class="info-text" style="margin-bottom: 6px;">Какую смену хотите предложить:</p>
+            <select id="inpSwapShiftId" class="input-field" style="background: rgba(255,255,255,0.25); color:#fff; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.3);">
               ${workShiftsList.length > 0 
                 ? workShiftsList.map(s => `<option value="${s.id}" style="color:#000;">${s.day}, ${s.date} (${s.start}-${s.end}, ст. ${s.station})</option>`).join('')
                 : '<option value="" style="color:#000;">Нет рабочих смен на этой неделе</option>'
               }
             </select>
 
-            <p class="info-text" style="opacity:0.85; margin-bottom: 6px;">Табельный номер коллеги (7 цифр):</p>
-            <input type="text" id="inpSwapCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.2); color:#fff;" oninput="onSwapCodeInput(this.value)">
+            <p class="info-text" style="margin-bottom: 6px;">Табельный номер коллеги (7 цифр):</p>
+            <input type="text" id="inpSwapCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.25); color:#fff; border: 1px solid rgba(255,255,255,0.3);" oninput="onSwapCodeInput(this.value)">
             <div id="swapEmployeePreview" style="font-size: 13px; margin-bottom: 10px; min-height: 18px;"></div>
             <button class="primary-button" id="btnSendSwap" style="background: #2563eb;" disabled onclick="sendSwapRequest()"><i class="fa-solid fa-right-left" style="margin-right: 6px;"></i> Отправить запрос на обмен</button>
           `;
@@ -1244,22 +1260,21 @@
         // Входящий запрос (если прислал кто-то другой)
         if (incomingSwapRequest) {
           html += `
-            <div class="card" id="incomingSwapCard" style="background-color: ${colors.cardBg}; color: ${colors.text}; border: 1.5px solid #22c55e; margin-top: 14px;">
-              <span class="card-subtitle" style="color: #22c55e;">ПОСТУПИЛ ЗАПРОС НА ОБМЕН</span>
-              <div style="font-weight: 800; font-size: calc(15px * var(--f-mult)); text-transform: uppercase; margin-top: 8px; line-height: 1.35;">
+            <div class="card" id="incomingSwapCard" style="border: 2px solid #22c55e; margin-top: 14px; background: rgba(15, 45, 25, 0.95); box-shadow: 0 10px 30px rgba(34,197,94,0.25);">
+              <span class="card-subtitle" style="color: #4ade80; font-size: calc(12px * var(--f-mult)); font-weight: bold;">📥 ПОСТУПИЛ ЗАПРОС НА ОБМЕН</span>
+              <div style="font-weight: 800; font-size: calc(15px * var(--f-mult)); text-transform: uppercase; margin-top: 10px; line-height: 1.4; color: #ffffff;">
                 СОТРУДНИК ${incomingSwapRequest.senderName.toUpperCase()} (${incomingSwapRequest.senderCode}): ХОЧЕТ ОБМЕНЯТЬСЯ СМЕНОЙ (${incomingSwapRequest.dateText}, ВРЕМЯ: ${incomingSwapRequest.shiftTime})
               </div>
-              <div class="row-between" style="margin-top: 14px; gap: 10px;">
+              <div class="row-between" style="margin-top: 16px; gap: 12px;">
                 <button class="swap-reject-btn" onclick="handleSwapDecision(false)">Отказаться</button>
                 <button class="swap-approve-btn" onclick="handleSwapDecision(true)">Одобрить</button>
               </div>
             </div>
           `;
         } else {
-          // Кнопка для тестирования входящего запроса от коллеги
           html += `
             <div style="text-align: center; margin-bottom: 14px;">
-              <button style="background: transparent; border: none; color: #94a3b8; font-size: 12px; text-decoration: underline; cursor: pointer;" onclick="simulateIncomingSwap()">
+              <button style="background: transparent; border: none; color: #cbd5e1; font-size: 13px; text-decoration: underline; cursor: pointer; font-weight: 500;" onclick="simulateIncomingSwap()">
                 🧪 Симулировать входящий запрос от коллеги для теста
               </button>
             </div>
@@ -1279,51 +1294,50 @@
         <h1 class="header-title" style="margin-bottom: 4px;">Настройки</h1>
         <p class="header-subtitle" style="margin-bottom: 16px;">Управление приложением и поддержка:</p>
 
-        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
+        <div class="card">
           <div class="card-main-text" style="margin-bottom: 6px; font-size: calc(18px * var(--f-mult));">Приложение для сотрудников.</div>
-          <p class="info-text" style="opacity: 0.9; margin-top: 8px;">Как добавить на экран телефонов:</p>
-          <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-top: 4px;">
+          <p class="info-text" style="margin-top: 8px;">Как добавить на экран телефонов:</p>
+          <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-top: 4px; color: #e2e8f0;">
             <li>iPhone: Safari -> Поделиться -> На экран Домой.</li>
             <li>Android: Chrome -> Меню -> Добавить на главный экран.</li>
           </ul>
         </div>
 
-        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 10px;">
+        <div class="card" style="margin-top: 10px;">
           <div class="card-main-text" style="margin-bottom: 4px;">Обратная связь и пожелания</div>
-          <p class="info-text" style="opacity: 0.85; margin-bottom: 8px;">Нашли баг или хотите предложить новую функцию? Напишите напрямую в Telegram:</p>
+          <p class="info-text" style="margin-bottom: 10px;">Нашли баг или хотите предложить новую функцию? Напишите напрямую в Telegram:</p>
           <a class="feedback-button" href="${feedbackUrl}" target="_blank">
             <i class="fa-brands fa-telegram" style="margin-right: 8px; font-size: 18px;"></i> Написать разработчику (@egor23u)
           </a>
         </div>
         
-        <div class="theme-card card" style="background-color: ${colors.cardBg}; color: ${colors.text}; ${theme==='green'?'border:2px solid #22c55e':''}" onclick="setTheme('green')">
+        <div class="theme-card card" style="${theme==='green'?'border:2px solid #22c55e':''}" onclick="setTheme('green')">
           <div class="row-center"><div class="color-circle" style="background:#2d4a35;"></div><span class="card-main-text" style="margin:0;">Зеленый</span></div>
           ${theme==='green'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
         </div>
-        <div class="theme-card card" style="background-color: ${colors.cardBg}; color: ${colors.text}; ${theme==='orange'?'border:2px solid #22c55e':''}" onclick="setTheme('orange')">
+        <div class="theme-card card" style="${theme==='orange'?'border:2px solid #22c55e':''}" onclick="setTheme('orange')">
           <div class="row-center"><div class="color-circle" style="background:#b45309;"></div><span class="card-main-text" style="margin:0;">Оранжевый</span></div>
           ${theme==='orange'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
         </div>
-        <div class="theme-card card" style="background-color: ${colors.cardBg}; color: ${colors.text}; ${theme==='bw'?'border:2px solid #22c55e':''}" onclick="setTheme('bw')">
+        <div class="theme-card card" style="${theme==='bw'?'border:2px solid #22c55e':''}" onclick="setTheme('bw')">
           <div class="row-center"><div class="color-circle" style="background:#333;"></div><span class="card-main-text" style="margin:0;">Темно-белый</span></div>
           ${theme==='bw'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
         </div>
 
-        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 10px;">
+        <div class="card" style="margin-top: 10px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Размер шрифта</div>
           <div class="row-between">
-            <button class="opacity-btn" style="${fontSizeScale===1.0?'background:#f97316;color:#fff;':'color:'+colors.text}" onclick="setFontSize(1.0)">Обычный</button>
-            <button class="opacity-btn" style="${fontSizeScale===1.15?'background:#f97316;color:#fff;':'color:'+colors.text}" onclick="setFontSize(1.15)">Крупный</button>
-            <button class="opacity-btn" style="${fontSizeScale===1.3?'background:#f97316;color:#fff;':'color:'+colors.text}" onclick="setFontSize(1.3)">Очень крупный</button>
+            <button class="opacity-btn" style="${fontSizeScale===1.0?'background:#f97316;color:#fff;border-color:#f97316;':''}" onclick="setFontSize(1.0)">Обычный</button>
+            <button class="opacity-btn" style="${fontSizeScale===1.15?'background:#f97316;color:#fff;border-color:#f97316;':''}" onclick="setFontSize(1.15)">Крупный</button>
+            <button class="opacity-btn" style="${fontSizeScale===1.3?'background:#f97316;color:#fff;border-color:#f97316;':''}" onclick="setFontSize(1.3)">Очень крупный</button>
           </div>
         </div>
 
-        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
+        <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
-          <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px;">
-            <li>Разделение исходящих и входящих запросов на обмен.</li>
-            <li>Пружинные плавные анимации и эффект лупы.</li>
-            <li>Отключение системных выделений.</li>
+          <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
+            <li>Связь удаления профиля с сообщением при входе.</li>
+            <li>Корректная обработка обмена сменами.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
@@ -1396,13 +1410,29 @@
     if (employee.code) {
       localStorage.removeItem(`app_shifts_${employee.code}`);
       localStorage.removeItem(`app_worked_hours_${employee.code}`);
+      
+      let custom = JSON.parse(localStorage.getItem('app_custom_employees')) || {};
+      if (custom[employee.code]) {
+        delete custom[employee.code];
+        localStorage.setItem('app_custom_employees', JSON.stringify(custom));
+      }
+
+      let deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
+      if (!deletedCodes.includes(employee.code)) {
+        deletedCodes.push(employee.code);
+        localStorage.setItem('app_deleted_codes', JSON.stringify(deletedCodes));
+      }
     }
     employee = { firstName: '', code: '' };
     isLoggedIn = false;
     shifts = generateCurrentWeekShifts();
     workedHours = 0;
+    outgoingSwapRequest = null;
+    incomingSwapRequest = null;
     localStorage.removeItem('app_employee');
     localStorage.setItem('app_is_logged_in', 'false');
+    localStorage.removeItem('app_outgoing_swap');
+    localStorage.removeItem('app_incoming_swap');
     render();
   }
 
@@ -1438,10 +1468,10 @@
   }
 
   function updateShiftModalUI() {
-    document.getElementById('btnWorkType').style.background = editType === 'work' ? '#f97316' : 'rgba(0,0,0,0.2)';
-    document.getElementById('btnOffType').style.background = editType === 'off' ? '#f97316' : 'rgba(0,0,0,0.2)';
-    document.getElementById('btnSickType').style.background = editType === 'sick' ? '#ef4444' : 'rgba(0,0,0,0.2)';
-    document.getElementById('btnVacationType').style.background = editType === 'vacation' ? '#3b82f6' : 'rgba(0,0,0,0.2)';
+    document.getElementById('btnWorkType').style.background = editType === 'work' ? '#f97316' : 'rgba(0,0,0,0.3)';
+    document.getElementById('btnOffType').style.background = editType === 'off' ? '#f97316' : 'rgba(0,0,0,0.3)';
+    document.getElementById('btnSickType').style.background = editType === 'sick' ? '#ef4444' : 'rgba(0,0,0,0.3)';
+    document.getElementById('btnVacationType').style.background = editType === 'vacation' ? '#3b82f6' : 'rgba(0,0,0,0.3)';
     
     document.getElementById('workShiftSettings').style.display = editType === 'work' ? 'block' : 'none';
     
@@ -1458,7 +1488,7 @@
     document.getElementById('endMinutesList').innerHTML = minutes.map(m => `<div class="time-chip-v ${endM===m?'active':''}" onclick="endM='${m}';updateShiftModalUI()">${m}</div>`).join('');
 
     document.getElementById('stationsModalList').innerHTML = stationsList.map(st => `
-      <div style="padding: 6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; cursor:pointer; ${editSt===st.code?'border:2px solid '+st.color:''}" onclick="editSt='${st.code}';updateShiftModalUI()">
+      <div style="padding: 6px 12px; border-radius:8px; background:rgba(0,0,0,0.3); display:flex; justify-content:center; align-items:center; cursor:pointer; ${editSt===st.code?'border:2px solid '+st.color:''}" onclick="editSt='${st.code}';updateShiftModalUI()">
         <span style="color:#fff; font-weight:bold; font-size: calc(13px * var(--f-mult));">${st.code} — ${st.name}</span>
       </div>
     `).join('');
