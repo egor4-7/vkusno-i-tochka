@@ -141,6 +141,58 @@
     .update-button { background: #7c3aed; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .update-button:active { transform: scale(0.97); }
 
+    /* ЖИДКОЕ СТЕКЛО (Liquid Glass / Glassmorphism) для времени */
+    .time-picker-row { 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 12px; 
+      background: rgba(255, 255, 255, 0.1); 
+      border: 1px solid rgba(255, 255, 255, 0.25); 
+      backdrop-filter: blur(25px) saturate(180%); 
+      -webkit-backdrop-filter: blur(25px) saturate(180%); 
+      border-radius: 16px; 
+      padding: 10px; 
+      margin-bottom: 12px; 
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    .time-column { 
+      height: 110px; 
+      overflow-y: auto; 
+      scrollbar-width: none; 
+      -ms-overflow-style: none; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 4px; 
+      padding: 3px; 
+      background: rgba(0, 0, 0, 0.18); 
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px; 
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+    }
+    .time-column::-webkit-scrollbar { display: none; }
+    .time-chip-v { 
+      height: 32px; 
+      width: 44px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      border-radius: 8px; 
+      background: rgba(255, 255, 255, 0.08); 
+      color: #fff; 
+      font-weight: bold; 
+      font-size: 14px; 
+      cursor: pointer; 
+      flex-shrink: 0; 
+      transition: background 0.2s, transform 0.15s; 
+    }
+    .time-chip-v:active { transform: scale(0.94); }
+    .time-chip-v.active { 
+      background: #f97316; 
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.5); 
+    }
+
     /* Темы */
     .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .theme-card:active { transform: scale(0.98); }
@@ -153,8 +205,6 @@
     .modal-content { border-radius: 24px; padding: 22px; width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 25px 50px rgba(0,0,0,0.4); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(30, 35, 32, 0.85); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); }
     
     .type-toggle-btn { flex: 1; padding: 10px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.2); margin: 0 4px; border: none; color: #fff; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-    .time-chip { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border-radius: 8px; background: rgba(255,255,255,0.1); color: #fff; font-weight: bold; margin-right: 4px; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
-    .time-chip.active { background: #f97316; }
     
     .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.15); border-radius: 12px; color: #fff; border: none; cursor: pointer; font-weight: bold; transition: transform 0.15s; }
     .modal-cancel-btn:active { transform: scale(0.97); }
@@ -225,14 +275,24 @@
       <button class="type-toggle-btn" id="btnOffType" onclick="setEditType('off')">Выходной</button>
     </div>
     <div id="workShiftSettings" style="display: block;">
-      <p style="color: #fff; font-size: 13px; margin-bottom: 5px;">Время начала:</p>
-      <div class="row-center" style="overflow-x: auto; margin-bottom: 10px; scrollbar-width: none;" id="startHoursList"></div>
-      <p style="color: #fff; font-size: 13px; margin-bottom: 5px;">Время окончания:</p>
-      <div class="row-center" style="overflow-x: auto; margin-bottom: 10px; scrollbar-width: none;" id="endHoursList"></div>
-      <p style="color: #fff; font-size: 13px; margin-bottom: 5px;">Станция:</p>
+      <p style="color: #fff; font-size: 13px; margin-bottom: 4px;">Время начала:</p>
+      <div class="time-picker-row">
+        <div class="time-column" id="startHoursList"></div>
+        <span style="color: #fff; font-weight: bold; font-size: 18px;">:</span>
+        <div class="time-column" id="startMinutesList"></div>
+      </div>
+
+      <p style="color: #fff; font-size: 13px; margin-bottom: 4px;">Время окончания:</p>
+      <div class="time-picker-row">
+        <div class="time-column" id="endHoursList"></div>
+        <span style="color: #fff; font-weight: bold; font-size: 18px;">:</span>
+        <div class="time-column" id="endMinutesList"></div>
+      </div>
+
+      <p style="color: #fff; font-size: 13px; margin-bottom: 4px;">Станция:</p>
       <div class="row-center" style="gap: 6px; flex-wrap: wrap;" id="stationsModalList"></div>
     </div>
-    <div class="row-between" style="margin-top: 20px;">
+    <div class="row-between" style="margin-top: 15px;">
       <button class="modal-cancel-btn" onclick="closeModal('shiftModal')">Отмена</button>
       <button class="modal-save-btn" onclick="saveShiftModal()">Сохранить</button>
     </div>
@@ -264,7 +324,7 @@
 </div>
 
 <script>
-  const APP_VERSION = '2.5';
+  const APP_VERSION = '2.9';
   let activeTab = 'home';
   let theme = localStorage.getItem('app_theme') || 'green';
   let opacity = parseFloat(localStorage.getItem('app_opacity')) || 0.3;
@@ -355,7 +415,7 @@
   }
 
   function checkForAppUpdate() {
-    showCustomAlert('Проверка', 'Связь с сервером GitHub...', '');
+    showCustomAlert('Проверка', 'Проверка обновлений...', '');
     fetch(window.location.href.split('?')[0] + '?t=' + new Date().getTime(), { cache: 'no-store' })
       .then(res => res.text())
       .then(html => {
@@ -670,7 +730,7 @@
         <p class="header-subtitle">Управление приложением и оформлением:</p>
 
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
-          <div class="card-main-text" style="margin-bottom: 6px; font-size: 18px;">Встречайте приложение для сотрудников прямо в браузере или на рабочем столе. Приложение Expo Go не нужен.</div>
+          <div class="card-main-text" style="margin-bottom: 6px; font-size: 18px;">Встречайте приложение для сотрудников прямо в браузере или на рабочем столе. Приложение Expo Go не требуется.</div>
           <p class="info-text" style="opacity: 0.9; margin-top: 8px; line-height: 1.5;">Как установить приложение на рабочий стол вашего телефона:</p>
           <ul style="padding-left: 18px; font-size: 13px; line-height: 1.6; opacity: 0.9; margin-top: 6px;">
             <li>На iPhone (Safari): нажмите кнопку «Поделиться» внизу экрана и выберите пункт «На экран Домой».</li>
@@ -708,19 +768,17 @@
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Что нового (v${APP_VERSION})</div>
           <ul style="padding-left: 18px; font-size: 13px; line-height: 1.6; opacity: 0.9;">
+            <li>Добавлен эффект жидкого стекла (Glassmorphism) и блюра для панелей выбора времени.</li>
+            <li>Реализована удобная вертикальная прокрутка часов и минут в редакторе смен.</li>
             <li>Добавлена возможность установки приложения на рабочий стол без использования Expo Go.</li>
             <li>Добавлена новая рабочая станция Кафе (CF).</li>
-            <li>Обновлена палитра уникальных цветов для всех станций.</li>
-            <li>Интеллектуальный старт смены с проверкой реального времени и выходных дней.</li>
-            <li>Полностью обновлен интерфейс уведомлений в едином стиле Apple VisionOS.</li>
-            <li>Реализована автономная проверка и обновление версии приложения через GitHub.</li>
             <li>Абсолютная конфиденциальность: все данные хранятся локально на устройстве и не передаются третьим лицам.</li>
           </ul>
         </div>
 
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 4px;">Автономное обновление</div>
-          <p class="info-text" style="opacity: 0.8; margin-bottom: 10px;">Проверить наличие свежей версии приложения на GitHub.</p>
+          <p class="info-text" style="opacity: 0.8; margin-bottom: 10px;">Проверить наличие свежей версии приложения.</p>
           <button class="update-button" onclick="checkForAppUpdate()"><i class="fa-solid fa-rotate" style="margin-right: 8px;"></i> Проверить обновление</button>
         </div>
       `;
@@ -857,6 +915,13 @@
     const colors = getThemeColors();
     document.getElementById('modalBg').style.backgroundColor = colors.bg;
     updateShiftModalUI();
+
+    setTimeout(() => {
+      ['startHoursList', 'startMinutesList', 'endHoursList', 'endMinutesList'].forEach(id => {
+        const activeEl = document.querySelector(`#${id} .time-chip-v.active`);
+        if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+    }, 50);
   }
 
   function updateShiftModalUI() {
@@ -867,13 +932,11 @@
     const hours = Array.from({length: 24}, (_, i) => String(i).padStart(2,'0'));
     const minutes = ['00', '15', '30', '45'];
 
-    document.getElementById('startHoursList').innerHTML = hours.map(h => `<div class="time-chip ${startH===h?'active':''}" onclick="startH='${h}';updateShiftModalUI()">${h}</div>`).join('') + 
-      '<span style="color:#fff; margin:0 4px;">:</span>' + 
-      minutes.map(m => `<div class="time-chip ${startM===m?'active':''}" onclick="startM='${m}';updateShiftModalUI()">${m}</div>`).join('');
+    document.getElementById('startHoursList').innerHTML = hours.map(h => `<div class="time-chip-v ${startH===h?'active':''}" onclick="startH='${h}';updateShiftModalUI()">${h}</div>`).join('');
+    document.getElementById('startMinutesList').innerHTML = minutes.map(m => `<div class="time-chip-v ${startM===m?'active':''}" onclick="startM='${m}';updateShiftModalUI()">${m}</div>`).join('');
 
-    document.getElementById('endHoursList').innerHTML = hours.map(h => `<div class="time-chip ${endH===h?'active':''}" onclick="endH='${h}';updateShiftModalUI()">${h}</div>`).join('') + 
-      '<span style="color:#fff; margin:0 4px;">:</span>' + 
-      minutes.map(m => `<div class="time-chip ${endM===m?'active':''}" onclick="endM='${m}';updateShiftModalUI()">${m}</div>`).join('');
+    document.getElementById('endHoursList').innerHTML = hours.map(h => `<div class="time-chip-v ${endH===h?'active':''}" onclick="endH='${h}';updateShiftModalUI()">${h}</div>`).join('');
+    document.getElementById('endMinutesList').innerHTML = minutes.map(m => `<div class="time-chip-v ${endM===m?'active':''}" onclick="endM='${m}';updateShiftModalUI()">${m}</div>`).join('');
 
     document.getElementById('stationsModalList').innerHTML = stationsList.map(st => `
       <div style="padding: 6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; cursor:pointer; ${editSt===st.code?'border:2px solid '+st.color:''}" onclick="editSt='${st.code}';updateShiftModalUI()">
