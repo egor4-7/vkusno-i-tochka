@@ -40,12 +40,26 @@
       height: 100%; 
       overflow: hidden; 
       position: fixed; 
-      background: var(--app-bg); 
-      transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      background-color: var(--app-bg) !important; 
+      transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
-    .container { display: flex; flex-direction: column; height: 100%; background: var(--app-bg); transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-    .screen-container { flex: 1; overflow-y: auto; padding: 20px; padding-top: max(50px, env(safe-area-inset-top)); padding-bottom: calc(110px + env(safe-area-inset-bottom)); scrollbar-width: none; }
+    .container { 
+      display: flex; 
+      flex-direction: column; 
+      height: 100%; 
+      background-color: var(--app-bg) !important; 
+      transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+    }
+
+    .screen-container { 
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 20px; 
+      padding-top: max(50px, env(safe-area-inset-top)); 
+      padding-bottom: calc(110px + env(safe-area-inset-bottom)); 
+      scrollbar-width: none; 
+    }
     .screen-container::-webkit-scrollbar { display: none; }
 
     .header-title { font-size: calc(26px * var(--f-mult)); font-weight: bold; color: #ffffff; margin-bottom: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
@@ -463,14 +477,14 @@
 </div>
 
 <script>
-  const APP_VERSION = '7.5';
-  const APP_CHANGELOG = 'Исправлена обрезка фона темы и возвращен выбор прозрачности карточек (30%, 50%, 80%, 100%).';
+  const APP_VERSION = '7.6';
+  const APP_CHANGELOG = 'Окончательно устранена обрезка фона на всех экранах и в баре Дней Рождения.';
 
   // Регистрация Service Worker для офлайн-режима
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       const swCode = `
-        const CACHE_NAME = 'vkusno-schedule-v75';
+        const CACHE_NAME = 'vkusno-schedule-v76';
         self.addEventListener('install', e => {
           self.skipWaiting();
         });
@@ -972,7 +986,7 @@
     render();
   }
 
-  // Отправка запроса на обмен по выбранному ФИ с проверкой накладывания и наличия смен у коллеги
+  // Отправка запроса на обмен по выбранному ФИ с проверкой накладывания и наличия смен у коллегии
   function sendSwapRequest() {
     const targetSelect = document.getElementById('inpSwapTargetSelect');
     if (!targetSelect || !targetSelect.value) {
@@ -996,7 +1010,7 @@
       return;
     }
 
-    // ПРОВЕРКА: Проверяем график коллеги — нет ли у него смены на эту же дату
+    // ПРОВЕРКА: Проверяем график коллегии — нет ли у него смены на эту же дату
     const targetShifts = JSON.parse(localStorage.getItem(`app_shifts_${targetCode}`)) || [];
     const targetDayShift = targetShifts.find(s => s.dateString === chosenShift.dateString);
 
@@ -1182,6 +1196,9 @@
     document.documentElement.style.setProperty('--card-bg', colors.cardBg);
     document.body.style.backgroundColor = colors.bg;
     document.documentElement.style.backgroundColor = colors.bg;
+    const container = document.getElementById('appContainer');
+    if (container) container.style.backgroundColor = colors.bg;
+
     const metaTheme = document.getElementById('metaThemeColor');
     if (metaTheme) metaTheme.setAttribute('content', colors.bg);
 
@@ -1621,8 +1638,8 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Исправлена монолитная заливка темы без отступов и обрезки.</li>
-            <li>Возвращена настройка прозрачности карточек (30%, 50%, 80%, 100%).</li>
+            <li>Устранена обрезка фона на всех экранах и в виджетах.</li>
+            <li>Полный контроль темы оформления и процента прозрачности.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
