@@ -32,6 +32,12 @@
     .row-between { display: flex; justify-content: space-between; align-items: center; }
     .row-center { display: flex; align-items: center; }
 
+    /* Единый эффект физического нажатия для всех интерактивных элементов */
+    button:active, .site-button:active, .card:active, .shift-card:active, .theme-card:active, .primary-button:active, .logout-button:active, .delete-button:active, .backup-button:active, .restore-button:active, .calendar-button:active, .update-button:active, .modal-cancel-btn:active, .modal-save-btn:active, .break-option-btn:active, .time-chip-v:active, .opacity-btn:active, .action-icon-btn:active, .action-btn:active {
+      transform: scale(0.96) translateY(1.5px) !important;
+      transition: transform 0.1s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
     .card { border-radius: 16px; padding: 16px; margin-bottom: 12px; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
     .card-subtitle { font-size: calc(11px * var(--f-mult)); font-weight: 700; letter-spacing: 0.5px; opacity: 0.8; }
     .card-main-text { font-size: calc(17px * var(--f-mult)); font-weight: 700; margin-top: 4px; }
@@ -41,9 +47,7 @@
     .dot-open { width: 8px; height: 8px; border-radius: 4px; background: #22c55e; margin-right: 6px; }
     
     .site-button { background: #f97316; border-radius: 12px; padding: 12px; display: flex; justify-content: center; align-items: center; margin-top: 14px; cursor: pointer; text-decoration: none; color: #fff; font-weight: 600; font-size: calc(14px * var(--f-mult)); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .site-button:active { transform: scale(0.97); }
 
-    /* Карточка приветствия */
     .logo-emblem-card {
       position: relative;
       overflow: hidden;
@@ -59,7 +63,6 @@
     }
 
     .shift-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .shift-card:active { transform: scale(0.98); }
     .day-text { font-size: calc(16px * var(--f-mult)); font-weight: 700; }
     .date-text { font-size: calc(12px * var(--f-mult)); margin-top: 2px; opacity: 0.8; }
     
@@ -70,14 +73,12 @@
     .station-badge { padding: 2px 6px; border-radius: 6px; margin-top: 4px; display: inline-block; text-align: center; }
 
     .action-btn { background: #22c55e; border-radius: 16px; padding: 16px; display: flex; justify-content: center; align-items: center; margin-top: 10px; cursor: pointer; border: none; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .action-btn:active { transform: scale(0.97); }
     .action-btn-text { color: #ffffff; font-size: calc(16px * var(--f-mult)); font-weight: bold; }
     .end-shift-btn { background: #ef4444; }
 
     .action-icon-btn { background: #f97316; width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; color: #fff; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .action-icon-btn:active { transform: scale(0.92); }
 
-    /* Продвинутый анимационный бегунок на таб-баре */
+    /* Плавающий бар с бегунком */
     .floating-tab-bar { 
       position: fixed; 
       bottom: max(18px, env(safe-area-inset-bottom)); 
@@ -136,59 +137,47 @@
       transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       touch-action: none;
     }
-    .tab-item:active { transform: scale(0.92); }
     .tab-text { font-size: calc(10px * var(--f-mult)); margin-top: 3px; pointer-events: none; }
     .tab-item i { pointer-events: none; }
 
-    /* Бейдж обновления */
+    /* Бейдж обновления строго на крае шестеренки */
     .update-badge {
       position: absolute;
-      top: 6px;
-      right: calc(50% - 18px);
-      width: 18px;
-      height: 18px;
+      top: -4px;
+      right: -7px;
+      width: 17px;
+      height: 17px;
       background: #ef4444;
       border: 2px solid rgba(255, 255, 255, 0.9);
       border-radius: 50%;
       color: #ffffff;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: bold;
       display: flex;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.5);
+      box-shadow: 0 3px 8px rgba(239, 68, 68, 0.6);
       animation: badgePulse 2s infinite ease-in-out;
       z-index: 3;
       pointer-events: none;
     }
 
     @keyframes badgePulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.5); }
-      50% { transform: scale(1.12); box-shadow: 0 6px 15px rgba(239, 68, 68, 0.8); }
+      0%, 100% { transform: scale(1); box-shadow: 0 3px 8px rgba(239, 68, 68, 0.6); }
+      50% { transform: scale(1.15); box-shadow: 0 5px 12px rgba(239, 68, 68, 0.9); }
     }
 
-    /* Элементы формы */
+    /* Элементы формы и кнопок */
     .input-field { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; font-size: calc(14px * var(--f-mult)); }
-    .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: calc(15px * var(--f-mult)); text-align: center; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .primary-button:active { transform: scale(0.97); }
+    .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: calc(15px * var(--f-mult)); text-align: center; }
     
-    .logout-button { background: #3b82f6; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .logout-button:active { transform: scale(0.97); }
+    .logout-button { background: #3b82f6; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
+    .delete-button { background: rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fca5a5; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
 
-    .delete-button { background: rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fca5a5; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .delete-button:active { transform: scale(0.97); }
-
-    .backup-button { background: #2563eb; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .backup-button:active { transform: scale(0.97); }
-
-    .restore-button { background: #059669; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .restore-button:active { transform: scale(0.97); }
-
-    .calendar-button { background: #0891b2; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .calendar-button:active { transform: scale(0.97); }
-
-    .update-button { background: #7c3aed; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .update-button:active { transform: scale(0.97); }
+    .backup-button { background: #2563eb; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
+    .restore-button { background: #059669; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
+    .calendar-button { background: #0891b2; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
+    .update-button { background: #7c3aed; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
 
     /* ЖИДКОЕ СТЕКЛО для времени */
     .time-picker-row { 
@@ -234,15 +223,12 @@
       font-size: calc(14px * var(--f-mult)); 
       cursor: pointer; 
       flex-shrink: 0; 
-      transition: background 0.2s, transform 0.15s; 
     }
-    .time-chip-v:active { transform: scale(0.94); }
     .time-chip-v.active { 
       background: #f97316; 
       box-shadow: 0 4px 15px rgba(249, 115, 22, 0.5); 
     }
 
-    /* Анимации и кастомная авторская галочка Liquid Glass */
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .spinner { animation: spin 1s linear infinite; display: inline-block; }
 
@@ -275,14 +261,8 @@
     }
 
     @keyframes drawCheck {
-      0% {
-        stroke-dasharray: 50;
-        stroke-dashoffset: 50;
-      }
-      100% {
-        stroke-dasharray: 50;
-        stroke-dashoffset: 0;
-      }
+      0% { stroke-dasharray: 50; stroke-dashoffset: 50; }
+      100% { stroke-dasharray: 50; stroke-dashoffset: 0; }
     }
 
     @keyframes pulseSuccess {
@@ -291,23 +271,18 @@
     }
 
     /* Темы */
-    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .theme-card:active { transform: scale(0.98); }
+    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
     .color-circle { width: 24px; height: 24px; border-radius: 12px; margin-right: 12px; }
-    .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none; cursor: pointer; font-weight: 600; font-size: calc(12px * var(--f-mult)); transition: transform 0.15s ease, background 0.2s; }
-    .opacity-btn:active { transform: scale(0.95); }
+    .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none; cursor: pointer; font-weight: 600; font-size: calc(12px * var(--f-mult)); }
 
     /* Модалки в едином стиле VisionOS */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .modal-content { border-radius: 24px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.4); transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(30, 35, 32, 0.75); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); }
     
-    .type-toggle-btn { flex: 1; padding: 10px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.2); margin: 0 4px; border: none; color: #fff; font-weight: 600; font-size: calc(13px * var(--f-mult)); cursor: pointer; transition: background 0.2s; }
+    .type-toggle-btn { flex: 1; padding: 10px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.2); margin: 0 4px; border: none; color: #fff; font-weight: 600; font-size: calc(13px * var(--f-mult)); cursor: pointer; }
     
-    .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.15); border-radius: 12px; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: calc(14px * var(--f-mult)); transition: transform 0.15s; }
-    .modal-cancel-btn:active { transform: scale(0.97); }
-
-    .modal-save-btn { flex: 1; padding: 12px; text-align: center; background: #22c55e; border-radius: 12px; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: calc(14px * var(--f-mult)); transition: transform 0.15s; }
-    .modal-save-btn:active { transform: scale(0.97); }
+    .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.15); border-radius: 22px; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: calc(14px * var(--f-mult)); }
+    .modal-save-btn { flex: 1; padding: 12px; text-align: center; background: #22c55e; border-radius: 22px; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: calc(14px * var(--f-mult)); }
 
     .break-option-btn { background: rgba(255,255,255,0.15); padding: 14px; border-radius: 10px; text-align: center; margin-bottom: 8px; color: #fff; font-weight: 600; cursor: pointer; border: none; width: 100%; font-size: calc(14px * var(--f-mult)); }
 
@@ -319,7 +294,7 @@
 <div class="container" id="appContainer">
   <div class="screen-container" id="screenContent"></div>
 
-  <!-- Плавающий бар с бегунком и значком обновления -->
+  <!-- Плавающий бар с бегунком и значком обновления на шестеренке -->
   <div class="floating-tab-bar" id="floatingTabBar">
     <div class="nav-lens-indicator" id="navLens"></div>
     <button class="tab-item" data-tab="home" onclick="switchTab('home')">
@@ -335,9 +310,11 @@
       <span class="tab-text" id="text-employee">Сотрудник</span>
     </button>
     <button class="tab-item" data-tab="settings" onclick="switchTab('settings')">
-      <i class="fa-solid fa-gear" id="icon-settings" style="font-size: 18px;"></i>
+      <div style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-gear" id="icon-settings" style="font-size: 18px;"></i>
+        <div id="updateBadge" class="update-badge" style="display: none;">1</div>
+      </div>
       <span class="tab-text" id="text-settings">Настройки</span>
-      <div id="updateBadge" class="update-badge" style="display: none;">1</div>
     </button>
   </div>
 </div>
@@ -360,7 +337,7 @@
     <textarea id="backupTextarea" class="input-field" style="height: 100px; background: rgba(255,255,255,0.15); color: #fff; resize: none; font-size: 11px;"></textarea>
     <button class="primary-button" style="background: #2563eb; margin-bottom: 8px;" onclick="copyBackupText()">Скопировать в буфер</button>
     <button class="primary-button" style="background: #059669; margin-bottom: 15px;" onclick="restoreBackupText()">Восстановить из текста</button>
-    <button class="modal-cancel-btn" style="width: 100%;" onclick="closeModal('backupModal')">Закрыть</button>
+    <button class="modal-cancel-btn" style="width: 100%; border-radius: 12px;" onclick="closeModal('backupModal')">Закрыть</button>
   </div>
 </div>
 
@@ -422,8 +399,8 @@
 </div>
 
 <script>
-  const APP_VERSION = '4.3';
-  const APP_CHANGELOG = 'Возвращена анимация вращающейся шестеренки при проверке обновлений, вместо эмодзи добавлена анимационная галочка.';
+  const APP_VERSION = '4.4';
+  const APP_CHANGELOG = 'Добавлено подтверждение при удалении профиля, изменена кнопка входа, улучшен физический отклик кнопок и позиция бэйджа на шестеренке.';
 
   let activeTab = 'home';
   let theme = localStorage.getItem('app_theme') || 'green';
@@ -504,7 +481,7 @@
     document.getElementById('customModalTitle').innerText = title;
     document.getElementById('customModalText').innerHTML = text;
     document.getElementById('customModalButtons').innerHTML = `
-      <button class="primary-button" style="margin: 0; background: #22c55e;" onclick="closeModal('customModal')">Понятно</button>
+      <button class="modal-save-btn" style="margin: 0; background: #22c55e; width: 100%;" onclick="closeModal('customModal')">Понятно</button>
     `;
     const colors = getThemeColors();
     document.getElementById('customModalBg').style.backgroundColor = colors.bg;
@@ -645,36 +622,6 @@
     a.click();
     document.body.removeChild(a);
     showCustomAlert('Успешно', 'Файл календаря скачан. Откройте его, чтобы добавить смены в ваш телефон!', '✅');
-  }
-
-  function handleStartShiftClick() {
-    const todayStr = new Date().toISOString().split('T')[0];
-    const todayShift = shifts.find(s => s.dateString === todayStr);
-
-    if (!todayShift || todayShift.type === 'off' || !todayShift.start) {
-      showCustomAlert('У вас выходной день', 'Сегодня у вас выходной или смена не назначена.', '☕');
-      return;
-    }
-
-    const now = new Date();
-    const currentMins = now.getHours() * 60 + now.getMinutes();
-    const [sh, sm] = todayShift.start.split(':').map(Number);
-    const shiftStartMins = sh * 60 + sm;
-
-    if (currentMins < shiftStartMins) {
-      showCustomConfirm(
-        'Ранний старт',
-        `Ваша смена начинается в ${todayShift.start}. Вас попросили выйти сейчас?`,
-        () => {
-          shiftStarted = true;
-          render();
-        },
-        () => {}
-      );
-    } else {
-      shiftStarted = true;
-      render();
-    }
   }
 
   function getFormattedCurrentDate() {
@@ -926,7 +873,7 @@
             <input type="text" id="inpCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.85); color:#000;">
             <input type="text" id="inpFirst" class="input-field" placeholder="Имя" style="background: rgba(255,255,255,0.85); color:#000;">
             <input type="text" id="inpLast" class="input-field" placeholder="Фамилия" style="background: rgba(255,255,255,0.85); color:#000;">
-            <button class="primary-button" onclick="handleLogin()">Сохранить данные</button>
+            <button class="primary-button" onclick="handleLogin()">Сохранить данные и войти</button>
           </div>
         `;
       } else {
@@ -938,7 +885,7 @@
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult));">${employee.code}</div>
           </div>
           <button class="logout-button" onclick="handleLogout()"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> Выйти из аккаунта</button>
-          <button class="delete-button" onclick="handleDeleteAccount()"><i class="fa-solid fa-trash" style="margin-right: 8px;"></i> Удалить сотрудника</button>
+          <button class="delete-button" onclick="confirmDeleteAccount()"><i class="fa-solid fa-trash" style="margin-right: 8px;"></i> Удалить профиль</button>
         `;
       }
       screen.innerHTML = html;
@@ -995,8 +942,9 @@
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Что нового (v${APP_VERSION})</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); line-height: 1.6; opacity: 0.9;">
-            <li>Вращающаяся шестеренка при проверке обновлений.</li>
-            <li>Анимированная галочка при актуальной версии.</li>
+            <li>Добавлено модальное окно с предупреждением при удалении профиля.</li>
+            <li>Тактильное физическое нажатие всех кнопок в приложении.</li>
+            <li>Бейдж обновления перемещен точно на край шестеренки.</li>
           </ul>
         </div>
 
@@ -1102,6 +1050,21 @@
     shifts = generateCurrentWeekShifts();
     workedHours = 0;
     render();
+  }
+
+  function confirmDeleteAccount() {
+    const modal = document.getElementById('customModal');
+    document.getElementById('customModalIcon').innerHTML = '<div style="font-size: 38px;">⚠️</div>';
+    document.getElementById('customModalTitle').innerText = 'Удаление профиля';
+    document.getElementById('customModalText').innerText = 'При удалении данные сотрутся без возможности восстановления';
+    document.getElementById('customModalButtons').innerHTML = `
+      <button class="modal-cancel-btn" onclick="closeModal('customModal')">Отменить</button>
+      <button class="modal-save-btn" style="background: #ef4444;" onclick="handleDeleteAccount(); closeModal('customModal');">Подтвердить</button>
+    `;
+    const colors = getThemeColors();
+    document.getElementById('customModalBg').style.backgroundColor = colors.bg;
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
   }
 
   function handleDeleteAccount() {
