@@ -263,7 +263,7 @@
       text-align: center !important; 
     }
 
-    /* ИСПРАВЛЕНИЕ ВЫРАВНИВАНИЯ ДАТ В iOS SAFARI */
+    /* ЦЕНТРИРОВАНИЕ ДАТ В iOS SAFARI */
     input[type="date"] {
       -webkit-appearance: none;
       -moz-appearance: none;
@@ -429,7 +429,7 @@
   </div>
 </div>
 
-<!-- Модалки расписания, отпуска и больничного (с выровненными симметричными отступами) -->
+<!-- Модалки расписания, отпуска и больничного -->
 <div class="modal-overlay" id="shiftModal">
   <div class="modal-content" id="modalBg" style="box-sizing: border-box; padding: 20px;">
     <h3 style="color: #fff; text-align: center; margin-bottom: 14px;">Редактировать статус</h3>
@@ -508,14 +508,14 @@
 </div>
 
 <script>
-  const APP_VERSION = '7.7';
-  const APP_CHANGELOG = 'Идеальное центрирование и выравнивание отступов для всех полей выбора дат в iOS Safari.';
+  const APP_VERSION = '7.8';
+  const APP_CHANGELOG = 'Идеальная центровка дат на всех устройствах, стабильные темы и бесшовная заливка фона.';
 
   // Регистрация Service Worker для офлайн-режима
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       const swCode = `
-        const CACHE_NAME = 'vkusno-schedule-v77';
+        const CACHE_NAME = 'vkusno-schedule-v78';
         self.addEventListener('install', e => {
           self.skipWaiting();
         });
@@ -1438,7 +1438,7 @@
           </div>
         `;
 
-        // Блок настройки дня рождения с ровным симметричным полем ввода
+        // Блок настройки дня рождения с отцентрованным полем
         html += `
           <div class="card" style="margin-top: 14px;">
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 6px;">Дата рождения</div>
@@ -1668,8 +1668,7 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Выровнены по центру все поля выбора дат на устройствах iOS/Safari.</li>
-            <li>Полностью устранена обрезка тем фона.</li>
+            <li>Финальная стабильная сборка: идеальное выравнивание инпутов дат и тем оформления.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
