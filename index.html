@@ -49,7 +49,6 @@
     
     .time-text { font-size: 15px; font-weight: 700; text-align: right; }
     .station-badge { padding: 2px 6px; border-radius: 6px; margin-top: 4px; display: inline-block; text-align: center; }
-    .station-text { color: #ffffff; font-size: 10px; font-weight: bold; }
 
     .action-btn { background: #22c55e; border-radius: 16px; padding: 16px; display: flex; justify-content: center; align-items: center; margin-top: 10px; cursor: pointer; border: none; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .action-btn:active { transform: scale(0.97); }
@@ -139,6 +138,9 @@
     .restore-button { background: #059669; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .restore-button:active { transform: scale(0.97); }
 
+    .update-button { background: #7c3aed; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .update-button:active { transform: scale(0.97); }
+
     /* Темы */
     .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .theme-card:active { transform: scale(0.98); }
@@ -192,20 +194,20 @@
   </div>
 </div>
 
-<!-- Универсальная кастомная модалка уведомлений в едином стиле -->
+<!-- Универсальная кастомная модалка уведомлений -->
 <div class="modal-overlay" id="customModal">
   <div class="modal-content" id="customModalBg" style="text-align: center;">
-    <div id="customModalIcon" style="font-size: 36px; margin-bottom: 10px;">✅</div>
+    <div id="customModalIcon" style="font-size: 36px; margin-bottom: 10px;"></div>
     <h3 id="customModalTitle" style="color: #fff; margin-bottom: 8px; font-size: 18px;">Уведомление</h3>
     <p id="customModalText" style="color: #ddd; font-size: 14px; margin-bottom: 20px; line-height: 1.4;"></p>
     <div id="customModalButtons" class="row-between" style="gap: 10px;"></div>
   </div>
 </div>
 
-<!-- Модалка резервного копирования без стандартных prompt -->
+<!-- Модалка резервного копирования -->
 <div class="modal-overlay" id="backupModal">
   <div class="modal-content" id="backupModalBg">
-    <h3 style="color: #fff; text-align: center; margin-bottom: 10px;">💾 Резервная копия</h3>
+    <h3 style="color: #fff; text-align: center; margin-bottom: 10px;">Резервная копия</h3>
     <p style="color: #ccc; text-align: center; font-size: 13px; margin-bottom: 15px;">Скопируйте текст или вставьте его для восстановления:</p>
     <textarea id="backupTextarea" class="input-field" style="height: 100px; background: rgba(255,255,255,0.15); color: #fff; resize: none; font-size: 11px;"></textarea>
     <button class="primary-button" style="background: #2563eb; margin-bottom: 8px;" onclick="copyBackupText()">Скопировать в буфер</button>
@@ -214,7 +216,7 @@
   </div>
 </div>
 
-<!-- Модальные окна расписания и перерывов -->
+<!-- Модалки расписания и перерывов -->
 <div class="modal-overlay" id="shiftModal">
   <div class="modal-content" id="modalBg">
     <h3 style="color: #fff; text-align: center; margin-bottom: 15px;">Редактировать смену</h3>
@@ -228,7 +230,7 @@
       <p style="color: #fff; font-size: 13px; margin-bottom: 5px;">Время окончания:</p>
       <div class="row-center" style="overflow-x: auto; margin-bottom: 10px; scrollbar-width: none;" id="endHoursList"></div>
       <p style="color: #fff; font-size: 13px; margin-bottom: 5px;">Станция:</p>
-      <div class="row-center" style="gap: 6px;" id="stationsModalList"></div>
+      <div class="row-center" style="gap: 6px; flex-wrap: wrap;" id="stationsModalList"></div>
     </div>
     <div class="row-between" style="margin-top: 20px;">
       <button class="modal-cancel-btn" onclick="closeModal('shiftModal')">Отмена</button>
@@ -262,6 +264,7 @@
 </div>
 
 <script>
+  const APP_VERSION = '2.5';
   let activeTab = 'home';
   let theme = localStorage.getItem('app_theme') || 'green';
   let opacity = parseFloat(localStorage.getItem('app_opacity')) || 0.3;
@@ -272,8 +275,9 @@
     { code: 'C', name: 'прилавок', color: '#0ea5e9' },
     { code: 'K', name: 'кухня', color: '#f97316' },
     { code: 'BVR', name: 'напитки', color: '#a855f7' },
-    { code: 'DLK', name: 'доставка', color: '#be185d' },
-    { code: 'FF', name: 'кассы', color: '#f97316' },
+    { code: 'DLK', name: 'доставка', color: '#ec4899' },
+    { code: 'FF', name: 'фри', color: '#eab308' },
+    { code: 'CF', name: 'кафе', color: '#10b981' },
   ];
 
   function generateCurrentWeekShifts() {
@@ -312,8 +316,7 @@
 
   let shiftStarted = false;
 
-  // Красивые кастомные уведомления в едином стиле
-  function showCustomAlert(title, text, icon = '✅') {
+  function showCustomAlert(title, text, icon = '') {
     const modal = document.getElementById('customModal');
     document.getElementById('customModalIcon').innerHTML = icon;
     document.getElementById('customModalTitle').innerText = title;
@@ -329,7 +332,7 @@
 
   function showCustomConfirm(title, text, onYes, onNo) {
     const modal = document.getElementById('customModal');
-    document.getElementById('customModalIcon').innerHTML = '⚠️';
+    document.getElementById('customModalIcon').innerHTML = '';
     document.getElementById('customModalTitle').innerText = title;
     document.getElementById('customModalText').innerText = text;
     document.getElementById('customModalButtons').innerHTML = `
@@ -351,17 +354,44 @@
     };
   }
 
-  // Интеллектуальный старт смены по реальному времени и дате
+  function checkForAppUpdate() {
+    showCustomAlert('Проверка', 'Связь с сервером GitHub...', '');
+    fetch(window.location.href.split('?')[0] + '?t=' + new Date().getTime(), { cache: 'no-store' })
+      .then(res => res.text())
+      .then(html => {
+        const match = html.match(/const APP_VERSION = '([\d.]+)'/);
+        if (match && match[1]) {
+          const remoteVersion = match[1];
+          if (remoteVersion !== APP_VERSION) {
+            showCustomConfirm(
+              'Доступно обновление',
+              `Найдена новая версия приложения (v${remoteVersion}). Обновить сейчас? Ваши данные и часы сохранятся.`,
+              () => {
+                window.location.reload(true);
+              },
+              () => {}
+            );
+          } else {
+            showCustomAlert('Актуально', `У вас установлена самая последняя версия (v${APP_VERSION}).`, '');
+          }
+        } else {
+          showCustomAlert('Готово', 'Приложение работает актуально.', '');
+        }
+      })
+      .catch(() => {
+        showCustomAlert('Ошибка сети', 'Не удалось проверить обновление. Проверьте интернет.', '');
+      });
+  }
+
   function handleStartShiftClick() {
     const todayStr = new Date().toISOString().split('T')[0];
     const todayShift = shifts.find(s => s.dateString === todayStr);
 
     if (!todayShift || todayShift.type === 'off' || !todayShift.start) {
-      showCustomAlert('Выходной', 'У вас выходной день или смена не назначена.', '🏖️');
+      showCustomAlert('У вас выходной день', 'Сегодня у вас выходной или смена не назначена.', '');
       return;
     }
 
-    // Проверяем текущее время и время начала смены
     const now = new Date();
     const currentMins = now.getHours() * 60 + now.getMinutes();
     const [sh, sm] = todayShift.start.split(':').map(Number);
@@ -451,7 +481,7 @@
     const ta = document.getElementById('backupTextarea');
     ta.select();
     navigator.clipboard.writeText(ta.value).then(() => {
-      showCustomAlert('Успешно', 'Резервная копия скопирована в буфер обмена!');
+      showCustomAlert('Успешно', 'Резервная копия скопирована в буфер обмена.');
     }).catch(() => {
       showCustomAlert('Информация', 'Выделите текст в поле и скопируйте его вручную.');
     });
@@ -481,7 +511,7 @@
         }
       }
       closeModal('backupModal');
-      showCustomAlert('Готово', 'Данные успешно восстановлены!');
+      showCustomAlert('Готово', 'Данные успешно восстановлены.');
       setTimeout(() => location.reload(), 1500);
     } catch (e) {
       showCustomAlert('Ошибка', 'Неверный формат кода бэкапа.');
@@ -636,8 +666,17 @@
       screen.innerHTML = html;
     } else if (activeTab === 'settings') {
       screen.innerHTML = `
-        <h1 class="header-title">Настройки темы</h1>
-        <p class="header-subtitle">Выберите оформление приложения:</p>
+        <h1 class="header-title">Настройки</h1>
+        <p class="header-subtitle">Управление приложением и оформлением:</p>
+
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
+          <div class="card-main-text" style="margin-bottom: 6px; font-size: 18px;">Встречайте приложение для сотрудников прямо в браузере или на рабочем столе. Приложение Expo Go не нужен.</div>
+          <p class="info-text" style="opacity: 0.9; margin-top: 8px; line-height: 1.5;">Как установить приложение на рабочий стол вашего телефона:</p>
+          <ul style="padding-left: 18px; font-size: 13px; line-height: 1.6; opacity: 0.9; margin-top: 6px;">
+            <li>На iPhone (Safari): нажмите кнопку «Поделиться» внизу экрана и выберите пункт «На экран Домой».</li>
+            <li>На Android (Chrome): нажмите на меню (три точки) в правом верхнем углу и выберите пункт «Установить приложение» или «Добавить на главный экран».</li>
+          </ul>
+        </div>
         
         <div class="theme-card card" style="background-color: ${colors.cardBg}; color: ${colors.text}; ${theme==='green'?'border:2px solid #22c55e':''}" onclick="setTheme('green')">
           <div class="row-center"><div class="color-circle" style="background:#2d4a35;"></div><span class="card-main-text" style="margin:0;">Фирменный зеленый</span></div>
@@ -660,10 +699,29 @@
         </div>
 
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
-          <div class="card-main-text" style="margin-bottom: 4px;">💾 Резервная копия данных</div>
+          <div class="card-main-text" style="margin-bottom: 4px;">Резервная копия данных</div>
           <p class="info-text" style="opacity: 0.8; margin-bottom: 10px;">Сохраните свои смены и часы на случай очистки истории браузера.</p>
           <button class="backup-button" onclick="exportBackup()"><i class="fa-solid fa-copy" style="margin-right: 8px;"></i> Создать бэкап (Копировать)</button>
           <button class="restore-button" onclick="importBackup()"><i class="fa-solid fa-file-arrow-down" style="margin-right: 8px;"></i> Восстановить из бэкапа</button>
+        </div>
+
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
+          <div class="card-main-text" style="margin-bottom: 10px;">Что нового (v${APP_VERSION})</div>
+          <ul style="padding-left: 18px; font-size: 13px; line-height: 1.6; opacity: 0.9;">
+            <li>Добавлена возможность установки приложения на рабочий стол без использования Expo Go.</li>
+            <li>Добавлена новая рабочая станция Кафе (CF).</li>
+            <li>Обновлена палитра уникальных цветов для всех станций.</li>
+            <li>Интеллектуальный старт смены с проверкой реального времени и выходных дней.</li>
+            <li>Полностью обновлен интерфейс уведомлений в едином стиле Apple VisionOS.</li>
+            <li>Реализована автономная проверка и обновление версии приложения через GitHub.</li>
+            <li>Абсолютная конфиденциальность: все данные хранятся локально на устройстве и не передаются третьим лицам.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
+          <div class="card-main-text" style="margin-bottom: 4px;">Автономное обновление</div>
+          <p class="info-text" style="opacity: 0.8; margin-bottom: 10px;">Проверить наличие свежей версии приложения на GitHub.</p>
+          <button class="update-button" onclick="checkForAppUpdate()"><i class="fa-solid fa-rotate" style="margin-right: 8px;"></i> Проверить обновление</button>
         </div>
       `;
     }
@@ -745,7 +803,7 @@
       workedHours = parseFloat(localStorage.getItem(`app_worked_hours_${code}`)) || 0;
       render();
     } else {
-      showCustomAlert('Ошибка', 'Введите 7-значный табельный номер, имя и фамилию', '⚠️');
+      showCustomAlert('Ошибка', 'Введите 7-значный табельный номер, имя и фамилию', '');
     }
   }
 
@@ -818,8 +876,8 @@
       minutes.map(m => `<div class="time-chip ${endM===m?'active':''}" onclick="endM='${m}';updateShiftModalUI()">${m}</div>`).join('');
 
     document.getElementById('stationsModalList').innerHTML = stationsList.map(st => `
-      <div style="width:40px; height:40px; border-radius:8px; background:rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; cursor:pointer; ${editSt===st.code?'border:2px solid '+st.color:''}" onclick="editSt='${st.code}';updateShiftModalUI()">
-        <span style="color:#fff; font-weight:bold;">${st.code}</span>
+      <div style="padding: 6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; cursor:pointer; ${editSt===st.code?'border:2px solid '+st.color:''}" onclick="editSt='${st.code}';updateShiftModalUI()">
+        <span style="color:#fff; font-weight:bold; font-size:13px;">${st.code} — ${st.name}</span>
       </div>
     `).join('');
   }
@@ -905,7 +963,7 @@
       if (!isNaN(inputVal)) {
         workedHours = inputVal;
       } else {
-        showCustomAlert('Ошибка', 'Введите корректное число', '⚠️');
+        showCustomAlert('Ошибка', 'Введите корректное число', '');
         return;
       }
     }
