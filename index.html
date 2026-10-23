@@ -448,12 +448,12 @@
 </div>
 
 <script>
-  const APP_VERSION = '6.8';
-  const APP_CHANGELOG = 'Добавлена возможность редактирования даты рождения в профиле сотрудника.';
+  const APP_VERSION = '6.9';
+  const APP_CHANGELOG = 'Удалены все тестовые дни рождения по умолчанию из справочника сотрудников.';
 
-  if (!localStorage.getItem('app_v68_cleaned')) {
+  if (!localStorage.getItem('app_v69_cleaned')) {
     localStorage.removeItem('app_swap_request');
-    localStorage.setItem('app_v68_cleaned', 'true');
+    localStorage.setItem('app_v69_cleaned', 'true');
   }
 
   let activeTab = 'home';
@@ -471,12 +471,12 @@
 
   const knownEmployees = {
     '0000000': { name: 'Разработчик', birth: '', notice: 'табель занят разработчиком для тестирования приложения' },
-    '1111111': { name: 'Николаев Николай', birth: '10-23' },
-    '1022807': { name: 'Ш Егор', birth: '10-28' },
-    '1022808': { name: 'Иванов Алексей', birth: '10-25' },
-    '1022809': { name: 'Петрова Анна', birth: '11-02' },
-    '1022810': { name: 'Сидоров Дмитрий', birth: '12-15' },
-    '1009123': { name: 'Смирнова Ольга', birth: '04-10' }
+    '1111111': { name: 'Николаев Николай', birth: '' },
+    '1022807': { name: 'Ш Егор', birth: '' },
+    '1022808': { name: 'Иванов Алексей', birth: '' },
+    '1022809': { name: 'Петрова Анна', birth: '' },
+    '1022810': { name: 'Сидоров Дмитрий', birth: '' },
+    '1009123': { name: 'Смирнова Ольга', birth: '' }
   };
 
   function getAllKnownEmployees() {
@@ -1304,7 +1304,7 @@
         const currentBirthMmDd = currentEmpData.birth || '';
         let fullBirthInputValue = '';
         if (currentBirthMmDd) {
-          fullBirthInputValue = `2024-${currentBirthMmDd}`; // Дефолтный год для инпута date
+          fullBirthInputValue = `2024-${currentBirthMmDd}`;
         }
 
         html += `
@@ -1491,7 +1491,7 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Добавлено редактирование даты рождения.</li>
+            <li>Очищены тестовые дни рождения по умолчанию.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
