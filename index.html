@@ -448,12 +448,12 @@
 </div>
 
 <script>
-  const APP_VERSION = '6.3';
-  const APP_CHANGELOG = 'Исправлена динамическая смена тем оформления карточек и блоков.';
+  const APP_VERSION = '6.5';
+  const APP_CHANGELOG = 'Добавлен список сотрудников в панель разработчика (табель 0000000).';
 
-  if (!localStorage.getItem('app_v63_cleaned')) {
+  if (!localStorage.getItem('app_v65_cleaned')) {
     localStorage.removeItem('app_swap_request');
-    localStorage.setItem('app_v63_cleaned', 'true');
+    localStorage.setItem('app_v65_cleaned', 'true');
   }
 
   let activeTab = 'home';
@@ -462,6 +462,7 @@
   let opacity = parseFloat(localStorage.getItem('app_opacity')) || 0.3;
   let fontSizeScale = parseFloat(localStorage.getItem('app_font_scale')) || 1.0;
   let updateAvailable = false;
+  let releaseApproved = JSON.parse(localStorage.getItem('app_release_approved')) || false;
   
   document.documentElement.style.setProperty('--f-mult', fontSizeScale);
 
@@ -469,6 +470,7 @@
   let employee = JSON.parse(localStorage.getItem('app_employee')) || { firstName: '', code: '' };
 
   const knownEmployees = {
+    '0000000': { name: 'Разработчик', birth: '', notice: 'табель занят разработчиком для тестирования приложения' },
     '1111111': { name: 'Николаев Николай', birth: '10-23' },
     '1022807': { name: 'Ш Егор', birth: '10-28' },
     '1022808': { name: 'Иванов Алексей', birth: '10-25' },
@@ -751,6 +753,11 @@
     let deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
 
     if (val.length === 7) {
+      if (val === '0000000') {
+        if (previewEl) previewEl.innerHTML = `<span style="color: #f97316; font-weight: bold;"><i class="fa-solid fa-code"></i> табель занят разработчиком для тестирования приложения</span>`;
+        if (btnEl) btnEl.disabled = false;
+        return;
+      }
       if (deletedCodes.includes(val)) {
         if (previewEl) previewEl.innerHTML = `<span style="color: #ef4444; font-weight: bold;"><i class="fa-solid fa-triangle-exclamation"></i> Сотрудник не найден, возможно удален</span>`;
         if (btnEl) btnEl.disabled = true;
@@ -773,7 +780,7 @@
   function handleLogin() {
     const code = document.getElementById('inpCode').value;
     let deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
-    if (deletedCodes.includes(code)) {
+    if (code !== '0000000' && deletedCodes.includes(code)) {
       showCustomAlert('Ошибка входа', 'Сотрудник не найден, возможно удален.', '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444; font-size: 38px;"></i>');
       return;
     }
@@ -809,6 +816,10 @@
       showCustomAlert('Ошибка', 'Табельный номер должен состоять ровно из 7 цифр.', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
       return;
     }
+    if (code === '0000000') {
+      showCustomAlert('Ошибка', 'Этот табельный номер зарезервирован за разработчиком.', '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444; font-size: 38px;"></i>');
+      return;
+    }
     if (!name) {
       showCustomAlert('Ошибка', 'Пожалуйста, введите ваши Фамилию и Имя (ФИ).', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
       return;
@@ -832,6 +843,17 @@
     workedHours = 0;
 
     showCustomAlert('Успешно', 'Регистрация прошла успешно! Добро пожаловать, ' + name + '.', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
+    render();
+  }
+
+  function toggleReleaseApproval() {
+    releaseApproved = !releaseApproved;
+    localStorage.setItem('app_release_approved', JSON.stringify(releaseApproved));
+    if (releaseApproved) {
+      showCustomAlert('Релиз одобрен', 'Обновление успешно подтверждено и готово к использованию всеми сотрудниками на продакшене.', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
+    } else {
+      showCustomAlert('Релиз на тесте', 'Обновление переведено обратно в режим изолированного тестирования.', '<i class="fa-solid fa-triangle-exclamation" style="color: #f97316; font-size: 38px;"></i>');
+    }
     render();
   }
 
@@ -1225,6 +1247,37 @@
           </div>
         `;
 
+        if (employee.code === '0000000') {
+          const allEmp = getAllKnownEmployees();
+          const empEntries = Object.entries(allEmp);
+
+          html += `
+            <div class="card" style="border: 2px dashed #f97316; background: rgba(249, 115, 22, 0.15);">
+              <div class="card-subtitle" style="color: #fdba74;">🛠️ ПАНЕЛЬ РАЗРАБОТЧИКА (СТЕНД ТЕСТИРОВАНИЯ)</div>
+              <div class="card-main-text" style="font-size: 16px; margin-top: 6px;">Версия v${APP_VERSION} (Тестирование)</div>
+              <p class="info-text" style="margin-top: 6px; font-size: 13px;">Табель зарезервирован под разработку. Изменения изолированы.</p>
+              
+              <button class="primary-button" style="background: ${releaseApproved ? '#22c55e' : '#f97316'}; margin-top: 12px;" onclick="toggleReleaseApproval()">
+                ${releaseApproved ? '✅ Обновление одобрено для всех' : '🚀 Одобрить и выпустить обновление для всех'}
+              </button>
+
+              <div style="margin-top: 14px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #fff;">
+                  <i class="fa-solid fa-users" style="margin-right: 6px;"></i> База зарегистрированных сотрудников (${empEntries.length}):
+                </div>
+                <div style="max-height: 160px; overflow-y: auto; text-align: left; font-size: 12px; display: flex; flex-direction: column; gap: 4px;">
+                  ${empEntries.map(([code, data]) => `
+                    <div style="background: rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                      <span style="color: #fff; font-weight: 600;">${data.name}</span>
+                      <span style="background: rgba(0,0,0,0.4); padding: 2px 6px; border-radius: 6px; font-family: monospace; color: #cbd5e1;">${code}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
         // Блок отправки запроса на обмен
         html += `
           <div class="card" style="margin-top: 14px;">
@@ -1287,7 +1340,7 @@
 
         html += `
           <button class="logout-button" onclick="handleLogout()"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> Выйти из аккаунта</button>
-          <button class="delete-button" onclick="confirmDeleteAccount()"><i class="fa-solid fa-trash" style="margin-right: 8px;"></i> Удалить профиль</button>
+          ${employee.code !== '0000000' ? `<button class="delete-button" onclick="confirmDeleteAccount()"><i class="fa-solid fa-trash" style="margin-right: 8px;"></i> Удалить профиль</button>` : ''}
         `;
       }
       screen.innerHTML = html;
@@ -1340,8 +1393,8 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Динамическое обновление тем карточек.</li>
-            <li>Исправление несоответствия цветов фона и блоков.</li>
+            <li>Добавлен список сотрудников в панель разработчика.</li>
+            <li>Изолированное тестирование и контроль релизов.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
@@ -1411,7 +1464,7 @@
   }
 
   function handleDeleteAccount() {
-    if (employee.code) {
+    if (employee.code && employee.code !== '0000000') {
       localStorage.removeItem(`app_shifts_${employee.code}`);
       localStorage.removeItem(`app_worked_hours_${employee.code}`);
       
