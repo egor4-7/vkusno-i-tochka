@@ -65,7 +65,7 @@
     }
 
     /* Карточки используют динамическую тему через CSS-переменную */
-    .card { border-radius: 18px; padding: 18px; margin-bottom: 14px; background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); color: #ffffff; }
+    .card { border-radius: 18px; padding: 18px; margin-bottom: 14px; background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); color: #ffffff; width: 100%; overflow: hidden; }
     .card-subtitle { font-size: calc(11px * var(--f-mult)); font-weight: 700; letter-spacing: 0.5px; opacity: 0.9; color: #cbd5e1; }
     .card-main-text { font-size: calc(17px * var(--f-mult)); font-weight: 700; margin-top: 4px; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
     .card-time-text { font-size: calc(15px * var(--f-mult)); font-weight: 600; margin-top: 2px; color: #e2e8f0; }
@@ -228,7 +228,7 @@
       50% { transform: scale(1.15); box-shadow: 0 5px 12px rgba(239, 68, 68, 0.9); }
     }
 
-    .input-field { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; font-size: calc(14px * var(--f-mult)); }
+    .input-field { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; font-size: calc(14px * var(--f-mult)); box-sizing: border-box; max-width: 100%; }
     .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: calc(15px * var(--f-mult)); text-align: center; box-shadow: 0 4px 15px rgba(249,115,22,0.4); }
     
     .logout-button { background: #2563eb; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); box-shadow: 0 4px 15px rgba(37,99,235,0.4); }
@@ -255,6 +255,7 @@
       border-radius: 16px; 
       padding: 10px; 
       margin-bottom: 10px; 
+      box-sizing: border-box;
       box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 10px 25px rgba(0, 0, 0, 0.3);
     }
     .time-column { 
@@ -295,7 +296,7 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .spinner { animation: spin 1s linear infinite; display: inline-block; }
 
-    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.25); color: #fff; }
+    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.25); color: #fff; width: 100%; box-sizing: border-box; }
     .color-circle { width: 24px; height: 24px; border-radius: 12px; margin-right: 12px; }
     .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; font-weight: 600; font-size: calc(12px * var(--f-mult)); color: #fff; }
 
@@ -451,14 +452,14 @@
 </div>
 
 <script>
-  const APP_VERSION = '7.0';
-  const APP_CHANGELOG = 'Добавлен полноценный офлайн-режим (Service Worker и кэширование PWA).';
+  const APP_VERSION = '7.1';
+  const APP_CHANGELOG = 'Исправлены темы, верстка даты рождения, добавлены кнопки редактирования/удаления даты и кнопка Принять для обмена сменами.';
 
-  // Регистрация Service Worker для офлайн-режима прямо из Blob (без создания отдельных файлов)
+  // Регистрация Service Worker для офлайн-режима прямо из Blob
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       const swCode = `
-        const CACHE_NAME = 'vkusno-schedule-v7';
+        const CACHE_NAME = 'vkusno-schedule-v71';
         self.addEventListener('install', e => {
           self.skipWaiting();
         });
@@ -481,9 +482,9 @@
     });
   }
 
-  if (!localStorage.getItem('app_v70_cleaned')) {
+  if (!localStorage.getItem('app_v71_cleaned')) {
     localStorage.removeItem('app_swap_request');
-    localStorage.setItem('app_v70_cleaned', 'true');
+    localStorage.setItem('app_v71_cleaned', 'true');
   }
 
   let activeTab = 'home';
@@ -896,16 +897,34 @@
     render();
   }
 
-  function saveEmployeeBirthday(fullDateStr) {
-    if (!fullDateStr || !employee.code) return;
-    const parts = fullDateStr.split('-');
+  function saveEmployeeBirthdayFromInput() {
+    const dateInput = document.getElementById('inpBdayEdit');
+    if (!dateInput || !dateInput.value || !employee.code) return;
+    const parts = dateInput.value.split('-');
     if (parts.length === 3) {
       const mmDd = `${parts[1]}-${parts[2]}`;
       let birthdays = JSON.parse(localStorage.getItem('app_employee_birthdays')) || {};
       birthdays[employee.code] = mmDd;
       localStorage.setItem('app_employee_birthdays', JSON.stringify(birthdays));
       showCustomAlert('Сохранено', 'Дата рождения успешно обновлена!', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
+      render();
     }
+  }
+
+  function deleteEmployeeBirthday() {
+    if (!employee.code) return;
+    let birthdays = JSON.parse(localStorage.getItem('app_employee_birthdays')) || {};
+    if (birthdays[employee.code]) {
+      delete birthdays[employee.code];
+      localStorage.setItem('app_employee_birthdays', JSON.stringify(birthdays));
+    }
+    let custom = JSON.parse(localStorage.getItem('app_custom_employees')) || {};
+    if (custom[employee.code]) {
+      custom[employee.code].birth = '';
+      localStorage.setItem('app_custom_employees', JSON.stringify(custom));
+    }
+    showCustomAlert('Успешно', 'Дата рождения удалена.', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
+    render();
   }
 
   function toggleReleaseApproval() {
@@ -1021,7 +1040,7 @@
     
     setTimeout(() => {
       if (approved) {
-        showCustomAlert('Одобрено', 'Вы успешно одобрили обмен сменой!', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
+        showCustomAlert('Одобрено', 'Вы успешно приняли смену по обмену!', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
       } else {
         showCustomAlert('Отклонено', 'Запрос на обмен сменой отклонен.', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
       }
@@ -1104,8 +1123,8 @@
     let cardBg = `rgba(20, 35, 25, ${Math.max(0.85, opacity)})`;
 
     if (theme === 'orange') {
-      bg = '#4a352d';
-      cardBg = `rgba(45, 30, 25, ${Math.max(0.85, opacity)})`;
+      bg = '#7c3f1e'; // Более яркий и сочный оранжево-терракотовый тон
+      cardBg = `rgba(64, 30, 16, ${Math.max(0.85, opacity)})`;
     } else if (theme === 'bw') {
       bg = opacity === 1.0 ? '#000000' : '#121212';
       cardBg = opacity === 1.0 ? '#1e1e1e' : `rgba(30, 30, 30, ${Math.max(0.85, opacity)})`;
@@ -1345,12 +1364,16 @@
           </div>
         `;
 
-        // Блок настройки дня рождения
+        // Блок настройки дня рождения с кнопками Сохранить и Удалить
         html += `
           <div class="card" style="margin-top: 14px;">
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 6px;">Дата рождения</div>
             <p class="info-text" style="margin-bottom: 10px; color: #cbd5e1;">Укажите день вашего рождения для праздничного уведомления:</p>
-            <input type="date" id="inpBdayEdit" class="input-field" value="${fullBirthInputValue}" style="background: rgba(255,255,255,0.25); color:#fff;" onchange="saveEmployeeBirthday(this.value)">
+            <input type="date" id="inpBdayEdit" class="input-field" value="${fullBirthInputValue}" style="background: rgba(255,255,255,0.25); color:#fff; margin-bottom: 10px;">
+            <div class="row-between" style="gap: 10px;">
+              <button class="modal-save-btn" style="flex: 1; padding: 10px; font-size: 13px;" onclick="saveEmployeeBirthdayFromInput()">Сохранить дату</button>
+              <button class="modal-cancel-btn" style="flex: 1; padding: 10px; font-size: 13px; background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239,68,68,0.5); color: #fca5a5;" onclick="deleteEmployeeBirthday()">Удалить дату</button>
+            </div>
           </div>
         `;
 
@@ -1441,7 +1464,7 @@
         }
         html += `</div>`;
 
-        // Входящий запрос (если прислал кто-то другой)
+        // Входящий запрос с кнопкой "Принять"
         if (incomingSwapRequest) {
           html += `
             <div class="card" id="incomingSwapCard" style="border: 2px solid #22c55e; margin-top: 14px; background: rgba(15, 45, 25, 0.95); box-shadow: 0 10px 30px rgba(34,197,94,0.25);">
@@ -1450,8 +1473,8 @@
                 СОТРУДНИК ${incomingSwapRequest.senderName.toUpperCase()} (${incomingSwapRequest.senderCode}): ХОЧЕТ ОБМЕНЯТЬСЯ СМЕНОЙ (${incomingSwapRequest.dateText}, ВРЕМЯ: ${incomingSwapRequest.shiftTime})
               </div>
               <div class="row-between" style="margin-top: 16px; gap: 12px;">
-                <button class="swap-reject-btn" onclick="handleSwapDecision(false)">Отказаться</button>
-                <button class="swap-approve-btn" onclick="handleSwapDecision(true)">Одобрить</button>
+                <button class="swap-reject-btn" onclick="handleSwapDecision(false)">Отклонить</button>
+                <button class="swap-approve-btn" onclick="handleSwapDecision(true)">Принять</button>
               </div>
             </div>
           `;
@@ -1500,7 +1523,7 @@
           ${theme==='green'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
         </div>
         <div class="theme-card card" style="${theme==='orange'?'border:2px solid #22c55e':''}" onclick="setTheme('orange')">
-          <div class="row-center"><div class="color-circle" style="background:#b45309;"></div><span class="card-main-text" style="margin:0;">Оранжевый</span></div>
+          <div class="row-center"><div class="color-circle" style="background:#d97706;"></div><span class="card-main-text" style="margin:0;">Оранжевый</span></div>
           ${theme==='orange'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
         </div>
         <div class="theme-card card" style="${theme==='bw'?'border:2px solid #22c55e':''}" onclick="setTheme('bw')">
@@ -1520,7 +1543,7 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Добавлен Service Worker для полноценного офлайн-режима.</li>
+            <li>Обновлена оранжевая тема и исправлены отступы элементов.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
