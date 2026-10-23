@@ -448,12 +448,12 @@
 </div>
 
 <script>
-  const APP_VERSION = '6.7';
-  const APP_CHANGELOG = 'Исправлен баг отображения удаленных сотрудников в списке активных.';
+  const APP_VERSION = '6.8';
+  const APP_CHANGELOG = 'Добавлена возможность редактирования даты рождения в профиле сотрудника.';
 
-  if (!localStorage.getItem('app_v67_cleaned')) {
+  if (!localStorage.getItem('app_v68_cleaned')) {
     localStorage.removeItem('app_swap_request');
-    localStorage.setItem('app_v67_cleaned', 'true');
+    localStorage.setItem('app_v68_cleaned', 'true');
   }
 
   let activeTab = 'home';
@@ -481,10 +481,19 @@
 
   function getAllKnownEmployees() {
     let custom = JSON.parse(localStorage.getItem('app_custom_employees')) || {};
+    let birthdays = JSON.parse(localStorage.getItem('app_employee_birthdays')) || {};
     let all = { ...knownEmployees, ...custom };
-    let deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
     
-    // Исключаем удаленные аккаунты из списка активных
+    // Переопределяем дни рождения из пользовательских настроек, если они заданы
+    Object.keys(birthdays).forEach(code => {
+      if (all[code]) {
+        all[code].birth = birthdays[code];
+      } else {
+        all[code] = { name: 'Сотрудник ' + code, birth: birthdays[code] };
+      }
+    });
+
+    let deletedCodes = JSON.parse(localStorage.getItem('app_deleted_codes')) || [];
     let activeOnly = {};
     Object.keys(all).forEach(code => {
       if (!deletedCodes.includes(code)) {
@@ -795,7 +804,6 @@
       return;
     }
 
-    // Проверяем по полному справочнику (включая жестко прописанные)
     let custom = JSON.parse(localStorage.getItem('app_custom_employees')) || {};
     let allEmp = { ...knownEmployees, ...custom };
     const empData = allEmp[code];
@@ -857,6 +865,18 @@
 
     showCustomAlert('Успешно', 'Регистрация прошла успешно! Добро пожаловать, ' + name + '.', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
     render();
+  }
+
+  function saveEmployeeBirthday(fullDateStr) {
+    if (!fullDateStr || !employee.code) return;
+    const parts = fullDateStr.split('-');
+    if (parts.length === 3) {
+      const mmDd = `${parts[1]}-${parts[2]}`;
+      let birthdays = JSON.parse(localStorage.getItem('app_employee_birthdays')) || {};
+      birthdays[employee.code] = mmDd;
+      localStorage.setItem('app_employee_birthdays', JSON.stringify(birthdays));
+      showCustomAlert('Сохранено', 'Дата рождения успешно обновлена!', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
+    }
   }
 
   function toggleReleaseApproval() {
@@ -1279,6 +1299,13 @@
         `;
       } else {
         const workShiftsList = shifts.filter(s => s.type === 'work' && s.start && s.end);
+        const allEmp = getAllKnownEmployees();
+        const currentEmpData = allEmp[employee.code] || {};
+        const currentBirthMmDd = currentEmpData.birth || '';
+        let fullBirthInputValue = '';
+        if (currentBirthMmDd) {
+          fullBirthInputValue = `2024-${currentBirthMmDd}`; // Дефолтный год для инпута date
+        }
 
         html += `
           <div class="card">
@@ -1289,8 +1316,16 @@
           </div>
         `;
 
+        // Блок настройки дня рождения
+        html += `
+          <div class="card" style="margin-top: 14px;">
+            <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 6px;">Дата рождения</div>
+            <p class="info-text" style="margin-bottom: 10px; color: #cbd5e1;">Укажите день вашего рождения для праздничного уведомления:</p>
+            <input type="date" id="inpBdayEdit" class="input-field" value="${fullBirthInputValue}" style="background: rgba(255,255,255,0.25); color:#fff;" onchange="saveEmployeeBirthday(this.value)">
+          </div>
+        `;
+
         if (employee.code === '0000000') {
-          const allEmp = getAllKnownEmployees();
           const empEntries = Object.entries(allEmp);
           const backups = JSON.parse(localStorage.getItem('app_employee_backups')) || {};
 
@@ -1311,7 +1346,7 @@
                 <div style="max-height: 120px; overflow-y: auto; text-align: left; font-size: 12px; display: flex; flex-direction: column; gap: 4px;">
                   ${empEntries.map(([code, data]) => `
                     <div style="background: rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                      <span style="color: #fff; font-weight: 600;">${data.name}</span>
+                      <span style="color: #fff; font-weight: 600;">${data.name} ${data.birth ? '('+data.birth+')' : ''}</span>
                       <span style="background: rgba(0,0,0,0.4); padding: 2px 6px; border-radius: 6px; font-family: monospace; color: #cbd5e1;">${code}</span>
                     </div>
                   `).join('')}
@@ -1456,8 +1491,7 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Исправлена фильтрация удаленных сотрудников.</li>
-            <li>Корректное отображение активных аккаунтов.</li>
+            <li>Добавлено редактирование даты рождения.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
@@ -1534,7 +1568,6 @@
       const shiftsData = localStorage.getItem(`app_shifts_${code}`);
       const hoursData = localStorage.getItem(`app_worked_hours_${code}`);
 
-      // Сохраняем в архив (бэкап)
       let backups = JSON.parse(localStorage.getItem('app_employee_backups')) || {};
       backups[code] = {
         name: empData.name,
@@ -1545,7 +1578,6 @@
       };
       localStorage.setItem('app_employee_backups', JSON.stringify(backups));
 
-      // Удаляем текущие данные
       localStorage.removeItem(`app_shifts_${code}`);
       localStorage.removeItem(`app_worked_hours_${code}`);
       
