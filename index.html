@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Расписание — Вкусно и точка</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Tesseract.js для OCR сканирования фото графиков -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <style>
     :root {
       --f-mult: 1;
@@ -32,13 +34,19 @@
     .row-between { display: flex; justify-content: space-between; align-items: center; }
     .row-center { display: flex; align-items: center; }
 
-    /* Единый эффект физического нажатия для всех интерактивных элементов */
-    button:active, .site-button:active, .card:active, .shift-card:active, .theme-card:active, .primary-button:active, .logout-button:active, .delete-button:active, .backup-button:active, .restore-button:active, .calendar-button:active, .update-button:active, .modal-cancel-btn:active, .modal-save-btn:active, .break-option-btn:active, .time-chip-v:active, .opacity-btn:active, .action-icon-btn:active, .action-btn:active {
+    /* Единый эффект физического нажатия */
+    button:active, .site-button:active, .card:active, .shift-card:active, .theme-card:active, .primary-button:active, .logout-button:active, .delete-button:active, .calendar-button:active, .feedback-button:active, .modal-cancel-btn:active, .modal-save-btn:active, .break-option-btn:active, .time-chip-v:active, .opacity-btn:active, .action-icon-btn:active, .action-btn:active, .swap-approve-btn:active, .swap-reject-btn:active {
       transform: scale(0.96) translateY(1.5px) !important;
       transition: transform 0.1s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
-    .card { border-radius: 16px; padding: 16px; margin-bottom: 12px; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    .card-fade-out {
+      opacity: 0 !important;
+      transform: scale(0.85) translateY(-20px) !important;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .card { border-radius: 16px; padding: 16px; margin-bottom: 12px; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; }
     .card-subtitle { font-size: calc(11px * var(--f-mult)); font-weight: 700; letter-spacing: 0.5px; opacity: 0.8; }
     .card-main-text { font-size: calc(17px * var(--f-mult)); font-weight: 700; margin-top: 4px; }
     .card-time-text { font-size: calc(15px * var(--f-mult)); font-weight: 600; margin-top: 2px; }
@@ -46,14 +54,14 @@
 
     .dot-open { width: 8px; height: 8px; border-radius: 4px; background: #22c55e; margin-right: 6px; }
     
-    .site-button { background: #f97316; border-radius: 12px; padding: 12px; display: flex; justify-content: center; align-items: center; margin-top: 14px; cursor: pointer; text-decoration: none; color: #fff; font-weight: 600; font-size: calc(14px * var(--f-mult)); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .site-button { background: #f97316; border-radius: 12px; padding: 12px; display: flex; justify-content: center; align-items: center; margin-top: 14px; cursor: pointer; text-decoration: none; color: #fff; font-weight: 600; font-size: calc(14px * var(--f-mult)); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); border: none; width: 100%; }
 
     .logo-emblem-card {
       position: relative;
       overflow: hidden;
       border-radius: 20px;
       padding: 18px 20px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       display: flex;
       flex-direction: column;
       border: 1px solid rgba(255, 255, 255, 0.35);
@@ -62,12 +70,43 @@
       -webkit-backdrop-filter: blur(35px) saturate(200%);
     }
 
+    /* Оранжевый плавающий блюр-бар для Дней Рождения */
+    .birthday-floating-bar {
+      border-radius: 22px;
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      background: rgba(249, 115, 22, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(30px) saturate(190%);
+      -webkit-backdrop-filter: blur(30px) saturate(190%);
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: zoomInCenter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes zoomInCenter {
+      0% { opacity: 0; transform: scale(0.3); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .birthday-floating-bar.hide-zoom {
+      animation: zoomOutCenter 0.4s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards !important;
+    }
+
+    @keyframes zoomOutCenter {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.1); }
+    }
+
     .shift-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .day-text { font-size: calc(16px * var(--f-mult)); font-weight: 700; }
     .date-text { font-size: calc(12px * var(--f-mult)); margin-top: 2px; opacity: 0.8; }
     
-    .off-badge { display: flex; align-items: center; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 10px; }
-    .off-badge-text { font-size: calc(12px * var(--f-mult)); font-weight: 500; color: #fff; }
+    .badge-status { display: flex; align-items: center; padding: 4px 10px; border-radius: 10px; }
+    .badge-status-text { font-size: calc(12px * var(--f-mult)); font-weight: 600; color: #fff; }
     
     .time-text { font-size: calc(15px * var(--f-mult)); font-weight: 700; text-align: right; }
     .station-badge { padding: 2px 6px; border-radius: 6px; margin-top: 4px; display: inline-block; text-align: center; }
@@ -140,8 +179,8 @@
     .tab-text { font-size: calc(10px * var(--f-mult)); margin-top: 3px; pointer-events: none; }
     .tab-item i { pointer-events: none; }
 
-    /* Бейдж обновления строго на крае шестеренки */
-    .update-badge {
+    /* Бейджи обновлений и уведомлений */
+    .update-badge, .swap-badge {
       position: absolute;
       top: -4px;
       right: -7px;
@@ -167,17 +206,19 @@
       50% { transform: scale(1.15); box-shadow: 0 5px 12px rgba(239, 68, 68, 0.9); }
     }
 
-    /* Элементы формы и кнопок */
     .input-field { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; font-size: calc(14px * var(--f-mult)); }
     .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: calc(15px * var(--f-mult)); text-align: center; }
     
     .logout-button { background: #3b82f6; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
     .delete-button { background: rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fca5a5; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
 
-    .backup-button { background: #2563eb; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
-    .restore-button { background: #059669; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
-    .calendar-button { background: #0891b2; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
-    .update-button { background: #7c3aed; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); }
+    .calendar-button { background: #0891b2; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; font-size: calc(13px * var(--f-mult)); }
+    .scan-button { background: #8b5cf6; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; font-size: calc(13px * var(--f-mult)); }
+    .feedback-button { background: #0088cc; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; font-size: calc(14px * var(--f-mult)); text-decoration: none; }
+
+    /* Кнопки одобрения/отказа обмена сменами */
+    .swap-approve-btn { background: #22c55e; border-radius: 12px; padding: 12px; flex: 1; border: none; color: #fff; font-weight: bold; font-size: calc(14px * var(--f-mult)); cursor: pointer; text-align: center; }
+    .swap-reject-btn { background: #ef4444; border-radius: 12px; padding: 12px; flex: 1; border: none; color: #fff; font-weight: bold; font-size: calc(14px * var(--f-mult)); cursor: pointer; text-align: center; }
 
     /* ЖИДКОЕ СТЕКЛО для времени */
     .time-picker-row { 
@@ -232,54 +273,15 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .spinner { animation: spin 1s linear infinite; display: inline-block; }
 
-    .custom-success-badge {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 14px auto;
-      background: rgba(34, 197, 94, 0.18);
-      border: 1.5px solid rgba(34, 197, 94, 0.65);
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 0 25px rgba(34, 197, 94, 0.45), inset 0 0 12px rgba(34, 197, 94, 0.35);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      animation: pulseSuccess 1.5s infinite ease-in-out;
-    }
-
-    .custom-checkmark {
-      width: 32px;
-      height: 32px;
-      stroke: #22c55e;
-      stroke-width: 4;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      fill: none;
-      filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.8));
-      animation: drawCheck 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-    }
-
-    @keyframes drawCheck {
-      0% { stroke-dasharray: 50; stroke-dashoffset: 50; }
-      100% { stroke-dasharray: 50; stroke-dashoffset: 0; }
-    }
-
-    @keyframes pulseSuccess {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(34, 197, 94, 0.45), inset 0 0 12px rgba(34, 197, 94, 0.35); }
-      50% { transform: scale(1.06); box-shadow: 0 0 35px rgba(34, 197, 94, 0.75), inset 0 0 18px rgba(34, 197, 94, 0.55); }
-    }
-
-    /* Темы */
     .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
     .color-circle { width: 24px; height: 24px; border-radius: 12px; margin-right: 12px; }
     .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none; cursor: pointer; font-weight: 600; font-size: calc(12px * var(--f-mult)); }
 
-    /* Модалки в едином стиле VisionOS */
+    /* Модалки в стиле VisionOS */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .modal-content { border-radius: 24px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.4); transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(30, 35, 32, 0.75); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); }
     
-    .type-toggle-btn { flex: 1; padding: 10px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.2); margin: 0 4px; border: none; color: #fff; font-weight: 600; font-size: calc(13px * var(--f-mult)); cursor: pointer; }
+    .type-toggle-btn { flex: 1; padding: 8px 4px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.2); margin: 0 2px; border: none; color: #fff; font-weight: 600; font-size: calc(11px * var(--f-mult)); cursor: pointer; }
     
     .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.15); border-radius: 22px; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: calc(14px * var(--f-mult)); }
     .modal-save-btn { flex: 1; padding: 12px; text-align: center; background: #22c55e; border-radius: 22px; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: calc(14px * var(--f-mult)); }
@@ -294,7 +296,7 @@
 <div class="container" id="appContainer">
   <div class="screen-container" id="screenContent"></div>
 
-  <!-- Плавающий бар с бегунком и значком обновления на шестеренке -->
+  <!-- Плавающий бар с бегунком -->
   <div class="floating-tab-bar" id="floatingTabBar">
     <div class="nav-lens-indicator" id="navLens"></div>
     <button class="tab-item" data-tab="home" onclick="switchTab('home')">
@@ -306,7 +308,10 @@
       <span class="tab-text" id="text-shifts">Смены</span>
     </button>
     <button class="tab-item" data-tab="employee" onclick="switchTab('employee')">
-      <i class="fa-regular fa-user" id="icon-employee" style="font-size: 18px;"></i>
+      <div style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
+        <i class="fa-regular fa-user" id="icon-employee" style="font-size: 18px;"></i>
+        <div id="swapBadge" class="swap-badge" style="display: none;">!</div>
+      </div>
       <span class="tab-text" id="text-employee">Сотрудник</span>
     </button>
     <button class="tab-item" data-tab="settings" onclick="switchTab('settings')">
@@ -319,7 +324,10 @@
   </div>
 </div>
 
-<!-- Универсальная кастомная модалка уведомлений -->
+<!-- Невидимый файл инпут для скана смен по фото -->
+<input type="file" id="ocrFileInput" accept="image/*" style="display: none;" onchange="handleImageScan(event)">
+
+<!-- Кастомная модалка -->
 <div class="modal-overlay" id="customModal">
   <div class="modal-content" id="customModalBg" style="text-align: center;">
     <div id="customModalIcon" style="margin-bottom: 12px;"></div>
@@ -329,26 +337,31 @@
   </div>
 </div>
 
-<!-- Модалка резервного копирования -->
-<div class="modal-overlay" id="backupModal">
-  <div class="modal-content" id="backupModalBg">
-    <h3 style="color: #fff; text-align: center; margin-bottom: 10px;">Резервная копия</h3>
-    <p style="color: #ccc; text-align: center; font-size: 13px; margin-bottom: 15px;">Скопируйте текст или вставьте его для восстановления:</p>
-    <textarea id="backupTextarea" class="input-field" style="height: 100px; background: rgba(255,255,255,0.15); color: #fff; resize: none; font-size: 11px;"></textarea>
-    <button class="primary-button" style="background: #2563eb; margin-bottom: 8px;" onclick="copyBackupText()">Скопировать в буфер</button>
-    <button class="primary-button" style="background: #059669; margin-bottom: 15px;" onclick="restoreBackupText()">Восстановить из текста</button>
-    <button class="modal-cancel-btn" style="width: 100%; border-radius: 12px;" onclick="closeModal('backupModal')">Закрыть</button>
+<!-- Модалка сканирования и ручного редактирования -->
+<div class="modal-overlay" id="scanEditModal">
+  <div class="modal-content" id="scanEditModalBg" style="max-width: 400px; max-height: 85vh; overflow-y: auto;">
+    <h3 style="color: #fff; text-align: center; margin-bottom: 6px;">Сканирование графика</h3>
+    <p style="color: #ccc; text-align: center; font-size: 12px; margin-bottom: 14px;">Проверьте и подправьте отсканированные смены при необходимости:</p>
+    <div id="scanResultsContainer"></div>
+    <div class="row-between" style="margin-top: 16px; gap: 12px;">
+      <button class="modal-cancel-btn" onclick="closeModal('scanEditModal')">Отмена</button>
+      <button class="modal-save-btn" onclick="applyScannedShifts()">Сохранить смены</button>
+    </div>
   </div>
 </div>
 
-<!-- Модалки расписания и перерывов -->
+<!-- Модалки расписания, отпуска и больничного -->
 <div class="modal-overlay" id="shiftModal">
   <div class="modal-content" id="modalBg">
-    <h3 style="color: #fff; text-align: center; margin-bottom: 14px;">Редактировать смену</h3>
+    <h3 style="color: #fff; text-align: center; margin-bottom: 14px;">Редактировать статус</h3>
     <div class="row-between" style="margin-bottom: 12px;">
-      <button class="type-toggle-btn" id="btnWorkType" onclick="setEditType('work')">Рабочий день</button>
+      <button class="type-toggle-btn" id="btnWorkType" onclick="setEditType('work')">Рабочий</button>
       <button class="type-toggle-btn" id="btnOffType" onclick="setEditType('off')">Выходной</button>
+      <button class="type-toggle-btn" id="btnSickType" onclick="setEditType('sick')">Больничный</button>
+      <button class="type-toggle-btn" id="btnVacationType" onclick="setEditType('vacation')">Отпуск</button>
     </div>
+
+    <!-- Рабочая смена -->
     <div id="workShiftSettings" style="display: block;">
       <p style="color: #fff; font-size: 13px; margin-bottom: 3px;">Время начала:</p>
       <div class="time-picker-row">
@@ -367,6 +380,23 @@
       <p style="color: #fff; font-size: 13px; margin-bottom: 3px;">Станция:</p>
       <div class="row-center" style="gap: 6px; flex-wrap: wrap; margin-bottom: 4px;" id="stationsModalList"></div>
     </div>
+
+    <!-- Периоды для Больничного и Отпуска -->
+    <div id="periodSettings" style="display: none; text-align: left; margin-top: 10px;">
+      <label style="color: #fff; font-size: 12px; font-weight: 600;">С какого числа:</label>
+      <input type="date" id="periodStartDate" class="input-field" style="background: rgba(255,255,255,0.2); color:#fff; margin-top: 4px; margin-bottom: 10px;">
+      
+      <label style="color: #fff; font-size: 12px; font-weight: 600;">По какое число:</label>
+      <input type="date" id="periodEndDate" class="input-field" style="background: rgba(255,255,255,0.2); color:#fff; margin-top: 4px;">
+
+      <div id="sickNoticeBox" style="display: none; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.6); border-radius: 12px; padding: 10px; margin-top: 10px;">
+        <p style="color: #fca5a5; font-size: 11px; line-height: 1.35;">
+          <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i>
+          <strong>Не забудьте уведомить менеджера и отдел кадров по телефону после утверждения больничного врачом!</strong>
+        </p>
+      </div>
+    </div>
+
     <div class="row-between" style="margin-top: 18px; gap: 12px;">
       <button class="modal-cancel-btn" onclick="closeModal('shiftModal')">Отмена</button>
       <button class="modal-save-btn" onclick="saveShiftModal()">Сохранить</button>
@@ -399,8 +429,8 @@
 </div>
 
 <script>
-  const APP_VERSION = '4.6';
-  const APP_CHANGELOG = 'Добавлена поддержка системных уведомлений (бейджей) на иконке приложения при наличии обновлений.';
+  const APP_VERSION = '5.3';
+  const APP_CHANGELOG = 'Строгий дизайн без эмодзи, векторные иконки, периоды отпуска/больничного и анимированный бар Дней рождения.';
 
   let activeTab = 'home';
   let theme = localStorage.getItem('app_theme') || 'green';
@@ -411,7 +441,16 @@
   document.documentElement.style.setProperty('--f-mult', fontSizeScale);
 
   let isLoggedIn = JSON.parse(localStorage.getItem('app_is_logged_in')) || false;
-  let employee = JSON.parse(localStorage.getItem('app_employee')) || { firstName: '', lastName: '', code: '' };
+  let employee = JSON.parse(localStorage.getItem('app_employee')) || { firstName: '', code: '' };
+
+  /* База данных сотрудников с датами рождения (MM-DD) */
+  const knownEmployees = {
+    '1022807': { name: 'Ш Егор', birth: '10-28' },
+    '1022808': { name: 'Иванов Алексей', birth: '10-25' },
+    '1022809': { name: 'Петрова Анна', birth: '11-02' },
+    '1022810': { name: 'Сидоров Дмитрий', birth: '12-15' },
+    '1009123': { name: 'Смирнова Ольга', birth: '04-10' }
+  };
 
   const stationsList = [
     { code: 'C', name: 'прилавок', color: '#0ea5e9' },
@@ -421,6 +460,20 @@
     { code: 'FF', name: 'фри', color: '#eab308' },
     { code: 'CF', name: 'кафе', color: '#10b981' },
   ];
+
+  /* Запрос разрешений на Push-уведомления */
+  function requestPushPermission() {
+    if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      Notification.requestPermission();
+    }
+  }
+  setTimeout(requestPushPermission, 1500);
+
+  function sendSystemPush(title, body) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, { body: body, icon: 'https://vkusnoitochka.ru/favicon.ico' });
+    }
+  }
 
   function getLocalDateString(d) {
     const year = d.getFullYear();
@@ -463,24 +516,68 @@
     ? (parseFloat(localStorage.getItem(`app_worked_hours_${employee.code}`)) || 0)
     : 0;
 
+  let activeSwapRequest = JSON.parse(localStorage.getItem('app_swap_request')) || null;
   let shiftStarted = false;
+
+  /* Проверка Дней Рождений и отправка Push-уведомлений */
+  function checkBirthdayTriggers() {
+    const now = new Date();
+    Object.keys(knownEmployees).forEach(code => {
+      const emp = knownEmployees[code];
+      if (emp.birth) {
+        const [bMonth, bDay] = emp.birth.split('-').map(Number);
+        const birthDateThisYear = new Date(now.getFullYear(), bMonth - 1, bDay);
+        const diffTime = birthDateThisYear - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) {
+          sendSystemPush('День рождения', 'Сегодня празднует ' + emp.name + '! Не забудьте поздравить коллегу.');
+        } else if (diffDays === 1 || diffDays === 2 || diffDays === 7) {
+          sendSystemPush('Скоро день рождения', 'Через ' + diffDays + ' дн. День рождения у сотрудника ' + emp.name + '.');
+        }
+      }
+    });
+  }
+  setTimeout(checkBirthdayTriggers, 3000);
+
+  function getUpcomingBirthdayInfo() {
+    const now = new Date();
+    let foundEvent = null;
+
+    Object.keys(knownEmployees).forEach(code => {
+      const emp = knownEmployees[code];
+      if (emp.birth) {
+        const [bMonth, bDay] = emp.birth.split('-').map(Number);
+        const bDate = new Date(now.getFullYear(), bMonth - 1, bDay);
+        const diffTime = bDate - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays >= 0 && diffDays <= 7) {
+          foundEvent = { name: emp.name, daysLeft: diffDays };
+        }
+      }
+    });
+    return foundEvent;
+  }
+
+  function showUnavailableSiteModal() {
+    showCustomAlert(
+      'Сервер недоступен',
+      '<strong>Извините, сайт временно не доступен.</strong><br><br>На серверах «Вкусно — и точка» ведутся плановые технические работы. Пожалуйста, повторите попытку позже.',
+      '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444; font-size: 42px;"></i>'
+    );
+  }
 
   function checkBackgroundUpdate() {
     fetch(window.location.href.split('?')[0] + '?t=' + new Date().getTime(), { cache: 'no-store' })
       .then(res => res.text())
       .then(html => {
         const match = html.match(/const APP_VERSION = '([\d.]+)'/);
-        if (match && match[1]) {
-          if (match[1] !== APP_VERSION) {
-            updateAvailable = true;
-            const badge = document.getElementById('updateBadge');
-            if (badge) badge.style.display = 'flex';
-            
-            // Включаем системный бейдж на иконке рабочего стола (если поддерживается браузером)
-            if ('setAppBadge' in navigator) {
-              navigator.setAppBadge(1).catch(() => {});
-            }
-          }
+        if (match && match[1] && match[1] !== APP_VERSION) {
+          updateAvailable = true;
+          sendSystemPush('Доступно обновление', 'Вышло новое обновление приложения. Перейдите в Настройки.');
+          const badge = document.getElementById('updateBadge');
+          if (badge) badge.style.display = 'flex';
         }
       })
       .catch(() => {});
@@ -504,7 +601,7 @@
   let pendingConfirmCallback = null;
   function showCustomConfirm(title, text, onConfirm) {
     const modal = document.getElementById('customModal');
-    document.getElementById('customModalIcon').innerHTML = '<div style="font-size: 38px;">⚠️</div>';
+    document.getElementById('customModalIcon').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b; font-size: 38px;"></i>';
     document.getElementById('customModalTitle').innerText = title;
     document.getElementById('customModalText').innerText = text;
     document.getElementById('customModalButtons').innerHTML = `
@@ -518,116 +615,195 @@
     setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
   }
 
-  function showUpdateModal(version, changelog) {
-    const modal = document.getElementById('customModal');
-    document.getElementById('customModalIcon').innerHTML = '<i class="fa-solid fa-circle-arrow-up" style="color: #f97316; font-size: 38px;"></i>';
-    document.getElementById('customModalTitle').innerText = `Доступно обновление (v${version})`;
-    document.getElementById('customModalText').innerHTML = `
-      <div style="text-align: left; margin-top: 6px;">
-        <strong style="color: #fff; font-size: 14px;">Что нового:</strong>
-        <p style="margin-top: 4px; color: #ddd; font-size: 13px; line-height: 1.4;">${changelog}</p>
+  function triggerShiftScan() {
+    document.getElementById('ocrFileInput').click();
+  }
+
+  let tempScannedShifts = [];
+
+  function handleImageScan(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    showCustomAlert('Сканирование', 'Обработка графика по фото... Пожалуйста, подождите пара секунд.', '<i class="fa-solid fa-camera spinner" style="color: #8b5cf6; font-size: 38px;"></i>');
+
+    Tesseract.recognize(file, 'rus+eng', { logger: m => console.log(m) }).then(({ data: { text } }) => {
+      closeModal('customModal');
+      parseOCRTextAndShowModal(text);
+    }).catch(err => {
+      showCustomAlert('Ошибка скана', 'Не удалось распознать изображение. Попробуйте более четкий снимок.', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
+    });
+  }
+
+  function parseOCRTextAndShowModal(rawText) {
+    tempScannedShifts = generateCurrentWeekShifts();
+    const lines = rawText.split('\n');
+    const timeRegex = /(\d{1,2}:\d{2})\s*[-—–\s]+\s*(\d{1,2}:\d{2})/;
+    const stationRegex = /\b(CF|FF|K|C|BVR|DLK)\b/i;
+
+    let shiftIndex = 0;
+    lines.forEach(line => {
+      const timeMatch = line.match(timeRegex);
+      if (timeMatch && shiftIndex < tempScannedShifts.length) {
+        tempScannedShifts[shiftIndex].type = 'work';
+        tempScannedShifts[shiftIndex].start = timeMatch[1].padStart(5, '0');
+        tempScannedShifts[shiftIndex].end = timeMatch[2].padStart(5, '0');
+        
+        const stationMatch = line.match(stationRegex);
+        tempScannedShifts[shiftIndex].station = stationMatch ? stationMatch[1].toUpperCase() : 'K';
+        shiftIndex++;
+      }
+    });
+
+    renderScanEditModal();
+  }
+
+  function renderScanEditModal() {
+    const container = document.getElementById('scanResultsContainer');
+    container.innerHTML = tempScannedShifts.map((s, idx) => `
+      <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; margin-bottom: 8px;">
+        <div class="row-between" style="margin-bottom: 6px;">
+          <strong style="color: #fff; font-size: 14px;">${s.day} (${s.date})</strong>
+          <select style="background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 2px 6px;" onchange="tempScannedShifts[${idx}].type = this.value; renderScanEditModal();">
+            <option value="work" ${s.type==='work'?'selected':''}>Рабочий</option>
+            <option value="off" ${s.type==='off'?'selected':''}>Выходной</option>
+            <option value="sick" ${s.type==='sick'?'selected':''}>Больничный</option>
+            <option value="vacation" ${s.type==='vacation'?'selected':''}>Отпуск</option>
+          </select>
+        </div>
+        ${s.type === 'work' ? `
+          <div class="row-between" style="gap: 6px;">
+            <input type="time" value="${s.start || '09:00'}" style="flex:1; padding:6px; border-radius:6px; border:none; background:rgba(255,255,255,0.2); color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].start = this.value">
+            <span style="color:#fff;">—</span>
+            <input type="time" value="${s.end || '18:00'}" style="flex:1; padding:6px; border-radius:6px; border:none; background:rgba(255,255,255,0.2); color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].end = this.value">
+            <select style="padding:6px; border-radius:6px; border:none; background:#f97316; color:#fff; font-weight:bold;" onchange="tempScannedShifts[${idx}].station = this.value">
+              ${stationsList.map(st => `<option value="${st.code}" ${s.station===st.code?'selected':''}>${st.code}</option>`).join('')}
+            </select>
+          </div>
+        ` : ''}
       </div>
-    `;
-    document.getElementById('customModalButtons').innerHTML = `
-      <button class="modal-cancel-btn" onclick="closeModal('customModal')">Позже</button>
-      <button class="modal-save-btn" style="background: #7c3aed;" onclick="startAppUpdateSimulation()">Обновить</button>
-    `;
+    `).join('');
+
+    const modal = document.getElementById('scanEditModal');
     const colors = getThemeColors();
-    document.getElementById('customModalBg').style.backgroundColor = colors.bg;
+    document.getElementById('scanEditModalBg').style.backgroundColor = colors.bg;
     modal.style.display = 'flex';
     setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
   }
 
-  function startAppUpdateSimulation() {
-    if ('clearAppBadge' in navigator) {
-      navigator.clearAppBadge().catch(() => {});
+  function applyScannedShifts() {
+    shifts = [...tempScannedShifts];
+    if (employee.code) {
+      localStorage.setItem(`app_shifts_${employee.code}`, JSON.stringify(shifts));
     }
-
-    const modal = document.getElementById('customModal');
-    document.getElementById('customModalIcon').innerHTML = '<i class="fa-solid fa-gear spinner" style="color: #3b82f6; font-size: 38px;"></i>';
-    document.getElementById('customModalTitle').innerText = 'Установка обновления...';
-    document.getElementById('customModalText').innerHTML = `
-      <p style="color: #ddd; font-size: 14px; margin-top: 10px;">Загрузка свежих компонентов...</p>
-      <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; margin-top: 16px; overflow: hidden;">
-        <div id="updateProgressBar" style="width: 0%; height: 100%; background: #22c55e; transition: width 3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
-      </div>
-    `;
-    document.getElementById('customModalButtons').innerHTML = '';
-
-    setTimeout(() => {
-      const bar = document.getElementById('updateProgressBar');
-      if (bar) bar.style.width = '100%';
-    }, 100);
-
-    setTimeout(() => {
-      document.getElementById('customModalIcon').innerHTML = `
-        <div class="custom-success-badge">
-          <svg class="custom-checkmark" viewBox="0 0 52 52">
-            <path d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-          </svg>
-        </div>
-      `;
-      document.getElementById('customModalTitle').innerText = 'Обновление успешно установлено!';
-      document.getElementById('customModalText').innerHTML = '<p style="color: #ddd; font-size: 14px; margin-top: 6px;">Перезапуск приложения...</p>';
-      
-      setTimeout(() => {
-        window.location.reload(true);
-      }, 1400);
-    }, 3200);
+    closeModal('scanEditModal');
+    showCustomAlert('Успешно', 'Отсканированные смены сохранены в ваш график!', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
+    render();
   }
 
-  function checkForAppUpdate() {
-    showCustomAlert('Проверка', 'Проверка обновлений...', '<i class="fa-solid fa-gear spinner" style="color: #f97316; font-size: 38px;"></i>');
-    fetch(window.location.href.split('?')[0] + '?t=' + new Date().getTime(), { cache: 'no-store' })
-      .then(res => res.text())
-      .then(html => {
-        const match = html.match(/const APP_VERSION = '([\d.]+)'/);
-        const changelogMatch = html.match(/const APP_CHANGELOG = '([^']+)'/);
-        if (match && match[1]) {
-          const remoteVersion = match[1];
-          const remoteChangelog = changelogMatch ? changelogMatch[1] : 'Доступны улучшения и исправления.';
-          if (remoteVersion !== APP_VERSION) {
-            updateAvailable = true;
-            const badge = document.getElementById('updateBadge');
-            if (badge) badge.style.display = 'flex';
-            if ('setAppBadge' in navigator) navigator.setAppBadge(1).catch(() => {});
-            showUpdateModal(remoteVersion, remoteChangelog);
-          } else {
-            updateAvailable = false;
-            const badge = document.getElementById('updateBadge');
-            if (badge) badge.style.display = 'none';
-            if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {});
-            showCustomAlert('Актуально', `У вас установлена самая последняя версия (v${APP_VERSION}).`, `
-              <div class="custom-success-badge">
-                <svg class="custom-checkmark" viewBox="0 0 52 52">
-                  <path d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                </svg>
-              </div>
-            `);
-          }
-        } else {
-          showCustomAlert('Готово', 'Приложение работает актуально.', `
-            <div class="custom-success-badge">
-              <svg class="custom-checkmark" viewBox="0 0 52 52">
-                <path d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-              </svg>
-            </div>
-          `);
-        }
-      })
-      .catch(() => {
-        showCustomAlert('Ошибка сети', 'Не удалось проверить обновление. Проверьте интернет.', '⚠️');
-      });
+  function onLoginCodeInput(val) {
+    const previewEl = document.getElementById('loginEmployeePreview');
+    const btnEl = document.getElementById('btnLoginSubmit');
+    if (val.length === 7) {
+      const foundData = knownEmployees[val];
+      if (foundData) {
+        if (previewEl) previewEl.innerHTML = `<span style="color: #22c55e; font-weight: bold;"><i class="fa-solid fa-circle-check"></i> Сотрудник: ${foundData.name}</span>`;
+        if (btnEl) btnEl.disabled = false;
+      } else {
+        if (previewEl) previewEl.innerHTML = `<span style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Табельный номер не найден в базе</span>`;
+        if (btnEl) btnEl.disabled = true;
+      }
+    } else {
+      if (previewEl) previewEl.innerHTML = `<span style="color: #bbb;">Введите ваш 7-значный табельный номер</span>`;
+      if (btnEl) btnEl.disabled = true;
+    }
+  }
+
+  function handleLogin() {
+    const code = document.getElementById('inpCode').value;
+    const empData = knownEmployees[code];
+    if (code.length === 7 && empData) {
+      employee = { firstName: empData.name, code: code };
+      isLoggedIn = true;
+      localStorage.setItem('app_employee', JSON.stringify(employee));
+      localStorage.setItem('app_is_logged_in', 'true');
+      
+      const savedShifts = localStorage.getItem(`app_shifts_${code}`);
+      if (savedShifts) {
+        shifts = JSON.parse(savedShifts);
+      } else {
+        shifts = generateCurrentWeekShifts();
+        localStorage.setItem(`app_shifts_${code}`, JSON.stringify(shifts));
+      }
+
+      workedHours = parseFloat(localStorage.getItem(`app_worked_hours_${code}`)) || 0;
+      render();
+    } else {
+      showCustomAlert('Ошибка входа', 'Введите корректный 7-значный зарегистрированный табельный номер.', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
+    }
+  }
+
+  function onSwapCodeInput(val) {
+    const previewEl = document.getElementById('swapEmployeePreview');
+    const btnEl = document.getElementById('btnSendSwap');
+    if (val.length === 7) {
+      const foundData = knownEmployees[val];
+      const foundName = foundData ? foundData.name : 'Сотрудник ' + val;
+      if (previewEl) previewEl.innerHTML = `<span style="color: #22c55e; font-weight: bold;"><i class="fa-solid fa-circle-check"></i> Найден: ${foundName}</span>`;
+      if (btnEl) btnEl.disabled = false;
+    } else {
+      if (previewEl) previewEl.innerHTML = `<span style="color: #bbb;">Введите 7 цифр табельного номера</span>`;
+      if (btnEl) btnEl.disabled = true;
+    }
+  }
+
+  function sendSwapRequest() {
+    const targetCode = document.getElementById('inpSwapCode').value;
+    if (targetCode.length !== 7) return;
+
+    const targetData = knownEmployees[targetCode];
+    const targetName = targetData ? targetData.name : 'Сотрудник ' + targetCode;
+    const workShift = shifts.find(s => s.type === 'work' && s.start && s.end) || shifts[0];
+    
+    activeSwapRequest = {
+      senderCode: employee.code || '1022807',
+      senderName: employee.firstName || 'Ш Егор',
+      targetCode: targetCode,
+      targetName: targetName,
+      dateText: workShift.dateString || '25.10.2026',
+      shiftTime: `${workShift.start || '09:00'}-${workShift.end || '02:00'}`
+    };
+
+    localStorage.setItem('app_swap_request', JSON.stringify(activeSwapRequest));
+    sendSystemPush('Запрос на обмен сменой', 'Сотрудник ' + employee.firstName + ' хочет обменяться с вами сменой!');
+    showCustomAlert('Запрос отправлен', 'Запрос на обмен сменой отправлен сотруднику ' + targetName + ' (' + targetCode + ').', '<i class="fa-solid fa-paper-plane" style="color: #3b82f6; font-size: 38px;"></i>');
+    render();
+  }
+
+  function handleSwapDecision(approved) {
+    const card = document.getElementById('swapRequestCard');
+    if (card) card.classList.add('card-fade-out');
+    
+    setTimeout(() => {
+      if (approved) {
+        showCustomAlert('Одобрено', 'Вы успешно одобрили обмен сменой!', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
+      } else {
+        showCustomAlert('Отклонено', 'Запрос на обмен сменой отклонен.', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>');
+      }
+      activeSwapRequest = null;
+      localStorage.removeItem('app_swap_request');
+      render();
+    }, 350);
   }
 
   function exportShiftsToCalendar() {
     if (!isLoggedIn) {
-      showCustomAlert('Требуется вход', 'Сначала авторизуйтесь во вкладке «Сотрудник».', '🔒');
+      showCustomAlert('Требуется вход', 'Сначала авторизуйтесь во вкладке «Сотрудник».', '<i class="fa-solid fa-lock" style="color: #f97316; font-size: 38px;"></i>');
       return;
     }
     const workShifts = shifts.filter(s => s.type === 'work' && s.start && s.end);
     if (workShifts.length === 0) {
-      showCustomAlert('Нет смен', 'У вас нет назначенных рабочих смен на эту неделю.', '📅');
+      showCustomAlert('Нет смен', 'У вас нет назначенных рабочих смен.', '<i class="fa-regular fa-calendar" style="color: #0891b2; font-size: 38px;"></i>');
       return;
     }
 
@@ -636,14 +812,10 @@
       const dateParts = s.dateString.split('-');
       const [sh, sm] = s.start.split(':');
       const [eh, em] = s.end.split(':');
-      const dtStart = `${dateParts[0]}${dateParts[1]}${dateParts[2]}T${sh}${sm}00`;
-      const dtEnd = `${dateParts[0]}${dateParts[1]}${dateParts[2]}T${eh}${em}00`;
-
       icsContent += "BEGIN:VEVENT\n";
       icsContent += `SUMMARY:Смена Вкусно — и точка (${s.station})\n`;
-      icsContent += `DTSTART:${dtStart}\n`;
-      icsContent += `DTEND:${dtEnd}\n`;
-      icsContent += `DESCRIPTION:Рабочая смена на станции ${s.station}\n`;
+      icsContent += `DTSTART:${dateParts[0]}${dateParts[1]}${dateParts[2]}T${sh}${sm}00\n`;
+      icsContent += `DTEND:${dateParts[0]}${dateParts[1]}${dateParts[2]}T${eh}${em}00\n`;
       icsContent += "END:VEVENT\n";
     });
     icsContent += "END:VCALENDAR";
@@ -656,15 +828,15 @@
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    showCustomAlert('Успешно', 'Файл календаря скачан. Откройте его, чтобы добавить смены в ваш телефон!', '✅');
+    showCustomAlert('Успешно', 'Файл календаря скачан!', '<i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 38px;"></i>');
   }
 
   function handleStartShiftClick() {
     const todayStr = getLocalDateString(new Date());
     const todayShift = shifts.find(s => s.dateString === todayStr);
 
-    if (!todayShift || todayShift.type === 'off' || !todayShift.start) {
-      showCustomAlert('У вас выходной день', 'Сегодня у вас выходной или смена не назначена.', '☕');
+    if (!todayShift || todayShift.type !== 'work' || !todayShift.start) {
+      showCustomAlert('У вас нерабочий день', 'Сегодня у вас выходной, больничный, отпуск или смена не назначена.', '<i class="fa-solid fa-mug-hot" style="color: #f97316; font-size: 38px;"></i>');
       return;
     }
 
@@ -676,11 +848,8 @@
     if (currentMins < shiftStartMins) {
       showCustomConfirm(
         'Ранний старт',
-        `Ваша смена начинается в ${todayShift.start}. Вас попросили выйти сейчас?`,
-        () => {
-          shiftStarted = true;
-          render();
-        }
+        'Ваша смена начинается в ' + todayShift.start + '. Вас попросили выйти сейчас?',
+        () => { shiftStarted = true; render(); }
       );
     } else {
       shiftStarted = true;
@@ -712,7 +881,6 @@
 
     const btnRect = activeBtn.getBoundingClientRect();
     const barRect = tabBar.getBoundingClientRect();
-
     const leftOffset = btnRect.left - barRect.left;
     const scaleStr = scaleUp ? ' translateY(-2px) scale(1.08)' : '';
     lens.style.transform = `translateX(${leftOffset}px)${scaleStr}`;
@@ -726,71 +894,9 @@
       const rect = btn.getBoundingClientRect();
       const center = rect.left + rect.width / 2;
       const dist = Math.abs(clientX - center);
-      if (dist < minDistance) {
-        minDistance = dist;
-        closestTab = btn.getAttribute('data-tab');
-      }
+      if (dist < minDistance) { minDistance = dist; closestTab = btn.getAttribute('data-tab'); }
     });
     return closestTab;
-  }
-
-  function exportBackup() {
-    const backupData = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('app_')) {
-        backupData[key] = localStorage.getItem(key);
-      }
-    }
-    const jsonStr = JSON.stringify(backupData);
-    
-    const modal = document.getElementById('backupModal');
-    modal.style.display = 'flex';
-    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
-    const colors = getThemeColors();
-    document.getElementById('backupModalBg').style.backgroundColor = colors.bg;
-    document.getElementById('backupTextarea').value = jsonStr;
-  }
-
-  function copyBackupText() {
-    const ta = document.getElementById('backupTextarea');
-    ta.select();
-    navigator.clipboard.writeText(ta.value).then(() => {
-      showCustomAlert('Успешно', 'Резервная копия скопирована в буфер обмена.', '📋');
-    }).catch(() => {
-      showCustomAlert('Информация', 'Выделите текст в поле и скопируйте его вручную.', 'ℹ️');
-    });
-  }
-
-  function importBackup() {
-    const modal = document.getElementById('backupModal');
-    modal.style.display = 'flex';
-    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
-    const colors = getThemeColors();
-    document.getElementById('backupModalBg').style.backgroundColor = colors.bg;
-    document.getElementById('backupTextarea').value = '';
-    document.getElementById('backupTextarea').placeholder = 'Вставьте сюда код бэкапа...';
-  }
-
-  function restoreBackupText() {
-    const ta = document.getElementById('backupTextarea').value;
-    if (!ta) {
-      showCustomAlert('Ошибка', 'Вставьте код бэкапа в поле ввода.', '❌');
-      return;
-    }
-    try {
-      const backupData = JSON.parse(ta);
-      for (const key in backupData) {
-        if (key.startsWith('app_')) {
-          localStorage.setItem(key, backupData[key]);
-        }
-      }
-      closeModal('backupModal');
-      showCustomAlert('Готово', 'Данные успешно восстановлены.', '✅');
-      setTimeout(() => location.reload(), 1500);
-    } catch (e) {
-      showCustomAlert('Ошибка', 'Неверный формат кода бэкапа.', '❌');
-    }
   }
 
   function render() {
@@ -804,7 +910,6 @@
       const tab = btn.getAttribute('data-tab');
       const isActive = activeTab === tab;
       const itemColor = opacity > 0.5 ? '#111111' : (isActive ? '#ffffff' : 'rgba(255,255,255,0.6)');
-      
       const icon = btn.querySelector('i');
       const text = btn.querySelector('.tab-text');
       if (icon) icon.style.color = itemColor;
@@ -815,9 +920,10 @@
     });
 
     const badge = document.getElementById('updateBadge');
-    if (badge) {
-      badge.style.display = updateAvailable ? 'flex' : 'none';
-    }
+    if (badge) badge.style.display = updateAvailable ? 'flex' : 'none';
+
+    const swapBadge = document.getElementById('swapBadge');
+    if (swapBadge) swapBadge.style.display = activeSwapRequest ? 'flex' : 'none';
 
     setTimeout(() => updateNavLens(activeTab, false), 15);
 
@@ -827,9 +933,26 @@
     if (activeTab === 'home') {
       const todayStr = getLocalDateString(new Date());
       const nextShift = shifts.find(s => s.type === 'work' && s.dateString >= todayStr) || shifts.find(s => s.type === 'work') || shifts[0];
-      
       const greetingName = isLoggedIn ? employee.firstName : 'Сотрудник';
       const codeInfo = isLoggedIn ? ` • № ${employee.code}` : '';
+
+      const bdayInfo = getUpcomingBirthdayInfo();
+      let bdayBarHtml = '';
+      if (bdayInfo) {
+        const bdayText = bdayInfo.daysLeft === 0 
+          ? `<strong>Сегодня день рождения у ${bdayInfo.name}!</strong>` 
+          : `День рождения у ${bdayInfo.name} через ${bdayInfo.daysLeft} дн.`;
+        
+        bdayBarHtml = `
+          <div class="birthday-floating-bar" id="birthdayWidgetBar">
+            <div class="row-center">
+              <i class="fa-solid fa-cake-candles" style="font-size: 20px; margin-right: 10px; color: #fff;"></i>
+              <span style="font-size: calc(13px * var(--f-mult)); font-weight: 600;">${bdayText}</span>
+            </div>
+            <i class="fa-solid fa-xmark" style="cursor: pointer; opacity: 0.8; font-size: 16px; margin-left: 10px;" onclick="closeBirthdayBar()"></i>
+          </div>
+        `;
+      }
 
       screen.innerHTML = `
         <div class="logo-emblem-card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
@@ -838,6 +961,8 @@
             <p class="header-subtitle">${getFormattedCurrentDate()}${codeInfo}</p>
           </div>
         </div>
+
+        ${bdayBarHtml}
         
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; cursor: pointer;" onclick="switchTab('shifts')">
           <div class="row-between">
@@ -848,7 +973,7 @@
             <i class="fa-solid fa-chevron-right"></i>
           </div>
           <div class="card-main-text">${isLoggedIn ? nextShift.day + ', ' + nextShift.date : 'Сотрудник не вошел'}</div>
-          <div class="card-time-text">${isLoggedIn ? (nextShift.type === 'off' ? 'Выходной' : nextShift.start + ' — ' + nextShift.end + ' (' + nextShift.station + ')') : 'Авторизуйтесь в профиле'}</div>
+          <div class="card-time-text">${isLoggedIn ? (nextShift.type === 'off' ? 'Выходной' : nextShift.type === 'sick' ? 'Больничный' : nextShift.type === 'vacation' ? 'Отпуск' : nextShift.start + ' — ' + nextShift.end + ' (' + nextShift.station + ')') : 'Авторизуйтесь в профиле'}</div>
         </div>
 
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
@@ -869,9 +994,9 @@
             <i class="fa-solid fa-phone" style="color: #f97316; margin-right: 6px;"></i>
             <span style="color: #f97316; text-decoration: underline; font-weight: 600;">+7 (495) 229-68-69</span>
           </div>
-          <a class="site-button" href="https://vkusnoitochka.ru" target="_blank">
+          <button class="site-button" onclick="showUnavailableSiteModal()">
             <i class="fa-solid fa-globe" style="margin-right: 6px;"></i> Сайт Вкусно — и точка
-          </a>
+          </button>
         </div>
       `;
     } else if (activeTab === 'shifts') {
@@ -886,9 +1011,16 @@
         `;
       } else {
         shifts.forEach(item => {
-          let badgeHtml = item.type === 'off' 
-            ? `<div class="off-badge"><i class="fa-solid fa-mug-hot" style="margin-right: 4px; font-size: calc(12px * var(--f-mult));"></i><span class="off-badge-text">Выходной</span></div>`
-            : `<div style="text-align: right;"><div class="time-text">${item.start} — ${item.end}</div>${item.station ? '<div class="station-badge" style="background:' + getStationColor(item.station) + '">' + item.station + '</div>' : ''}</div>`;
+          let badgeHtml = '';
+          if (item.type === 'off') {
+            badgeHtml = `<div class="badge-status" style="background: rgba(0,0,0,0.2);"><i class="fa-solid fa-mug-hot" style="margin-right: 6px; font-size: calc(12px * var(--f-mult));"></i><span class="badge-status-text">Выходной</span></div>`;
+          } else if (item.type === 'sick') {
+            badgeHtml = `<div class="badge-status" style="background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.6);"><i class="fa-solid fa-notes-medical" style="margin-right: 6px; color: #fca5a5;"></i><span class="badge-status-text" style="color: #fca5a5;">Больничный (Б)</span></div>`;
+          } else if (item.type === 'vacation') {
+            badgeHtml = `<div class="badge-status" style="background: rgba(59, 130, 246, 0.3); border: 1px solid rgba(59, 130, 246, 0.6);"><i class="fa-solid fa-umbrella-beach" style="margin-right: 6px; color: #93c5fd;"></i><span class="badge-status-text" style="color: #93c5fd;">Отпуск (О)</span></div>`;
+          } else {
+            badgeHtml = `<div style="text-align: right;"><div class="time-text">${item.start} — ${item.end}</div>${item.station ? '<div class="station-badge" style="background:' + getStationColor(item.station) + '">' + item.station + '</div>' : ''}</div>`;
+          }
 
           html += `
             <div class="shift-card" style="background-color: ${colors.cardBg}; color: ${colors.text};" onclick="openShiftModal(${item.id})">
@@ -913,7 +1045,10 @@
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-top: 6px;">Всего отработано: ${workedHours} ч.</div>
           </div>
 
-          <button class="calendar-button" onclick="exportShiftsToCalendar()"><i class="fa-solid fa-calendar-plus" style="margin-right: 8px;"></i> Экспорт смен в календарь телефона</button>
+          <div class="row-between" style="gap: 10px;">
+            <button class="calendar-button" style="flex: 1;" onclick="exportShiftsToCalendar()"><i class="fa-solid fa-calendar-plus" style="margin-right: 6px;"></i> Экспорт смен</button>
+            <button class="scan-button" style="flex: 1;" onclick="triggerShiftScan()"><i class="fa-solid fa-camera" style="margin-right: 6px;"></i> Скан смен</button>
+          </div>
         `;
 
         if (!shiftStarted) {
@@ -933,50 +1068,85 @@
           <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; text-align: center;">
             <i class="fa-regular fa-circle-user" style="font-size: 60px; color: #f97316;"></i>
             <div class="card-main-text" style="font-size: calc(22px * var(--f-mult)); margin-top: 10px;">Добро пожаловать</div>
-            <p class="info-text" style="margin-bottom: 20px; opacity: 0.8;">Зарегистрируйтесь, чтобы начать работу</p>
-            <input type="text" id="inpCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.85); color:#000;">
-            <input type="text" id="inpFirst" class="input-field" placeholder="Имя" style="background: rgba(255,255,255,0.85); color:#000;">
-            <input type="text" id="inpLast" class="input-field" placeholder="Фамилия" style="background: rgba(255,255,255,0.85); color:#000;">
-            <button class="primary-button" onclick="handleLogin()">Сохранить данные и войти</button>
+            <p class="info-text" style="margin-bottom: 20px; opacity: 0.8;">Введите табельный номер для привязки профиля</p>
+            <input type="text" id="inpCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.85); color:#000;" oninput="onLoginCodeInput(this.value)">
+            <div id="loginEmployeePreview" style="font-size: 13px; margin-bottom: 14px; min-height: 20px;"></div>
+            <button class="primary-button" id="btnLoginSubmit" disabled onclick="handleLogin()">Войти в систему</button>
           </div>
         `;
       } else {
         html += `
           <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
-            <span class="info-text">ФИ (Фамилия Имя)</span>
+            <span class="info-text">Сотрудник (ФИ / Инициал)</span>
             <div class="card-main-text" style="font-size: calc(20px * var(--f-mult)); margin-bottom: 12px;">${employee.firstName}</div>
             <span class="info-text">Табельный номер</span>
             <div class="card-main-text" style="font-size: calc(18px * var(--f-mult));">${employee.code}</div>
           </div>
+
+          <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 14px;">
+            <div class="card-main-text" style="font-size: calc(18px * var(--f-mult)); margin-bottom: 8px;">Обмен сменами</div>
+            <p class="info-text" style="opacity:0.85; margin-bottom: 10px;">Введите 7-значный табельный номер сотрудника для отправки запроса:</p>
+            <input type="text" id="inpSwapCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.2); color:#fff;" oninput="onSwapCodeInput(this.value)">
+            <div id="swapEmployeePreview" style="font-size: 13px; margin-bottom: 10px; min-height: 18px;"></div>
+            <button class="primary-button" id="btnSendSwap" style="background: #2563eb;" disabled onclick="sendSwapRequest()"><i class="fa-solid fa-right-left" style="margin-right: 6px;"></i> Отправить запрос на обмен</button>
+          </div>
+        `;
+
+        if (activeSwapRequest) {
+          html += `
+            <div class="card" id="swapRequestCard" style="background-color: ${colors.cardBg}; color: ${colors.text}; border: 1.5px solid #22c55e; margin-top: 14px;">
+              <span class="card-subtitle" style="color: #22c55e;">ПОСТУПИЛ ЗАПРОС НА ОБМЕН</span>
+              <div style="font-weight: 800; font-size: calc(15px * var(--f-mult)); text-transform: uppercase; margin-top: 8px; line-height: 1.35;">
+                СОТРУДНИК ${activeSwapRequest.senderName.toUpperCase()} (${activeSwapRequest.senderCode}): ХОЧЕТ ОБМЕНЯТЬСЯ СМЕНОЙ (${activeSwapRequest.dateText} время смены ${activeSwapRequest.shiftTime})
+              </div>
+              <div class="row-between" style="margin-top: 14px; gap: 10px;">
+                <button class="swap-reject-btn" onclick="handleSwapDecision(false)">Отказаться</button>
+                <button class="swap-approve-btn" onclick="handleSwapDecision(true)">Одобрить</button>
+              </div>
+            </div>
+          `;
+        }
+
+        html += `
           <button class="logout-button" onclick="handleLogout()"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> Выйти из аккаунта</button>
           <button class="delete-button" onclick="confirmDeleteAccount()"><i class="fa-solid fa-trash" style="margin-right: 8px;"></i> Удалить профиль</button>
         `;
       }
       screen.innerHTML = html;
     } else if (activeTab === 'settings') {
+      const feedbackUrl = `https://t.me/egor23u?text=${encodeURIComponent('Привет! Хочу сообщить об ошибке или предложить идею по приложению «Расписание»...')}`;
+      
       screen.innerHTML = `
         <h1 class="header-title" style="margin-bottom: 4px;">Настройки</h1>
-        <p class="header-subtitle" style="margin-bottom: 16px;">Управление приложением и оформлением:</p>
+        <p class="header-subtitle" style="margin-bottom: 16px;">Управление приложением и поддержка:</p>
 
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
-          <div class="card-main-text" style="margin-bottom: 6px; font-size: calc(18px * var(--f-mult));">Встречайте приложение для сотрудников прямо в браузере или на рабочем столе. Приложение Expo Go не требуется.</div>
-          <p class="info-text" style="opacity: 0.9; margin-top: 8px; line-height: 1.5;">Как установить приложение на рабочий стол вашего телефона:</p>
-          <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); line-height: 1.6; opacity: 0.9; margin-top: 6px;">
-            <li>На iPhone (Safari): нажмите кнопку «Поделиться» внизу экрана и выберите пункт «На экран Домой».</li>
-            <li>На Android (Chrome): нажмите на меню (три точки) в правом верхнем углу и выберите пункт «Установить приложение» или «Добавить на главный экран».</li>
+          <div class="card-main-text" style="margin-bottom: 6px; font-size: calc(18px * var(--f-mult));">Приложение для сотрудников.</div>
+          <p class="info-text" style="opacity: 0.9; margin-top: 8px;">Как добавить на экран телефонов:</p>
+          <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-top: 4px;">
+            <li>iPhone: Safari -> Поделиться -> На экран Домой.</li>
+            <li>Android: Chrome -> Меню -> Добавить на главный экран.</li>
           </ul>
+        </div>
+
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 10px;">
+          <div class="card-main-text" style="margin-bottom: 4px;">Обратная связь и пожелания</div>
+          <p class="info-text" style="opacity: 0.85; margin-bottom: 8px;">Нашли баг или хотите предложить новую функцию? Напишите напрямую в Telegram:</p>
+          <a class="feedback-button" href="${feedbackUrl}" target="_blank">
+            <i class="fa-brands fa-telegram" style="margin-right: 8px; font-size: 18px;"></i> Написать разработчику (@egor23u)
+          </a>
         </div>
         
         <div class="theme-card card" style="background-color: ${colors.cardBg}; color: ${colors.text}; ${theme==='green'?'border:2px solid #22c55e':''}" onclick="setTheme('green')">
-          <div class="row-center"><div class="color-circle" style="background:#2d4a35;"></div><span class="card-main-text" style="margin:0;">Фирменный зеленый</span></div>
+          <div class="row-center"><div class="color-circle" style="background:#2d4a35;"></div><span class="card-main-text" style="margin:0;">Зеленый</span></div>
           ${theme==='green'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
         </div>
         <div class="theme-card card" style="background-color: ${colors.cardBg}; color: ${colors.text}; ${theme==='orange'?'border:2px solid #22c55e':''}" onclick="setTheme('orange')">
-          <div class="row-center"><div class="color-circle" style="background:#b45309;"></div><span class="card-main-text" style="margin:0;">Теплый оранжевый</span></div>
+          <div class="row-center"><div class="color-circle" style="background:#b45309;"></div><span class="card-main-text" style="margin:0;">Оранжевый</span></div>
           ${theme==='orange'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
         </div>
         <div class="theme-card card" style="background-color: ${colors.cardBg}; color: ${colors.text}; ${theme==='bw'?'border:2px solid #22c55e':''}" onclick="setTheme('bw')">
-          <div class="row-center"><div class="color-circle" style="background:#333;"></div><span class="card-main-text" style="margin:0;">Черно-белая</span></div>
+          <div class="row-center"><div class="color-circle" style="background:#333;"></div><span class="card-main-text" style="margin:0;">Темно-белый</span></div>
           ${theme==='bw'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
         </div>
 
@@ -989,40 +1159,28 @@
           </div>
         </div>
 
-        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 10px;">
-          <div class="card-main-text" style="margin-bottom: 10px;">Прозрачность блоков: ${Math.round(opacity * 100)}%</div>
-          <div class="row-between">
-            ${[0.3, 0.5, 0.7, 0.85, 1.0].map(val => `<button class="opacity-btn" style="${opacity===val?'background:#f97316;color:#fff;':'color:'+colors.text}" onclick="setOpacity(${val})">${Math.round(val*100)}%</button>`).join('')}
-          </div>
-        </div>
-
         <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
-          <div class="card-main-text" style="margin-bottom: 4px;">Резервная копия данных</div>
-          <p class="info-text" style="opacity: 0.8; margin-bottom: 10px;">Сохраните свои смены и часы на случай очистки истории браузера.</p>
-          <button class="backup-button" onclick="exportBackup()"><i class="fa-solid fa-copy" style="margin-right: 8px;"></i> Создать бэкап (Копировать)</button>
-          <button class="restore-button" onclick="importBackup()"><i class="fa-solid fa-file-arrow-down" style="margin-right: 8px;"></i> Восстановить из бэкапа</button>
-        </div>
-
-        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
-          <div class="card-main-text" style="margin-bottom: 10px;">Что нового (v${APP_VERSION})</div>
-          <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); line-height: 1.6; opacity: 0.9;">
-            <li>Добавлена поддержка системных уведомлений (бейджей) на иконке рабочего стола.</li>
+          <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
+          <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult));">
+            <li>Строгий дизайн без эмодзи.</li>
+            <li>Периоды отпуска и больничного (с дата по дата).</li>
+            <li>Векторные иконки FontAwesome.</li>
+            <li>Плавающий оранжевый бар Дней рождения.</li>
           </ul>
-        </div>
-
-        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
-          <div class="card-main-text" style="margin-bottom: 4px;">Автономное обновление</div>
-          <p class="info-text" style="opacity: 0.8; margin-bottom: 10px;">Проверить наличие свежей версии приложения.</p>
-          <button class="update-button" onclick="checkForAppUpdate()"><i class="fa-solid fa-rotate" style="margin-right: 8px;"></i> Проверить обновление</button>
         </div>
       `;
     }
   }
 
-  function switchTab(tab) {
-    activeTab = tab;
-    render();
+  function closeBirthdayBar() {
+    const el = document.getElementById('birthdayWidgetBar');
+    if (el) {
+      el.classList.add('hide-zoom');
+      setTimeout(() => { el.style.display = 'none'; }, 380);
+    }
   }
+
+  function switchTab(tab) { activeTab = tab; render(); }
 
   const tabBar = document.getElementById('floatingTabBar');
   const lens = document.getElementById('navLens');
@@ -1045,65 +1203,20 @@
     if (!isNavPressing) return;
     isNavPressing = false;
     lens.classList.remove('pressing');
-    
-    const clientX = e.changedTouches[0].clientX;
-    const targetTab = getTabByX(clientX);
-    if (activeTab !== targetTab) {
-      switchTab(targetTab);
-    } else {
-      updateNavLens(activeTab, false);
-    }
+    const targetTab = getTabByX(e.changedTouches[0].clientX);
+    if (activeTab !== targetTab) switchTab(targetTab);
+    else updateNavLens(activeTab, false);
   });
 
   tabBar.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
 
-  function setTheme(t) {
-    theme = t;
-    localStorage.setItem('app_theme', t);
-    render();
-  }
-
-  function setOpacity(o) {
-    opacity = o;
-    localStorage.setItem('app_opacity', o);
-    render();
-  }
-
-  function setFontSize(scale) {
-    fontSizeScale = scale;
-    localStorage.setItem('app_font_scale', scale);
-    document.documentElement.style.setProperty('--f-mult', scale);
-    render();
-  }
+  function setTheme(t) { theme = t; localStorage.setItem('app_theme', t); render(); }
+  function setOpacity(o) { opacity = o; localStorage.setItem('app_opacity', o); render(); }
+  function setFontSize(scale) { fontSizeScale = scale; localStorage.setItem('app_font_scale', scale); document.documentElement.style.setProperty('--f-mult', scale); render(); }
 
   function getStationColor(code) {
     const found = stationsList.find(s => s.code === code);
     return found ? found.color : '#f97316';
-  }
-
-  function handleLogin() {
-    const code = document.getElementById('inpCode').value;
-    const first = document.getElementById('inpFirst').value;
-    const last = document.getElementById('inpLast').value;
-    if (code.length === 7 && first && last) {
-      employee = { firstName: last + ' ' + first, code: code };
-      isLoggedIn = true;
-      localStorage.setItem('app_employee', JSON.stringify(employee));
-      localStorage.setItem('app_is_logged_in', 'true');
-      
-      const savedShifts = localStorage.getItem(`app_shifts_${code}`);
-      if (savedShifts) {
-        shifts = JSON.parse(savedShifts);
-      } else {
-        shifts = generateCurrentWeekShifts();
-        localStorage.setItem(`app_shifts_${code}`, JSON.stringify(shifts));
-      }
-
-      workedHours = parseFloat(localStorage.getItem(`app_worked_hours_${code}`)) || 0;
-      render();
-    } else {
-      showCustomAlert('Ошибка', 'Введите 7-значный табельный номер, имя и фамилию', '❌');
-    }
   }
 
   function handleLogout() {
@@ -1115,18 +1228,7 @@
   }
 
   function confirmDeleteAccount() {
-    const modal = document.getElementById('customModal');
-    document.getElementById('customModalIcon').innerHTML = '<div style="font-size: 38px;">⚠️</div>';
-    document.getElementById('customModalTitle').innerText = 'Удаление профиля';
-    document.getElementById('customModalText').innerText = 'При удалении данные сотрутся без возможности восстановления';
-    document.getElementById('customModalButtons').innerHTML = `
-      <button class="modal-cancel-btn" onclick="closeModal('customModal')">Отменить</button>
-      <button class="modal-save-btn" style="background: #ef4444;" onclick="handleDeleteAccount(); closeModal('customModal');">Подтвердить</button>
-    `;
-    const colors = getThemeColors();
-    document.getElementById('customModalBg').style.backgroundColor = colors.bg;
-    modal.style.display = 'flex';
-    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
+    showCustomConfirm('Удаление профиля', 'При удалении данные сотрутся без возможности восстановления', handleDeleteAccount);
   }
 
   function handleDeleteAccount() {
@@ -1134,7 +1236,7 @@
       localStorage.removeItem(`app_shifts_${employee.code}`);
       localStorage.removeItem(`app_worked_hours_${employee.code}`);
     }
-    employee = { firstName: '', lastName: '', code: '' };
+    employee = { firstName: '', code: '' };
     isLoggedIn = false;
     shifts = generateCurrentWeekShifts();
     workedHours = 0;
@@ -1151,23 +1253,17 @@
     selectedShiftId = id;
     const s = shifts.find(x => x.id === id);
     editType = s.type;
-    if (s.start) {
-      const parts = s.start.split(':');
-      startH = parts[0]; startM = parts[1];
-    }
-    if (s.end) {
-      const parts = s.end.split(':');
-      endH = parts[0]; endM = parts[1];
-    }
+    if (s.start) { const parts = s.start.split(':'); startH = parts[0]; startM = parts[1]; }
+    if (s.end) { const parts = s.end.split(':'); endH = parts[0]; endM = parts[1]; }
     editSt = s.station || 'K';
     
+    const todayStr = s.dateString || getLocalDateString(new Date());
+    document.getElementById('periodStartDate').value = todayStr;
+    document.getElementById('periodEndDate').value = todayStr;
+
     const modal = document.getElementById('shiftModal');
     modal.style.display = 'flex';
-    setTimeout(() => {
-      modal.style.opacity = '1';
-      modal.querySelector('.modal-content').style.transform = 'scale(1)';
-    }, 10);
-
+    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
     const colors = getThemeColors();
     document.getElementById('modalBg').style.backgroundColor = colors.bg;
     updateShiftModalUI();
@@ -1183,14 +1279,20 @@
   function updateShiftModalUI() {
     document.getElementById('btnWorkType').style.background = editType === 'work' ? '#f97316' : 'rgba(0,0,0,0.2)';
     document.getElementById('btnOffType').style.background = editType === 'off' ? '#f97316' : 'rgba(0,0,0,0.2)';
+    document.getElementById('btnSickType').style.background = editType === 'sick' ? '#ef4444' : 'rgba(0,0,0,0.2)';
+    document.getElementById('btnVacationType').style.background = editType === 'vacation' ? '#3b82f6' : 'rgba(0,0,0,0.2)';
+    
     document.getElementById('workShiftSettings').style.display = editType === 'work' ? 'block' : 'none';
+    
+    const isPeriodMode = editType === 'sick' || editType === 'vacation';
+    document.getElementById('periodSettings').style.display = isPeriodMode ? 'block' : 'none';
+    document.getElementById('sickNoticeBox').style.display = editType === 'sick' ? 'block' : 'none';
 
     const hours = Array.from({length: 24}, (_, i) => String(i).padStart(2,'0'));
     const minutes = Array.from({length: 60}, (_, i) => String(i).padStart(2,'0'));
 
     document.getElementById('startHoursList').innerHTML = hours.map(h => `<div class="time-chip-v ${startH===h?'active':''}" onclick="startH='${h}';updateShiftModalUI()">${h}</div>`).join('');
     document.getElementById('startMinutesList').innerHTML = minutes.map(m => `<div class="time-chip-v ${startM===m?'active':''}" onclick="startM='${m}';updateShiftModalUI()">${m}</div>`).join('');
-
     document.getElementById('endHoursList').innerHTML = hours.map(h => `<div class="time-chip-v ${endH===h?'active':''}" onclick="endH='${h}';updateShiftModalUI()">${h}</div>`).join('');
     document.getElementById('endMinutesList').innerHTML = minutes.map(m => `<div class="time-chip-v ${endM===m?'active':''}" onclick="endM='${m}';updateShiftModalUI()">${m}</div>`).join('');
 
@@ -1201,27 +1303,39 @@
     `).join('');
   }
 
-  function setEditType(t) {
-    editType = t;
-    updateShiftModalUI();
-  }
+  function setEditType(t) { editType = t; updateShiftModalUI(); }
 
   function saveShiftModal() {
-    shifts = shifts.map(s => {
-      if (s.id === selectedShiftId) {
-        return {
-          ...s,
-          type: editType,
-          start: editType === 'work' ? `${startH}:${startM}` : '',
-          end: editType === 'work' ? `${endH}:${endM}` : '',
-          station: editType === 'work' ? editSt : ''
-        };
+    if (editType === 'sick' || editType === 'vacation') {
+      const pStart = document.getElementById('periodStartDate').value;
+      const pEnd = document.getElementById('periodEndDate').value;
+
+      shifts = shifts.map(s => {
+        if (s.dateString >= pStart && s.dateString <= pEnd) {
+          return { ...s, type: editType, start: '', end: '', station: '' };
+        }
+        return s;
+      });
+
+      if (editType === 'sick') {
+        sendSystemPush('Оформлен больничный', 'Вы на больничном, не забудьте пожалуйста сообщить по телефону менеджеру смены и отделу кадров, спасибо, удачного выздоровления!');
       }
-      return s;
-    });
-    if (employee.code) {
-      localStorage.setItem(`app_shifts_${employee.code}`, JSON.stringify(shifts));
+    } else {
+      shifts = shifts.map(s => {
+        if (s.id === selectedShiftId) {
+          return {
+            ...s,
+            type: editType,
+            start: editType === 'work' ? `${startH}:${startM}` : '',
+            end: editType === 'work' ? `${endH}:${endM}` : '',
+            station: editType === 'work' ? editSt : ''
+          };
+        }
+        return s;
+      });
     }
+
+    if (employee.code) localStorage.setItem(`app_shifts_${employee.code}`, JSON.stringify(shifts));
     closeModal('shiftModal');
     render();
   }
@@ -1229,20 +1343,14 @@
   function openBreakModal() {
     const modal = document.getElementById('breakModal');
     modal.style.display = 'flex';
-    setTimeout(() => {
-      modal.style.opacity = '1';
-      modal.querySelector('.modal-content').style.transform = 'scale(1)';
-    }, 10);
+    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
     const colors = getThemeColors();
     document.getElementById('breakModalBg').style.backgroundColor = colors.bg;
   }
 
   function finishShiftWithBreak(breakMins) {
     const todayStr = getLocalDateString(new Date());
-    let currentShift = shifts.find(s => s.dateString === todayStr && s.type === 'work' && s.start && s.end);
-    if (!currentShift) {
-      currentShift = shifts.find(s => s.type === 'work' && s.start && s.end);
-    }
+    let currentShift = shifts.find(s => s.dateString === todayStr && s.type === 'work' && s.start && s.end) || shifts.find(s => s.type === 'work' && s.start && s.end);
 
     if (currentShift && currentShift.start && currentShift.end) {
       const [sh, sm] = currentShift.start.split(':').map(Number);
@@ -1253,9 +1361,7 @@
       const shiftH = parseFloat((workedMins / 60).toFixed(2));
       
       workedHours = parseFloat((workedHours + shiftH).toFixed(1));
-      if (employee.code) {
-        localStorage.setItem(`app_worked_hours_${employee.code}`, JSON.stringify(workedHours));
-      }
+      if (employee.code) localStorage.setItem(`app_worked_hours_${employee.code}`, JSON.stringify(workedHours));
     }
     shiftStarted = false;
     closeModal('breakModal');
@@ -1265,10 +1371,7 @@
   function openHoursModal() {
     const modal = document.getElementById('hoursModal');
     modal.style.display = 'flex';
-    setTimeout(() => {
-      modal.style.opacity = '1';
-      modal.querySelector('.modal-content').style.transform = 'scale(1)';
-    }, 10);
+    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
     const colors = getThemeColors();
     document.getElementById('hoursModalBg').style.backgroundColor = colors.bg;
     document.getElementById('currentHoursText').innerText = `Текущее значение: ${workedHours} ч.`;
@@ -1279,16 +1382,10 @@
       workedHours = val;
     } else {
       const inputVal = parseFloat(document.getElementById('customHoursInput').value);
-      if (!isNaN(inputVal)) {
-        workedHours = inputVal;
-      } else {
-        showCustomAlert('Ошибка', 'Введите корректное число', '❌');
-        return;
-      }
+      if (!isNaN(inputVal)) workedHours = inputVal;
+      else { showCustomAlert('Ошибка', 'Введите корректное число', '<i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 38px;"></i>'); return; }
     }
-    if (employee.code) {
-      localStorage.setItem(`app_worked_hours_${employee.code}`, JSON.stringify(workedHours));
-    }
+    if (employee.code) localStorage.setItem(`app_worked_hours_${employee.code}`, JSON.stringify(workedHours));
     closeModal('hoursModal');
     render();
   }
@@ -1297,9 +1394,7 @@
     const modal = document.getElementById(id);
     modal.style.opacity = '0';
     modal.querySelector('.modal-content').style.transform = 'scale(0.92)';
-    setTimeout(() => {
-      modal.style.display = 'none';
-    }, 300);
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
   }
 
   render();
