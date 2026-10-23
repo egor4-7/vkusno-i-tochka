@@ -18,7 +18,7 @@
     }
     body, html { width: 100%; height: 100%; overflow: hidden; position: fixed; }
     
-    .container { display: flex; flex-direction: column; height: 100%; transition: background 0.3s ease; }
+    .container { display: flex; flex-direction: column; height: 100%; transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
     .screen-container { flex: 1; overflow-y: auto; padding: 20px; padding-top: max(50px, env(safe-area-inset-top)); padding-bottom: calc(110px + env(safe-area-inset-bottom)); scrollbar-width: none; }
     .screen-container::-webkit-scrollbar { display: none; }
 
@@ -28,7 +28,7 @@
     .row-between { display: flex; justify-content: space-between; align-items: center; }
     .row-center { display: flex; align-items: center; }
 
-    .card { border-radius: 16px; padding: 16px; margin-bottom: 12px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+    .card { border-radius: 16px; padding: 16px; margin-bottom: 12px; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
     .card-subtitle { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.8; }
     .card-main-text { font-size: 17px; font-weight: 700; margin-top: 4px; }
     .card-time-text { font-size: 15px; font-weight: 600; margin-top: 2px; }
@@ -36,9 +36,11 @@
 
     .dot-open { width: 8px; height: 8px; border-radius: 4px; background: #22c55e; margin-right: 6px; }
     
-    .site-button { background: #f97316; border-radius: 12px; padding: 12px; display: flex; justify-content: center; align-items: center; margin-top: 14px; cursor: pointer; text-decoration: none; color: #fff; font-weight: 600; font-size: 14px; }
+    .site-button { background: #f97316; border-radius: 12px; padding: 12px; display: flex; justify-content: center; align-items: center; margin-top: 14px; cursor: pointer; text-decoration: none; color: #fff; font-weight: 600; font-size: 14px; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .site-button:active { transform: scale(0.97); }
 
-    .shift-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    .shift-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .shift-card:active { transform: scale(0.98); }
     .day-text { font-size: 16px; font-weight: 700; }
     .date-text { font-size: 12px; margin-top: 2px; opacity: 0.8; }
     
@@ -49,14 +51,15 @@
     .station-badge { padding: 2px 6px; border-radius: 6px; margin-top: 4px; display: inline-block; text-align: center; }
     .station-text { color: #ffffff; font-size: 10px; font-weight: bold; }
 
-    .action-btn { background: #22c55e; border-radius: 16px; padding: 16px; display: flex; justify-content: center; align-items: center; margin-top: 10px; cursor: pointer; border: none; width: 100%; transition: transform 0.15s ease; }
+    .action-btn { background: #22c55e; border-radius: 16px; padding: 16px; display: flex; justify-content: center; align-items: center; margin-top: 10px; cursor: pointer; border: none; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .action-btn:active { transform: scale(0.97); }
     .action-btn-text { color: #ffffff; font-size: 16px; font-weight: bold; }
     .end-shift-btn { background: #ef4444; }
 
-    .action-icon-btn { background: #f97316; width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; color: #fff; }
+    .action-icon-btn { background: #f97316; width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; color: #fff; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .action-icon-btn:active { transform: scale(0.92); }
 
-    /* Плавающий бар с лупой */
+    /* Нежный плавающий бар с мягкой линзой */
     .floating-tab-bar { 
       position: fixed; 
       bottom: max(18px, env(safe-area-inset-bottom)); 
@@ -68,37 +71,37 @@
       align-items: center; 
       border-radius: 34px; 
       border: 1px solid rgba(255, 255, 255, 0.25); 
-      backdrop-filter: blur(30px) saturate(180%); 
-      -webkit-backdrop-filter: blur(30px) saturate(180%); 
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3); 
+      backdrop-filter: blur(35px) saturate(180%); 
+      -webkit-backdrop-filter: blur(35px) saturate(180%); 
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4); 
       z-index: 999; 
       padding: 4px;
       touch-action: none;
+      transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Линза-лупа */
+    /* Нежная лупа с плавной и упругой анимацией */
     .nav-lens-indicator {
       position: absolute;
       top: 4px;
       left: 0;
       height: calc(100% - 8px);
-      background: rgba(255, 255, 255, 0.32);
-      backdrop-filter: blur(20px) saturate(200%);
-      -webkit-backdrop-filter: blur(20px) saturate(200%);
-      border: 1.5px solid rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.34);
+      backdrop-filter: blur(25px) saturate(200%);
+      -webkit-backdrop-filter: blur(25px) saturate(200%);
+      border: 1.5px solid rgba(255, 255, 255, 0.8);
       border-radius: 28px;
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4), inset 0 0 14px rgba(255, 255, 255, 0.5);
-      transition: width 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 0 12px rgba(255, 255, 255, 0.6);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), width 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
       pointer-events: none;
       z-index: 1;
       will-change: transform, width;
     }
 
     .nav-lens-indicator.pressing {
-      transform: translateY(-2px) scale(1.12);
-      background: rgba(255, 255, 255, 0.42);
-      border-color: #ffffff;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), inset 0 0 18px rgba(255, 255, 255, 0.8);
+      transform: translateY(-1px) scale(1.06);
+      background: rgba(255, 255, 255, 0.45);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), inset 0 0 16px rgba(255, 255, 255, 0.8);
     }
 
     .tab-item { 
@@ -113,34 +116,47 @@
       cursor: pointer; 
       background: transparent; 
       border: none; 
-      transition: color 0.2s ease;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       touch-action: none;
     }
+    .tab-item:active { transform: scale(0.92); }
     .tab-text { font-size: 10px; margin-top: 3px; pointer-events: none; }
     .tab-item i { pointer-events: none; }
 
-    /* Поля ввода и кнопки */
+    /* Элементы формы */
     .input-field { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; }
-    .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: 15px; text-align: center; }
-    .logout-button { background: #3b82f6; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; }
-    .delete-button { background: rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fca5a5; font-weight: 600; width: 100%; }
-
-    /* Настройки темы */
-    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-    .color-circle { width: 24px; height: 24px; border-radius: 12px; margin-right: 12px; }
-    .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none; cursor: pointer; font-weight: 600; font-size: 12px; }
-
-    /* Модальные окна */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1000; display: none; }
-    .modal-content { border-radius: 24px; padding: 20px; width: 100%; max-width: 400px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+    .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: 15px; text-align: center; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .primary-button:active { transform: scale(0.97); }
     
-    .type-toggle-btn { flex: 1; padding: 10px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.2); margin: 0 4px; border: none; color: #fff; font-weight: 600; cursor: pointer; }
-    .time-chip { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border-radius: 8px; background: rgba(255,255,255,0.1); color: #fff; font-weight: bold; margin-right: 4px; cursor: pointer; flex-shrink: 0; }
+    .logout-button { background: #3b82f6; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .logout-button:active { transform: scale(0.97); }
+
+    .delete-button { background: rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fca5a5; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .delete-button:active { transform: scale(0.97); }
+
+    /* Темы */
+    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .theme-card:active { transform: scale(0.98); }
+    .color-circle { width: 24px; height: 24px; border-radius: 12px; margin-right: 12px; }
+    .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none; cursor: pointer; font-weight: 600; font-size: 12px; transition: transform 0.15s ease, background 0.2s; }
+    .opacity-btn:active { transform: scale(0.95); }
+
+    /* Модалки с мягким появлением */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .modal-content { border-radius: 24px; padding: 20px; width: 100%; max-width: 400px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 25px 50px rgba(0,0,0,0.4); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    
+    .type-toggle-btn { flex: 1; padding: 10px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.2); margin: 0 4px; border: none; color: #fff; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .time-chip { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border-radius: 8px; background: rgba(255,255,255,0.1); color: #fff; font-weight: bold; margin-right: 4px; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
     .time-chip.active { background: #f97316; }
     
-    .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 10px; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-right: 6px; }
-    .modal-save-btn { flex: 1; padding: 12px; text-align: center; background: #22c55e; border-radius: 10px; color: #000; border: none; cursor: pointer; font-weight: bold; margin-left: 6px; }
-    .break-option-btn { background: rgba(255,255,255,0.15); padding: 14px; border-radius: 10px; text-align: center; margin-bottom: 8px; color: #fff; font-weight: 600; cursor: pointer; border: none; width: 100%; }
+    .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 10px; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-right: 6px; transition: transform 0.15s; }
+    .modal-cancel-btn:active { transform: scale(0.97); }
+
+    .modal-save-btn { flex: 1; padding: 12px; text-align: center; background: #22c55e; border-radius: 10px; color: #000; border: none; cursor: pointer; font-weight: bold; margin-left: 6px; transition: transform 0.15s; }
+    .modal-save-btn:active { transform: scale(0.97); }
+
+    .break-option-btn { background: rgba(255,255,255,0.15); padding: 14px; border-radius: 10px; text-align: center; margin-bottom: 8px; color: #fff; font-weight: 600; cursor: pointer; border: none; width: 100%; transition: transform 0.15s, background 0.2s; }
+    .break-option-btn:active { transform: scale(0.97); background: rgba(255,255,255,0.25); }
 
     .badge-code { font-size: 14px; font-weight: bold; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 10px; }
   </style>
@@ -150,7 +166,7 @@
 <div class="container" id="appContainer">
   <div class="screen-container" id="screenContent"></div>
 
-  <!-- Плавающий бар с лупой -->
+  <!-- Плавающий бар с нежной линзой -->
   <div class="floating-tab-bar" id="floatingTabBar">
     <div class="nav-lens-indicator" id="navLens"></div>
     <button class="tab-item" data-tab="home" onclick="switchTab('home')">
@@ -286,7 +302,6 @@
     return { bg, cardBg, text: textCol };
   }
 
-  // Обновление положения линзы под конкретную вкладку
   function updateNavLens(tabName, scaleUp = false) {
     const activeBtn = document.querySelector(`.tab-item[data-tab="${tabName}"]`);
     const tabBar = document.getElementById('floatingTabBar');
@@ -297,7 +312,7 @@
     const barRect = tabBar.getBoundingClientRect();
 
     const leftOffset = btnRect.left - barRect.left;
-    const scaleStr = scaleUp ? ' translateY(-2px) scale(1.12)' : '';
+    const scaleStr = scaleUp ? ' translateY(-1px) scale(1.06)' : '';
     lens.style.transform = `translateX(${leftOffset}px)${scaleStr}`;
     lens.style.width = `${btnRect.width}px`;
   }
@@ -338,7 +353,7 @@
       }
     });
 
-    setTimeout(() => updateNavLens(activeTab, false), 10);
+    setTimeout(() => updateNavLens(activeTab, false), 15);
 
     const screen = document.getElementById('screenContent');
     screen.innerHTML = '';
@@ -496,7 +511,7 @@
     render();
   }
 
-  // Плавное следование лупы за пальцем без сброса страницы
+  // Плавное следование лупы без прилипания к главной
   const tabBar = document.getElementById('floatingTabBar');
   const lens = document.getElementById('navLens');
   let isNavPressing = false;
@@ -612,7 +627,13 @@
     }
     editSt = s.station || 'K';
     
-    document.getElementById('shiftModal').style.display = 'flex';
+    const modal = document.getElementById('shiftModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.style.opacity = '1';
+      modal.querySelector('.modal-content').style.transform = 'scale(1)';
+    }, 10);
+
     const colors = getThemeColors();
     document.getElementById('modalBg').style.backgroundColor = colors.bg;
     updateShiftModalUI();
@@ -667,7 +688,12 @@
   }
 
   function openBreakModal() {
-    document.getElementById('breakModal').style.display = 'flex';
+    const modal = document.getElementById('breakModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.style.opacity = '1';
+      modal.querySelector('.modal-content').style.transform = 'scale(1)';
+    }, 10);
     const colors = getThemeColors();
     document.getElementById('breakModalBg').style.backgroundColor = colors.bg;
   }
@@ -693,7 +719,12 @@
   }
 
   function openHoursModal() {
-    document.getElementById('hoursModal').style.display = 'flex';
+    const modal = document.getElementById('hoursModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.style.opacity = '1';
+      modal.querySelector('.modal-content').style.transform = 'scale(1)';
+    }, 10);
     const colors = getThemeColors();
     document.getElementById('hoursModalBg').style.backgroundColor = colors.bg;
     document.getElementById('currentHoursText').innerText = `Текущее значение: ${workedHours} ч.`;
@@ -719,7 +750,12 @@
   }
 
   function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
+    const modal = document.getElementById(id);
+    modal.style.opacity = '0';
+    modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 300);
   }
 
   render();
