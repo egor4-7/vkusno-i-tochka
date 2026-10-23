@@ -1,1 +1,1129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Расписание — Вкусно и точка</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      -webkit-tap-highlight-color: transparent; 
+      user-select: none; 
+      -webkit-user-select: none; 
+      -webkit-touch-callout: none; 
+    }
+    body, html { width: 100%; height: 100%; overflow: hidden; position: fixed; }
+    
+    .container { display: flex; flex-direction: column; height: 100%; transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    .screen-container { flex: 1; overflow-y: auto; padding: 20px; padding-top: max(50px, env(safe-area-inset-top)); padding-bottom: calc(110px + env(safe-area-inset-bottom)); scrollbar-width: none; }
+    .screen-container::-webkit-scrollbar { display: none; }
+
+    .header-title { font-size: 30px; font-weight: bold; color: #ffffff; margin-bottom: 4px; }
+    .header-subtitle { font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 16px; opacity: 0.85; }
+
+    .row-between { display: flex; justify-content: space-between; align-items: center; }
+    .row-center { display: flex; align-items: center; }
+
+    .card { border-radius: 16px; padding: 16px; margin-bottom: 12px; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    .card-subtitle { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.8; }
+    .card-main-text { font-size: 17px; font-weight: 700; margin-top: 4px; }
+    .card-time-text { font-size: 15px; font-weight: 600; margin-top: 2px; }
+    .info-text { font-size: 13px; }
+
+    .dot-open { width: 8px; height: 8px; border-radius: 4px; background: #22c55e; margin-right: 6px; }
+    
+    .site-button { background: #f97316; border-radius: 12px; padding: 12px; display: flex; justify-content: center; align-items: center; margin-top: 14px; cursor: pointer; text-decoration: none; color: #fff; font-weight: 600; font-size: 14px; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .site-button:active { transform: scale(0.97); }
+
+    .shift-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .shift-card:active { transform: scale(0.98); }
+    .day-text { font-size: 16px; font-weight: 700; }
+    .date-text { font-size: 12px; margin-top: 2px; opacity: 0.8; }
+    
+    .off-badge { display: flex; align-items: center; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 10px; }
+    .off-badge-text { font-size: 12px; font-weight: 500; color: #fff; }
+    
+    .time-text { font-size: 15px; font-weight: 700; text-align: right; }
+    .station-badge { padding: 2px 6px; border-radius: 6px; margin-top: 4px; display: inline-block; text-align: center; }
+
+    .action-btn { background: #22c55e; border-radius: 16px; padding: 16px; display: flex; justify-content: center; align-items: center; margin-top: 10px; cursor: pointer; border: none; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .action-btn:active { transform: scale(0.97); }
+    .action-btn-text { color: #ffffff; font-size: 16px; font-weight: bold; }
+    .end-shift-btn { background: #ef4444; }
+
+    .action-icon-btn { background: #f97316; width: 36px; height: 36px; border-radius: 18px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; color: #fff; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .action-icon-btn:active { transform: scale(0.92); }
+
+    /* Плавающий бар с нежной лупой */
+    .floating-tab-bar { 
+      position: fixed; 
+      bottom: max(18px, env(safe-area-inset-bottom)); 
+      left: 16px; 
+      right: 16px; 
+      height: 68px; 
+      display: flex; 
+      justify-content: space-around; 
+      align-items: center; 
+      border-radius: 34px; 
+      border: 1px solid rgba(255, 255, 255, 0.25); 
+      backdrop-filter: blur(35px) saturate(180%); 
+      -webkit-backdrop-filter: blur(35px) saturate(180%); 
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4); 
+      z-index: 999; 
+      padding: 4px;
+      touch-action: none;
+      transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .nav-lens-indicator {
+      position: absolute;
+      top: 4px;
+      left: 0;
+      height: calc(100% - 8px);
+      background: rgba(255, 255, 255, 0.34);
+      backdrop-filter: blur(25px) saturate(200%);
+      -webkit-backdrop-filter: blur(25px) saturate(200%);
+      border: 1.5px solid rgba(255, 255, 255, 0.8);
+      border-radius: 28px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 0 12px rgba(255, 255, 255, 0.6);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), width 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
+      pointer-events: none;
+      z-index: 1;
+      will-change: transform, width;
+    }
+
+    .nav-lens-indicator.pressing {
+      transform: translateY(-1px) scale(1.06);
+      background: rgba(255, 255, 255, 0.45);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), inset 0 0 16px rgba(255, 255, 255, 0.8);
+    }
+
+    .tab-item { 
+      position: relative;
+      z-index: 2;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      flex: 1; 
+      height: 100%; 
+      cursor: pointer; 
+      background: transparent; 
+      border: none; 
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      touch-action: none;
+    }
+    .tab-item:active { transform: scale(0.92); }
+    .tab-text { font-size: 10px; margin-top: 3px; pointer-events: none; }
+    .tab-item i { pointer-events: none; }
+
+    /* Элементы формы */
+    .input-field { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-weight: 600; border: none; outline: none; }
+    .primary-button { background: #f97316; width: 100%; padding: 14px; border-radius: 10px; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: bold; font-size: 15px; text-align: center; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .primary-button:active { transform: scale(0.97); }
+    
+    .logout-button { background: #3b82f6; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 15px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .logout-button:active { transform: scale(0.97); }
+
+    .delete-button { background: rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fca5a5; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .delete-button:active { transform: scale(0.97); }
+
+    .backup-button { background: #2563eb; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .backup-button:active { transform: scale(0.97); }
+
+    .restore-button { background: #059669; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .restore-button:active { transform: scale(0.97); }
+
+    .update-button { background: #7c3aed; border-radius: 12px; padding: 14px; display: flex; justify-content: center; align-items: center; margin-top: 10px; border: none; cursor: pointer; color: #fff; font-weight: 600; width: 100%; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .update-button:active { transform: scale(0.97); }
+
+    /* ЖИДКОЕ СТЕКЛО (Liquid Glass) для времени */
+    .time-picker-row { 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 12px; 
+      background: rgba(255, 255, 255, 0.1); 
+      border: 1px solid rgba(255, 255, 255, 0.25); 
+      backdrop-filter: blur(25px) saturate(180%); 
+      -webkit-backdrop-filter: blur(25px) saturate(180%); 
+      border-radius: 16px; 
+      padding: 10px; 
+      margin-bottom: 10px; 
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    .time-column { 
+      height: 110px; 
+      overflow-y: auto; 
+      scrollbar-width: none; 
+      -ms-overflow-style: none; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 4px; 
+      padding: 3px; 
+      background: rgba(0, 0, 0, 0.18); 
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px; 
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+    }
+    .time-column::-webkit-scrollbar { display: none; }
+    .time-chip-v { 
+      height: 32px; 
+      width: 44px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      border-radius: 8px; 
+      background: rgba(255, 255, 255, 0.08); 
+      color: #fff; 
+      font-weight: bold; 
+      font-size: 14px; 
+      cursor: pointer; 
+      flex-shrink: 0; 
+      transition: background 0.2s, transform 0.15s; 
+    }
+    .time-chip-v:active { transform: scale(0.94); }
+    .time-chip-v.active { 
+      background: #f97316; 
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.5); 
+    }
+
+    /* Анимации и кастомная авторская галочка Liquid Glass */
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .spinner { animation: spin 1s linear infinite; display: inline-block; }
+
+    .custom-success-badge {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 14px auto;
+      background: rgba(34, 197, 94, 0.18);
+      border: 1.5px solid rgba(34, 197, 94, 0.65);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 25px rgba(34, 197, 94, 0.45), inset 0 0 12px rgba(34, 197, 94, 0.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      animation: pulseSuccess 1.5s infinite ease-in-out;
+    }
+
+    .custom-checkmark {
+      width: 32px;
+      height: 32px;
+      stroke: #22c55e;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.8));
+      animation: drawCheck 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    @keyframes drawCheck {
+      0% {
+        stroke-dasharray: 50;
+        stroke-dashoffset: 50;
+      }
+      100% {
+        stroke-dasharray: 50;
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes pulseSuccess {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(34, 197, 94, 0.45), inset 0 0 12px rgba(34, 197, 94, 0.35); }
+      50% { transform: scale(1.06); box-shadow: 0 0 35px rgba(34, 197, 94, 0.75), inset 0 0 18px rgba(34, 197, 94, 0.55); }
+    }
+
+    /* Темы */
+    .theme-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .theme-card:active { transform: scale(0.98); }
+    .color-circle { width: 24px; height: 24px; border-radius: 12px; margin-right: 12px; }
+    .opacity-btn { flex: 1; padding: 8px 0; text-align: center; margin: 0 2px; border-radius: 8px; background: rgba(0,0,0,0.1); border: none; cursor: pointer; font-weight: 600; font-size: 12px; transition: transform 0.15s ease, background 0.2s; }
+    .opacity-btn:active { transform: scale(0.95); }
+
+    /* Модалки в едином стиле VisionOS с жидким стеклом */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .modal-content { border-radius: 24px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.4); transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(30, 35, 32, 0.75); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); }
+    
+    .type-toggle-btn { flex: 1; padding: 10px; text-align: center; border-radius: 8px; background: rgba(0,0,0,0.2); margin: 0 4px; border: none; color: #fff; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    
+    .modal-cancel-btn { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.15); border-radius: 12px; color: #fff; border: none; cursor: pointer; font-weight: bold; transition: transform 0.15s; }
+    .modal-cancel-btn:active { transform: scale(0.97); }
+
+    .modal-save-btn { flex: 1; padding: 12px; text-align: center; background: #22c55e; border-radius: 12px; color: #fff; border: none; cursor: pointer; font-weight: bold; transition: transform 0.15s; }
+    .modal-save-btn:active { transform: scale(0.97); }
+
+    .break-option-btn { background: rgba(255,255,255,0.15); padding: 14px; border-radius: 10px; text-align: center; margin-bottom: 8px; color: #fff; font-weight: 600; cursor: pointer; border: none; width: 100%; }
+
+    .badge-code { font-size: 14px; font-weight: bold; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="container" id="appContainer">
+  <div class="screen-container" id="screenContent"></div>
+
+  <!-- Плавающий бар с нежной лупой -->
+  <div class="floating-tab-bar" id="floatingTabBar">
+    <div class="nav-lens-indicator" id="navLens"></div>
+    <button class="tab-item" data-tab="home" onclick="switchTab('home')">
+      <i class="fa-solid fa-house" id="icon-home" style="font-size: 18px;"></i>
+      <span class="tab-text" id="text-home">Главная</span>
+    </button>
+    <button class="tab-item" data-tab="shifts" onclick="switchTab('shifts')">
+      <i class="fa-regular fa-calendar" id="icon-shifts" style="font-size: 18px;"></i>
+      <span class="tab-text" id="text-shifts">Смены</span>
+    </button>
+    <button class="tab-item" data-tab="employee" onclick="switchTab('employee')">
+      <i class="fa-regular fa-user" id="icon-employee" style="font-size: 18px;"></i>
+      <span class="tab-text" id="text-employee">Сотрудник</span>
+    </button>
+    <button class="tab-item" data-tab="settings" onclick="switchTab('settings')">
+      <i class="fa-solid fa-gear" id="icon-settings" style="font-size: 18px;"></i>
+      <span class="tab-text" id="text-settings">Настройки</span>
+    </button>
+  </div>
+</div>
+
+<!-- Универсальная кастомная модалка уведомлений -->
+<div class="modal-overlay" id="customModal">
+  <div class="modal-content" id="customModalBg" style="text-align: center;">
+    <div id="customModalIcon" style="margin-bottom: 12px;"></div>
+    <h3 id="customModalTitle" style="color: #fff; margin-bottom: 8px; font-size: 18px;">Уведомление</h3>
+    <div id="customModalText" style="color: #ddd; font-size: 14px; margin-bottom: 22px; line-height: 1.4;"></div>
+    <div id="customModalButtons" class="row-between" style="gap: 12px;"></div>
+  </div>
+</div>
+
+<!-- Модалка резервного копирования -->
+<div class="modal-overlay" id="backupModal">
+  <div class="modal-content" id="backupModalBg">
+    <h3 style="color: #fff; text-align: center; margin-bottom: 10px;">Резервная копия</h3>
+    <p style="color: #ccc; text-align: center; font-size: 13px; margin-bottom: 15px;">Скопируйте текст или вставьте его для восстановления:</p>
+    <textarea id="backupTextarea" class="input-field" style="height: 100px; background: rgba(255,255,255,0.15); color: #fff; resize: none; font-size: 11px;"></textarea>
+    <button class="primary-button" style="background: #2563eb; margin-bottom: 8px;" onclick="copyBackupText()">Скопировать в буфер</button>
+    <button class="primary-button" style="background: #059669; margin-bottom: 15px;" onclick="restoreBackupText()">Восстановить из текста</button>
+    <button class="modal-cancel-btn" style="width: 100%;" onclick="closeModal('backupModal')">Закрыть</button>
+  </div>
+</div>
+
+<!-- Модалки расписания и перерывов -->
+<div class="modal-overlay" id="shiftModal">
+  <div class="modal-content" id="modalBg">
+    <h3 style="color: #fff; text-align: center; margin-bottom: 14px;">Редактировать смену</h3>
+    <div class="row-between" style="margin-bottom: 12px;">
+      <button class="type-toggle-btn" id="btnWorkType" onclick="setEditType('work')">Рабочий день</button>
+      <button class="type-toggle-btn" id="btnOffType" onclick="setEditType('off')">Выходной</button>
+    </div>
+    <div id="workShiftSettings" style="display: block;">
+      <p style="color: #fff; font-size: 13px; margin-bottom: 3px;">Время начала:</p>
+      <div class="time-picker-row">
+        <div class="time-column" id="startHoursList"></div>
+        <span style="color: #fff; font-weight: bold; font-size: 18px;">:</span>
+        <div class="time-column" id="startMinutesList"></div>
+      </div>
+
+      <p style="color: #fff; font-size: 13px; margin-bottom: 3px;">Время окончания:</p>
+      <div class="time-picker-row">
+        <div class="time-column" id="endHoursList"></div>
+        <span style="color: #fff; font-weight: bold; font-size: 18px;">:</span>
+        <div class="time-column" id="endMinutesList"></div>
+      </div>
+
+      <p style="color: #fff; font-size: 13px; margin-bottom: 3px;">Станция:</p>
+      <div class="row-center" style="gap: 6px; flex-wrap: wrap; margin-bottom: 4px;" id="stationsModalList"></div>
+    </div>
+    <div class="row-between" style="margin-top: 18px; gap: 12px;">
+      <button class="modal-cancel-btn" onclick="closeModal('shiftModal')">Отмена</button>
+      <button class="modal-save-btn" onclick="saveShiftModal()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="breakModal">
+  <div class="modal-content" id="breakModalBg">
+    <h3 style="color: #fff; text-align: center; margin-bottom: 15px;">Сколько времени вы были на перерыве?</h3>
+    <button class="break-option-btn" onclick="finishShiftWithBreak(15)">15 минут</button>
+    <button class="break-option-btn" onclick="finishShiftWithBreak(30)">30 минут</button>
+    <button class="break-option-btn" onclick="finishShiftWithBreak(45)">45 минут</button>
+    <button class="break-option-btn" onclick="finishShiftWithBreak(60)">1 час</button>
+    <button class="break-option-btn" onclick="finishShiftWithBreak(0)">Не был(а)</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="hoursModal">
+  <div class="modal-content" id="hoursModalBg">
+    <h3 style="color: #fff; text-align: center; margin-bottom: 10px;">Изменить / сбросить часы</h3>
+    <p style="color: #bbb; text-align: center; font-size: 13px; margin-bottom: 15px;" id="currentHoursText">Текущее значение: 0 ч.</p>
+    <input type="number" id="customHoursInput" class="input-field" placeholder="Введите часы (например: 33.5)" style="background: rgba(255,255,255,0.15); color: #fff;">
+    <button class="primary-button" style="background: #ef4444; margin-bottom: 8px;" onclick="saveCustomHours(0)">Сбросить до 0</button>
+    <div class="row-between" style="margin-top: 10px; gap: 12px;">
+      <button class="modal-cancel-btn" onclick="closeModal('hoursModal')">Отмена</button>
+      <button class="modal-save-btn" onclick="saveCustomHours()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const APP_VERSION = '3.3';
+  const APP_CHANGELOG = 'Добавлена авторская анимированная векторная галочка в стиле Liquid Glass, плавный прогресс-бар загрузки обновления и сочные визуальные эффекты.';
+
+  let activeTab = 'home';
+  let theme = localStorage.getItem('app_theme') || 'green';
+  let opacity = parseFloat(localStorage.getItem('app_opacity')) || 0.3;
+  let isLoggedIn = JSON.parse(localStorage.getItem('app_is_logged_in')) || false;
+  let employee = JSON.parse(localStorage.getItem('app_employee')) || { firstName: '', lastName: '', code: '' };
+
+  const stationsList = [
+    { code: 'C', name: 'прилавок', color: '#0ea5e9' },
+    { code: 'K', name: 'кухня', color: '#f97316' },
+    { code: 'BVR', name: 'напитки', color: '#a855f7' },
+    { code: 'DLK', name: 'доставка', color: '#ec4899' },
+    { code: 'FF', name: 'фри', color: '#eab308' },
+    { code: 'CF', name: 'кафе', color: '#10b981' },
+  ];
+
+  function generateCurrentWeekShifts() {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + distanceToMonday);
+
+    const daysNames = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+    const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+
+    return daysNames.map((day, index) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + index);
+      return {
+        id: index + 1,
+        day: day,
+        date: `${d.getDate()} ${months[d.getMonth()]}`,
+        dateString: d.toISOString().split('T')[0],
+        type: 'off',
+        start: '',
+        end: '',
+        station: ''
+      };
+    });
+  }
+
+  let shifts = employee.code 
+    ? (JSON.parse(localStorage.getItem(`app_shifts_${employee.code}`)) || generateCurrentWeekShifts())
+    : generateCurrentWeekShifts();
+
+  let workedHours = employee.code 
+    ? (parseFloat(localStorage.getItem(`app_worked_hours_${employee.code}`)) || 0)
+    : 0;
+
+  let shiftStarted = false;
+
+  function showCustomAlert(title, text, icon = '') {
+    const modal = document.getElementById('customModal');
+    document.getElementById('customModalIcon').innerHTML = icon ? `<div style="font-size: 38px;">${icon}</div>` : '';
+    document.getElementById('customModalTitle').innerText = title;
+    document.getElementById('customModalText').innerText = text;
+    document.getElementById('customModalButtons').innerHTML = `
+      <button class="primary-button" style="margin: 0; background: #22c55e;" onclick="closeModal('customModal')">Понятно</button>
+    `;
+    const colors = getThemeColors();
+    document.getElementById('customModalBg').style.backgroundColor = colors.bg;
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
+  }
+
+  function showUpdateModal(version, changelog) {
+    const modal = document.getElementById('customModal');
+    document.getElementById('customModalIcon').innerHTML = '<i class="fa-solid fa-circle-arrow-up" style="color: #f97316; font-size: 38px;"></i>';
+    document.getElementById('customModalTitle').innerText = `Доступно обновление (v${version})`;
+    document.getElementById('customModalText').innerHTML = `
+      <div style="text-align: left; margin-top: 6px;">
+        <strong style="color: #fff; font-size: 14px;">Что нового:</strong>
+        <p style="margin-top: 4px; color: #ddd; font-size: 13px; line-height: 1.4;">${changelog}</p>
+      </div>
+    `;
+    document.getElementById('customModalButtons').innerHTML = `
+      <button class="modal-cancel-btn" onclick="closeModal('customModal')">Позже</button>
+      <button class="modal-save-btn" style="background: #7c3aed;" onclick="startAppUpdateSimulation()">Обновить</button>
+    `;
+    const colors = getThemeColors();
+    document.getElementById('customModalBg').style.backgroundColor = colors.bg;
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
+  }
+
+  function startAppUpdateSimulation() {
+    const modal = document.getElementById('customModal');
+    document.getElementById('customModalIcon').innerHTML = '<i class="fa-solid fa-spinner spinner" style="color: #3b82f6; font-size: 38px;"></i>';
+    document.getElementById('customModalTitle').innerText = 'Установка обновления...';
+    document.getElementById('customModalText').innerHTML = `
+      <p style="color: #ddd; font-size: 14px; margin-top: 10px;">Загрузка компонентов и применение настроек жидкого стекла...</p>
+      <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; margin-top: 16px; overflow: hidden;">
+        <div id="updateProgressBar" style="width: 0%; height: 100%; background: #22c55e; transition: width 3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+      </div>
+    `;
+    document.getElementById('customModalButtons').innerHTML = '';
+
+    setTimeout(() => {
+      const bar = document.getElementById('updateProgressBar');
+      if (bar) bar.style.width = '100%';
+    }, 100);
+
+    setTimeout(() => {
+      // Использование нашей авторской кастомной векторной галочки
+      document.getElementById('customModalIcon').innerHTML = `
+        <div class="custom-success-badge">
+          <svg class="custom-checkmark" viewBox="0 0 52 52">
+            <path d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+          </svg>
+        </div>
+      `;
+      document.getElementById('customModalTitle').innerText = 'Обновление успешно установлено!';
+      document.getElementById('customModalText').innerHTML = '<p style="color: #ddd; font-size: 14px; margin-top: 6px;">Перезапуск приложения...</p>';
+      
+      setTimeout(() => {
+        window.location.reload(true);
+      }, 1400);
+    }, 3200);
+  }
+
+  function checkForAppUpdate() {
+    showCustomAlert('Проверка', 'Проверка обновлений...', '<i class="fa-solid fa-rotate spinner" style="color: #f97316;"></i>');
+    fetch(window.location.href.split('?')[0] + '?t=' + new Date().getTime(), { cache: 'no-store' })
+      .then(res => res.text())
+      .then(html => {
+        const match = html.match(/const APP_VERSION = '([\d.]+)'/);
+        const changelogMatch = html.match(/const APP_CHANGELOG = '([^']+)'/);
+        if (match && match[1]) {
+          const remoteVersion = match[1];
+          const remoteChangelog = changelogMatch ? changelogMatch[1] : 'Доступны улучшения и исправления.';
+          if (remoteVersion !== APP_VERSION) {
+            showUpdateModal(remoteVersion, remoteChangelog);
+          } else {
+            showCustomAlert('Актуально', `У вас установлена самая последняя версия (v${APP_VERSION}).`, '🎉');
+          }
+        } else {
+          showCustomAlert('Готово', 'Приложение работает актуально.', '✨');
+        }
+      })
+      .catch(() => {
+        showCustomAlert('Ошибка сети', 'Не удалось проверить обновление. Проверьте интернет.', '⚠️');
+      });
+  }
+
+  function handleStartShiftClick() {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayShift = shifts.find(s => s.dateString === todayStr);
+
+    if (!todayShift || todayShift.type === 'off' || !todayShift.start) {
+      showCustomAlert('У вас выходной день', 'Сегодня у вас выходной или смена не назначена.', '☕');
+      return;
+    }
+
+    const now = new Date();
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+    const [sh, sm] = todayShift.start.split(':').map(Number);
+    const shiftStartMins = sh * 60 + sm;
+
+    if (currentMins < shiftStartMins) {
+      showCustomConfirm(
+        'Ранний старт',
+        `Ваша смена начинается в ${todayShift.start}. Вас попросили выйти сейчас?`,
+        () => {
+          shiftStarted = true;
+          render();
+        },
+        () => {}
+      );
+    } else {
+      shiftStarted = true;
+      render();
+    }
+  }
+
+  function getFormattedCurrentDate() {
+    const now = new Date();
+    const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+    const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+    return `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`;
+  }
+
+  function getThemeColors() {
+    const textCol = opacity > 0.5 ? '#111111' : '#ffffff';
+    let bg = '#2d4a35';
+    if (theme === 'orange') bg = '#4a352d';
+    if (theme === 'bw') bg = opacity === 1.0 ? '#000000' : '#121212';
+    const cardBg = opacity === 1.0 && theme === 'bw' ? '#ffffff' : `rgba(255, 255, 255, ${opacity})`;
+    return { bg, cardBg, text: textCol };
+  }
+
+  function updateNavLens(tabName, scaleUp = false) {
+    const activeBtn = document.querySelector(`.tab-item[data-tab="${tabName}"]`);
+    const tabBar = document.getElementById('floatingTabBar');
+    const lens = document.getElementById('navLens');
+    if (!activeBtn || !tabBar || !lens) return;
+
+    const btnRect = activeBtn.getBoundingClientRect();
+    const barRect = tabBar.getBoundingClientRect();
+
+    const leftOffset = btnRect.left - barRect.left;
+    const scaleStr = scaleUp ? ' translateY(-1px) scale(1.06)' : '';
+    lens.style.transform = `translateX(${leftOffset}px)${scaleStr}`;
+    lens.style.width = `${btnRect.width}px`;
+  }
+
+  function getTabByX(clientX) {
+    let closestTab = activeTab;
+    let minDistance = Infinity;
+    document.querySelectorAll('.tab-item').forEach(btn => {
+      const rect = btn.getBoundingClientRect();
+      const center = rect.left + rect.width / 2;
+      const dist = Math.abs(clientX - center);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestTab = btn.getAttribute('data-tab');
+      }
+    });
+    return closestTab;
+  }
+
+  function exportBackup() {
+    const backupData = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('app_')) {
+        backupData[key] = localStorage.getItem(key);
+      }
+    }
+    const jsonStr = JSON.stringify(backupData);
+    
+    const modal = document.getElementById('backupModal');
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
+    const colors = getThemeColors();
+    document.getElementById('backupModalBg').style.backgroundColor = colors.bg;
+    document.getElementById('backupTextarea').value = jsonStr;
+  }
+
+  function copyBackupText() {
+    const ta = document.getElementById('backupTextarea');
+    ta.select();
+    navigator.clipboard.writeText(ta.value).then(() => {
+      showCustomAlert('Успешно', 'Резервная копия скопирована в буфер обмена.', '📋');
+    }).catch(() => {
+      showCustomAlert('Информация', 'Выделите текст в поле и скопируйте его вручную.', 'ℹ️');
+    });
+  }
+
+  function importBackup() {
+    const modal = document.getElementById('backupModal');
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
+    const colors = getThemeColors();
+    document.getElementById('backupModalBg').style.backgroundColor = colors.bg;
+    document.getElementById('backupTextarea').value = '';
+    document.getElementById('backupTextarea').placeholder = 'Вставьте сюда код бэкапа...';
+  }
+
+  function restoreBackupText() {
+    const ta = document.getElementById('backupTextarea').value;
+    if (!ta) {
+      showCustomAlert('Ошибка', 'Вставьте код бэкапа в поле ввода.', '❌');
+      return;
+    }
+    try {
+      const backupData = JSON.parse(ta);
+      for (const key in backupData) {
+        if (key.startsWith('app_')) {
+          localStorage.setItem(key, backupData[key]);
+        }
+      }
+      closeModal('backupModal');
+      showCustomAlert('Готово', 'Данные успешно восстановлены.', '✅');
+      setTimeout(() => location.reload(), 1500);
+    } catch (e) {
+      showCustomAlert('Ошибка', 'Неверный формат кода бэкапа.', '❌');
+    }
+  }
+
+  function render() {
+    const colors = getThemeColors();
+    document.getElementById('appContainer').style.backgroundColor = colors.bg;
+    
+    const tabBar = document.getElementById('floatingTabBar');
+    tabBar.style.backgroundColor = colors.cardBg;
+
+    document.querySelectorAll('.tab-item').forEach(btn => {
+      const tab = btn.getAttribute('data-tab');
+      const isActive = activeTab === tab;
+      const itemColor = opacity > 0.5 ? '#111111' : (isActive ? '#ffffff' : 'rgba(255,255,255,0.6)');
+      
+      const icon = btn.querySelector('i');
+      const text = btn.querySelector('.tab-text');
+      if (icon) icon.style.color = itemColor;
+      if (text) {
+        text.style.color = itemColor;
+        text.style.fontWeight = isActive ? '700' : '500';
+      }
+    });
+
+    setTimeout(() => updateNavLens(activeTab, false), 15);
+
+    const screen = document.getElementById('screenContent');
+    screen.innerHTML = '';
+
+    if (activeTab === 'home') {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const nextShift = shifts.find(s => s.type === 'work' && s.dateString >= todayStr) || shifts.find(s => s.type === 'work') || shifts[0];
+
+      screen.innerHTML = `
+        <h1 class="header-title">Главная</h1>
+        <p class="header-subtitle">${getFormattedCurrentDate()}</p>
+        
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; cursor: pointer;" onclick="switchTab('shifts')">
+          <div class="row-between">
+            <div class="row-center">
+              <i class="fa-regular fa-calendar" style="margin-right: 8px;"></i>
+              <span class="card-subtitle">ВАША СЛЕДУЮЩАЯ СМЕНА</span>
+            </div>
+            <i class="fa-solid fa-chevron-right"></i>
+          </div>
+          <div class="card-main-text">${isLoggedIn ? nextShift.day + ', ' + nextShift.date : 'Сотрудник не вошел'}</div>
+          <div class="card-time-text">${isLoggedIn ? (nextShift.type === 'off' ? 'Выходной' : nextShift.start + ' — ' + nextShift.end + ' (' + nextShift.station + ')') : 'Авторизуйтесь в профиле'}</div>
+        </div>
+
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
+          <div class="row-center">
+            <i class="fa-solid fa-utensils" style="color: #f97316; margin-right: 8px;"></i>
+            <span class="card-main-text" style="font-size: 18px; margin: 0;">Ресторан «Вкусно — и точка»</span>
+          </div>
+          <div class="row-center" style="margin-top: 10px;">
+            <i class="fa-solid fa-location-dot" style="margin-right: 6px;"></i>
+            <span class="info-text">г. Котельники, 1-й Покровский проезд, д. 4</span>
+          </div>
+          <div class="row-center" style="margin-top: 6px;">
+            <div class="dot-open"></div>
+            <span class="info-text" style="color: #22c55e; font-weight: 600;">Открыто</span>
+            <span class="info-text" style="margin-left: 6px;">09:30 — 23:00</span>
+          </div>
+          <div class="row-center" style="margin-top: 8px; cursor: pointer;" onclick="window.location.href='tel:+74952296869'">
+            <i class="fa-solid fa-phone" style="color: #f97316; margin-right: 6px;"></i>
+            <span style="color: #f97316; text-decoration: underline; font-weight: 600;">+7 (495) 229-68-69</span>
+          </div>
+          <a class="site-button" href="https://vkusnoitochka.ru" target="_blank">
+            <i class="fa-solid fa-globe" style="margin-right: 6px;"></i> Сайт Вкусно — и точка
+          </a>
+        </div>
+      `;
+    } else if (activeTab === 'shifts') {
+      let html = `<h1 class="header-title">Смена</h1>`;
+      if (!isLoggedIn) {
+        html += `
+          <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; text-align: center; padding: 30px;">
+            <i class="fa-solid fa-lock" style="font-size: 48px; color: #f97316; margin-bottom: 10px;"></i>
+            <div class="card-main-text" style="font-size: 18px;">Требуется авторизация</div>
+            <p class="info-text" style="margin-top: 6px;">Войдите в свой аккаунт во вкладке «Сотрудник», чтобы увидеть расписание.</p>
+          </div>
+        `;
+      } else {
+        shifts.forEach(item => {
+          let badgeHtml = item.type === 'off' 
+            ? `<div class="off-badge"><i class="fa-solid fa-mug-hot" style="margin-right: 4px; font-size: 12px;"></i><span class="off-badge-text">Выходной</span></div>`
+            : `<div style="text-align: right;"><div class="time-text">${item.start} — ${item.end}</div>${item.station ? '<div class="station-badge" style="background:' + getStationColor(item.station) + '">' + item.station + '</div>' : ''}</div>`;
+
+          html += `
+            <div class="shift-card" style="background-color: ${colors.cardBg}; color: ${colors.text};" onclick="openShiftModal(${item.id})">
+              <div>
+                <div class="day-text">${item.day}</div>
+                <div class="date-text">${item.date}</div>
+              </div>
+              <div class="row-center">
+                ${badgeHtml}
+                <i class="fa-solid fa-chevron-right" style="margin-left: 10px; font-size: 14px;"></i>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+          <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 10px;">
+            <div class="row-between">
+              <span class="card-subtitle">ОТРАБОТАННОЕ ВРЕМЯ</span>
+              <button class="action-icon-btn" onclick="openHoursModal()"><i class="fa-solid fa-pen"></i></button>
+            </div>
+            <div class="card-main-text" style="font-size: 18px; margin-top: 6px;">Всего отработано: ${workedHours} ч.</div>
+          </div>
+        `;
+
+        if (!shiftStarted) {
+          html += `<button class="action-btn" onclick="handleStartShiftClick()"><span class="action-btn-text">Начать смену (Старт)</span></button>`;
+        } else {
+          html += `<button class="action-btn end-shift-btn" onclick="openBreakModal()"><span class="action-btn-text">Уход</span></button>`;
+        }
+      }
+      screen.innerHTML = html;
+    } else if (activeTab === 'employee') {
+      let html = `<div class="row-between"><h1 class="header-title">Сотрудник</h1>`;
+      if (isLoggedIn) html += `<span class="badge-code" style="color:${colors.text};">${employee.code}</span>`;
+      html += `</div>`;
+
+      if (!isLoggedIn) {
+        html += `
+          <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; text-align: center;">
+            <i class="fa-regular fa-circle-user" style="font-size: 60px; color: #f97316;"></i>
+            <div class="card-main-text" style="font-size: 22px; margin-top: 10px;">Добро пожаловать</div>
+            <p class="info-text" style="margin-bottom: 20px; opacity: 0.8;">Зарегистрируйтесь, чтобы начать работу</p>
+            <input type="text" id="inpCode" class="input-field" placeholder="Табельный номер (7 цифр)" maxlength="7" style="background: rgba(255,255,255,0.85); color:#000;">
+            <input type="text" id="inpFirst" class="input-field" placeholder="Имя" style="background: rgba(255,255,255,0.85); color:#000;">
+            <input type="text" id="inpLast" class="input-field" placeholder="Фамилия" style="background: rgba(255,255,255,0.85); color:#000;">
+            <button class="primary-button" onclick="handleLogin()">Сохранить данные</button>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
+            <span class="info-text">ФИ (Фамилия Имя)</span>
+            <div class="card-main-text" style="font-size: 20px; margin-bottom: 12px;">${employee.firstName}</div>
+            <span class="info-text">Табельный номер</span>
+            <div class="card-main-text" style="font-size: 18px;">${employee.code}</div>
+          </div>
+          <button class="logout-button" onclick="handleLogout()"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> Выйти из аккаунта</button>
+          <button class="delete-button" onclick="handleDeleteAccount()"><i class="fa-solid fa-trash" style="margin-right: 8px;"></i> Удалить сотрудника</button>
+        `;
+      }
+      screen.innerHTML = html;
+    } else if (activeTab === 'settings') {
+      screen.innerHTML = `
+        <h1 class="header-title">Настройки</h1>
+        <p class="header-subtitle">Управление приложением и оформлением:</p>
+
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text};">
+          <div class="card-main-text" style="margin-bottom: 6px; font-size: 18px;">Встречайте приложение для сотрудников прямо в браузере или на рабочем столе. Приложение Expo Go не требуется.</div>
+          <p class="info-text" style="opacity: 0.9; margin-top: 8px; line-height: 1.5;">Как установить приложение на рабочий стол вашего телефона:</p>
+          <ul style="padding-left: 18px; font-size: 13px; line-height: 1.6; opacity: 0.9; margin-top: 6px;">
+            <li>На iPhone (Safari): нажмите кнопку «Поделиться» внизу экрана и выберите пункт «На экран Домой».</li>
+            <li>На Android (Chrome): нажмите на меню (три точки) в правом верхнем углу и выберите пункт «Установить приложение» или «Добавить на главный экран».</li>
+          </ul>
+        </div>
+        
+        <div class="theme-card card" style="background-color: ${colors.cardBg}; color: ${colors.text}; ${theme==='green'?'border:2px solid #22c55e':''}" onclick="setTheme('green')">
+          <div class="row-center"><div class="color-circle" style="background:#2d4a35;"></div><span class="card-main-text" style="margin:0;">Фирменный зеленый</span></div>
+          ${theme==='green'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
+        </div>
+        <div class="theme-card card" style="background-color: ${colors.cardBg}; color: ${colors.text}; ${theme==='orange'?'border:2px solid #22c55e':''}" onclick="setTheme('orange')">
+          <div class="row-center"><div class="color-circle" style="background:#b45309;"></div><span class="card-main-text" style="margin:0;">Теплый оранжевый</span></div>
+          ${theme==='orange'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
+        </div>
+        <div class="theme-card card" style="background-color: ${colors.cardBg}; color: ${colors.text}; ${theme==='bw'?'border:2px solid #22c55e':''}" onclick="setTheme('bw')">
+          <div class="row-center"><div class="color-circle" style="background:#333;"></div><span class="card-main-text" style="margin:0;">Черно-белая</span></div>
+          ${theme==='bw'?'<i class="fa-solid fa-circle-check" style="color:#22c55e; font-size:20px;"></i>':''}
+        </div>
+
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 10px;">
+          <div class="card-main-text" style="margin-bottom: 10px;">Прозрачность блоков: ${Math.round(opacity * 100)}%</div>
+          <div class="row-between">
+            ${[0.3, 0.5, 0.7, 0.85, 1.0].map(val => `<button class="opacity-btn" style="${opacity===val?'background:#f97316;color:#fff;':'color:'+colors.text}" onclick="setOpacity(${val})">${Math.round(val*100)}%</button>`).join('')}
+          </div>
+        </div>
+
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
+          <div class="card-main-text" style="margin-bottom: 4px;">Резервная копия данных</div>
+          <p class="info-text" style="opacity: 0.8; margin-bottom: 10px;">Сохраните свои смены и часы на случай очистки истории браузера.</p>
+          <button class="backup-button" onclick="exportBackup()"><i class="fa-solid fa-copy" style="margin-right: 8px;"></i> Создать бэкап (Копировать)</button>
+          <button class="restore-button" onclick="importBackup()"><i class="fa-solid fa-file-arrow-down" style="margin-right: 8px;"></i> Восстановить из бэкапа</button>
+        </div>
+
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
+          <div class="card-main-text" style="margin-bottom: 10px;">Что нового (v${APP_VERSION})</div>
+          <ul style="padding-left: 18px; font-size: 13px; line-height: 1.6; opacity: 0.9;">
+            <li>Добавлена авторская анимированная векторная галочка в стиле Liquid Glass.</li>
+            <li>Эффектный процесс установки обновления с прогресс-баром и размытием.</li>
+            <li>Выбор времени с часами от 00 до 23 и поминутно от 00 до 59.</li>
+            <li>Абсолютная конфиденциальность данных на устройстве.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="background-color: ${colors.cardBg}; color: ${colors.text}; margin-top: 15px;">
+          <div class="card-main-text" style="margin-bottom: 4px;">Автономное обновление</div>
+          <p class="info-text" style="opacity: 0.8; margin-bottom: 10px;">Проверить наличие свежей версии приложения.</p>
+          <button class="update-button" onclick="checkForAppUpdate()"><i class="fa-solid fa-rotate" style="margin-right: 8px;"></i> Проверить обновление</button>
+        </div>
+      `;
+    }
+  }
+
+  function switchTab(tab) {
+    activeTab = tab;
+    render();
+  }
+
+  const tabBar = document.getElementById('floatingTabBar');
+  const lens = document.getElementById('navLens');
+  let isNavPressing = false;
+
+  tabBar.addEventListener('touchstart', (e) => {
+    isNavPressing = true;
+    lens.classList.add('pressing');
+    const tab = getTabByX(e.touches[0].clientX);
+    updateNavLens(tab, true);
+  }, { passive: true });
+
+  tabBar.addEventListener('touchmove', (e) => {
+    if (!isNavPressing) return;
+    const tab = getTabByX(e.touches[0].clientX);
+    updateNavLens(tab, true);
+  }, { passive: true });
+
+  tabBar.addEventListener('touchend', (e) => {
+    if (!isNavPressing) return;
+    isNavPressing = false;
+    lens.classList.remove('pressing');
+    
+    const clientX = e.changedTouches[0].clientX;
+    const targetTab = getTabByX(clientX);
+    if (activeTab !== targetTab) {
+      switchTab(targetTab);
+    } else {
+      updateNavLens(activeTab, false);
+    }
+  });
+
+  tabBar.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
+
+  function setTheme(t) {
+    theme = t;
+    localStorage.setItem('app_theme', t);
+    render();
+  }
+
+  function setOpacity(o) {
+    opacity = o;
+    localStorage.setItem('app_opacity', o);
+    render();
+  }
+
+  function getStationColor(code) {
+    const found = stationsList.find(s => s.code === code);
+    return found ? found.color : '#f97316';
+  }
+
+  function handleLogin() {
+    const code = document.getElementById('inpCode').value;
+    const first = document.getElementById('inpFirst').value;
+    const last = document.getElementById('inpLast').value;
+    if (code.length === 7 && first && last) {
+      employee = { firstName: last + ' ' + first, code: code };
+      isLoggedIn = true;
+      localStorage.setItem('app_employee', JSON.stringify(employee));
+      localStorage.setItem('app_is_logged_in', 'true');
+      
+      const savedShifts = localStorage.getItem(`app_shifts_${code}`);
+      if (savedShifts) {
+        shifts = JSON.parse(savedShifts);
+      } else {
+        shifts = generateCurrentWeekShifts();
+        localStorage.setItem(`app_shifts_${code}`, JSON.stringify(shifts));
+      }
+
+      workedHours = parseFloat(localStorage.getItem(`app_worked_hours_${code}`)) || 0;
+      render();
+    } else {
+      showCustomAlert('Ошибка', 'Введите 7-значный табельный номер, имя и фамилию', '❌');
+    }
+  }
+
+  function handleLogout() {
+    isLoggedIn = false;
+    localStorage.setItem('app_is_logged_in', 'false');
+    shifts = generateCurrentWeekShifts();
+    workedHours = 0;
+    render();
+  }
+
+  function handleDeleteAccount() {
+    if (employee.code) {
+      localStorage.removeItem(`app_shifts_${employee.code}`);
+      localStorage.removeItem(`app_worked_hours_${employee.code}`);
+    }
+    employee = { firstName: '', lastName: '', code: '' };
+    isLoggedIn = false;
+    shifts = generateCurrentWeekShifts();
+    workedHours = 0;
+    localStorage.removeItem('app_employee');
+    localStorage.setItem('app_is_logged_in', 'false');
+    render();
+  }
+
+  let selectedShiftId = null;
+  let editType = 'work';
+  let startH = '09', startM = '00', endH = '18', endM = '00', editSt = 'K';
+
+  function openShiftModal(id) {
+    selectedShiftId = id;
+    const s = shifts.find(x => x.id === id);
+    editType = s.type;
+    if (s.start) {
+      const parts = s.start.split(':');
+      startH = parts[0]; startM = parts[1];
+    }
+    if (s.end) {
+      const parts = s.end.split(':');
+      endH = parts[0]; endM = parts[1];
+    }
+    editSt = s.station || 'K';
+    
+    const modal = document.getElementById('shiftModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.style.opacity = '1';
+      modal.querySelector('.modal-content').style.transform = 'scale(1)';
+    }, 10);
+
+    const colors = getThemeColors();
+    document.getElementById('modalBg').style.backgroundColor = colors.bg;
+    updateShiftModalUI();
+
+    setTimeout(() => {
+      ['startHoursList', 'startMinutesList', 'endHoursList', 'endMinutesList'].forEach(id => {
+        const activeEl = document.querySelector(`#${id} .time-chip-v.active`);
+        if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+    }, 50);
+  }
+
+  function updateShiftModalUI() {
+    document.getElementById('btnWorkType').style.background = editType === 'work' ? '#f97316' : 'rgba(0,0,0,0.2)';
+    document.getElementById('btnOffType').style.background = editType === 'off' ? '#f97316' : 'rgba(0,0,0,0.2)';
+    document.getElementById('workShiftSettings').style.display = editType === 'work' ? 'block' : 'none';
+
+    const hours = Array.from({length: 24}, (_, i) => String(i).padStart(2,'0'));
+    const minutes = Array.from({length: 60}, (_, i) => String(i).padStart(2,'0'));
+
+    document.getElementById('startHoursList').innerHTML = hours.map(h => `<div class="time-chip-v ${startH===h?'active':''}" onclick="startH='${h}';updateShiftModalUI()">${h}</div>`).join('');
+    document.getElementById('startMinutesList').innerHTML = minutes.map(m => `<div class="time-chip-v ${startM===m?'active':''}" onclick="startM='${m}';updateShiftModalUI()">${m}</div>`).join('');
+
+    document.getElementById('endHoursList').innerHTML = hours.map(h => `<div class="time-chip-v ${endH===h?'active':''}" onclick="endH='${h}';updateShiftModalUI()">${h}</div>`).join('');
+    document.getElementById('endMinutesList').innerHTML = minutes.map(m => `<div class="time-chip-v ${endM===m?'active':''}" onclick="endM='${m}';updateShiftModalUI()">${m}</div>`).join('');
+
+    document.getElementById('stationsModalList').innerHTML = stationsList.map(st => `
+      <div style="padding: 6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; cursor:pointer; ${editSt===st.code?'border:2px solid '+st.color:''}" onclick="editSt='${st.code}';updateShiftModalUI()">
+        <span style="color:#fff; font-weight:bold; font-size:13px;">${st.code} — ${st.name}</span>
+      </div>
+    `).join('');
+  }
+
+  function setEditType(t) {
+    editType = t;
+    updateShiftModalUI();
+  }
+
+  function saveShiftModal() {
+    shifts = shifts.map(s => {
+      if (s.id === selectedShiftId) {
+        return {
+          ...s,
+          type: editType,
+          start: editType === 'work' ? `${startH}:${startM}` : '',
+          end: editType === 'work' ? `${endH}:${endM}` : '',
+          station: editType === 'work' ? editSt : ''
+        };
+      }
+      return s;
+    });
+    if (employee.code) {
+      localStorage.setItem(`app_shifts_${employee.code}`, JSON.stringify(shifts));
+    }
+    closeModal('shiftModal');
+    render();
+  }
+
+  function openBreakModal() {
+    const modal = document.getElementById('breakModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.style.opacity = '1';
+      modal.querySelector('.modal-content').style.transform = 'scale(1)';
+    }, 10);
+    const colors = getThemeColors();
+    document.getElementById('breakModalBg').style.backgroundColor = colors.bg;
+  }
+
+  function finishShiftWithBreak(breakMins) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    let currentShift = shifts.find(s => s.dateString === todayStr && s.type === 'work' && s.start && s.end);
+    if (!currentShift) {
+      currentShift = shifts.find(s => s.type === 'work' && s.start && s.end);
+    }
+
+    if (currentShift && currentShift.start && currentShift.end) {
+      const [sh, sm] = currentShift.start.split(':').map(Number);
+      const [eh, em] = currentShift.end.split(':').map(Number);
+      let diff = (eh * 60 + em) - (sh * 60 + sm);
+      if (diff < 0) diff += 24 * 60;
+      const workedMins = Math.max(0, diff - breakMins);
+      const shiftH = parseFloat((workedMins / 60).toFixed(2));
+      
+      workedHours = parseFloat((workedHours + shiftH).toFixed(1));
+      if (employee.code) {
+        localStorage.setItem(`app_worked_hours_${employee.code}`, JSON.stringify(workedHours));
+      }
+    }
+    shiftStarted = false;
+    closeModal('breakModal');
+    render();
+  }
+
+  function openHoursModal() {
+    const modal = document.getElementById('hoursModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.style.opacity = '1';
+      modal.querySelector('.modal-content').style.transform = 'scale(1)';
+    }, 10);
+    const colors = getThemeColors();
+    document.getElementById('hoursModalBg').style.backgroundColor = colors.bg;
+    document.getElementById('currentHoursText').innerText = `Текущее значение: ${workedHours} ч.`;
+  }
+
+  function saveCustomHours(val) {
+    if (val !== undefined) {
+      workedHours = val;
+    } else {
+      const inputVal = parseFloat(document.getElementById('customHoursInput').value);
+      if (!isNaN(inputVal)) {
+        workedHours = inputVal;
+      } else {
+        showCustomAlert('Ошибка', 'Введите корректное число', '❌');
+        return;
+      }
+    }
+    if (employee.code) {
+      localStorage.setItem(`app_worked_hours_${employee.code}`, JSON.stringify(workedHours));
+    }
+    closeModal('hoursModal');
+    render();
+  }
+
+  function closeModal(id) {
+    const modal = document.getElementById(id);
+    modal.style.opacity = '0';
+    modal.querySelector('.modal-content').style.transform = 'scale(0.92)';
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 300);
+  }
+
+  render();
+</script>
+
+</body>
+</html>
 
