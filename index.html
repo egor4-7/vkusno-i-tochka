@@ -86,7 +86,7 @@
     .card-time-text { font-size: calc(15px * var(--f-mult)); font-weight: 600; margin-top: 2px; color: #e2e8f0; }
     .info-text { font-size: calc(13px * var(--f-mult)); color: #f1f5f9; font-weight: 500; }
 
-    .dot-open { width: 8px; height: 8px; border-radius: 4px; background: #22c55e; margin-right: 6px; }
+    .dot-live { width: 8px; height: 8px; border-radius: 4px; margin-right: 6px; display: inline-block; }
     
     .site-button { background: #f97316; border-radius: 12px; padding: 12px; display: flex; justify-content: center; align-items: center; margin-top: 14px; cursor: pointer; text-decoration: none; color: #fff; font-weight: 600; font-size: calc(14px * var(--f-mult)); border: none; width: 100%; box-shadow: 0 4px 12px rgba(249,115,22,0.4); }
 
@@ -502,14 +502,14 @@
 </div>
 
 <script>
-  const APP_VERSION = '7.9';
-  const APP_CHANGELOG = 'Исправлен контраст тем: карточки всегда сохраняют красивый стеклянный темный вид поверх цветного фона.';
+  const APP_VERSION = '8.0';
+  const APP_CHANGELOG = 'Добавлен живой статус «Открыто» / «Закрыто» в реальном времени с автоматическим обновлением по часам работы (09:30 - 23:00).';
 
   // Регистрация Service Worker для офлайн-режима
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       const swCode = `
-        const CACHE_NAME = 'vkusno-schedule-v79';
+        const CACHE_NAME = 'vkusno-schedule-v80';
         self.addEventListener('install', e => {
           self.skipWaiting();
         });
@@ -684,6 +684,20 @@
       }
     });
     return foundEvent;
+  }
+
+  // Расчет живого статуса ресторана: Открыто (09:30 - 23:00) / Закрыто
+  function getRestaurantLiveStatus() {
+    const now = new Date();
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+    const openMins = 9 * 60 + 30; // 09:30
+    const closeMins = 23 * 60;  // 23:00
+
+    if (currentMins >= openMins && currentMins < closeMins) {
+      return { isOpen: true, text: 'Открыто', color: '#22c55e' };
+    } else {
+      return { isOpen: false, text: 'Закрыто', color: '#ef4444' };
+    }
   }
 
   function showUnavailableSiteModal() {
@@ -1257,6 +1271,7 @@
       const greetingName = isLoggedIn ? employee.firstName : 'Сотрудник';
       const codeInfo = isLoggedIn ? ` • № ${employee.code}` : '';
 
+      const liveStatus = getRestaurantLiveStatus();
       const bdayInfo = getUpcomingBirthdayInfo();
       let bdayBarHtml = '';
       if (bdayInfo) {
@@ -1307,8 +1322,8 @@
             <span class="info-text">г. Котельники, 1-й Покровский проезд, д. 4</span>
           </div>
           <div class="row-center" style="margin-top: 6px;">
-            <div class="dot-open"></div>
-            <span class="info-text" style="color: #22c55e; font-weight: 700;">Открыто</span>
+            <div class="dot-live" style="background: ${liveStatus.color}; box-shadow: 0 0 8px ${liveStatus.color};"></div>
+            <span class="info-text" style="color: ${liveStatus.color}; font-weight: 700;">${liveStatus.text}</span>
             <span class="info-text" style="margin-left: 6px;">09:30 — 23:00</span>
           </div>
           <div class="row-center" style="margin-top: 8px; cursor: pointer;" onclick="window.location.href='tel:+74952296869'">
@@ -1655,7 +1670,7 @@
         <div class="card" style="margin-top: 15px;">
           <div class="card-main-text" style="margin-bottom: 10px;">Версия v${APP_VERSION}</div>
           <ul style="padding-left: 18px; font-size: calc(13px * var(--f-mult)); margin-bottom: 12px; color: #e2e8f0;">
-            <li>Исправлено отображение тем: карточки и меню имеют красивый стеклянный контраст на любом фоне.</li>
+            <li>Добавлен живой статус «Открыто» / «Закрыто» в реальном времени с учетом графика работы ресторана.</li>
           </ul>
           <button class="primary-button" style="background: #0891b2; margin-top: 0; font-size: calc(13px * var(--f-mult)); padding: 10px;" onclick="checkBackgroundUpdate(true)">
             <i class="fa-solid fa-arrows-rotate" style="margin-right: 6px;"></i> Проверить обновление
